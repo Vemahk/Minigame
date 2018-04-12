@@ -14,7 +14,12 @@ public class Game {
 		HEIGHT = 512;
 		
 		land = new Land[WIDTH][HEIGHT];
-		land[0][0] = new Land(0, 0);
+		for(int x=0;x<WIDTH;x++) {
+			for(int y=0;y<HEIGHT;y++) {
+				if(Math.random() < .5)
+					land[x][y] = new Land(x, y);
+			}
+		}
 	}
 	
 	public int getWidth() {

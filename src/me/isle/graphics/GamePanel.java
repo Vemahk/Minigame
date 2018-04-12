@@ -6,18 +6,21 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import me.isle.Startup;
-
 public class GamePanel extends JPanel{
 
 	private final int WIDTH;
 	private final int HEIGHT;
+	
+	private final Camera camera;
 	
 	public GamePanel(int w, int h) {
 		super();
 		
 		this.WIDTH = w;
 		this.HEIGHT = h;
+		
+		camera = new Camera();
+		
 		
 		this.setBackground(Color.BLACK);
 	}
@@ -26,16 +29,17 @@ public class GamePanel extends JPanel{
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		//Just a test.
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, 100, 100);
-		
-		g.drawImage(Startup.game.getLand(0, 0).getImage(), 0, 0, this);
+		camera.drawVisible(g);
 	}
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(WIDTH, HEIGHT);
+		return new Dimension(WIDTH-10, HEIGHT-10);
+	}
+
+	public Camera getCamera() {
+		return camera;
 	}
 	
 }
+
