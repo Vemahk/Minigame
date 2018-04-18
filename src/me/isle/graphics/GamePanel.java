@@ -21,7 +21,6 @@ public class GamePanel extends JPanel{
 		
 		camera = new Camera();
 		
-		
 		this.setBackground(Color.BLACK);
 	}
 	
@@ -34,7 +33,7 @@ public class GamePanel extends JPanel{
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(WIDTH-10, HEIGHT-10);
+		return new Dimension(WIDTH, HEIGHT);
 	}
 
 	public Camera getCamera() {

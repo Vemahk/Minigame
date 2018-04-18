@@ -13,15 +13,8 @@ public class GraphicsThread extends Thread{
 		window = new GameWindow();
 		
 		while(true) {
-			
-			int xMove = window.getKeyListener().movementX();
-			int yMove = window.getKeyListener().movementY();
-			
-			window.getCamera().moveX(xMove * 3 / 30.0);
-			window.getCamera().moveY(yMove * 3 / 30.0);
-			
 			window.repaint();
-			
+			window.getCamera().follow(.05);
 			try {
 				Thread.sleep(33);
 			} catch (InterruptedException e) {
@@ -30,4 +23,7 @@ public class GraphicsThread extends Thread{
 		}
 	}
 	
+	public GameWindow getWindow() {
+		return window;
+	}
 }
