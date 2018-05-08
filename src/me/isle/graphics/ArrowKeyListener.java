@@ -12,6 +12,12 @@ public class ArrowKeyListener implements KeyListener{
 	boolean up = false;
 	boolean down = false;
 	
+	private boolean map = false;
+	
+	public boolean showMap() {
+		return map;
+	}
+	
 	public int movementX() {
 		return left ^ right ? (left ? -1 : 1) : 0;
 	}
@@ -38,6 +44,9 @@ public class ArrowKeyListener implements KeyListener{
 
 		if(key == KeyEvent.VK_F3)
 			Game.DEBUG_ACTIVE = !Game.DEBUG_ACTIVE;
+		
+		if(key == KeyEvent.VK_M)
+			map = !map;
 		//System.out.printf("Key %d pressed.%n", key);
 	}
 
@@ -61,5 +70,5 @@ public class ArrowKeyListener implements KeyListener{
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) { }
+	public void keyTyped(KeyEvent e) {}
 }

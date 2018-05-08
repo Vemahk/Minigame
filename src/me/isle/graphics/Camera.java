@@ -2,11 +2,12 @@ package me.isle.graphics;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import me.isle.Startup;
 import me.isle.game.Game;
+import me.isle.game.land.Land;
 import me.isle.game.objects.GameObject;
-import me.isle.game.objects.Land;
 import me.isle.resources.ResourceLoader;
 
 public class Camera {
@@ -20,13 +21,17 @@ public class Camera {
 	private double x;
 	private double y;
 	
+	private Map map;
+	
 	public Camera() {
-		x = Startup.game.getWidth()/2.0;
-		y = Startup.game.getHeight()/2.0;
+		x = Game.game.getPlayer().getX()/2;
+		y = Game.game.getPlayer().getY()/2;
 		
-		followType = 1;
+		followType = SMOOTH_FOLLOW;
 		
-		setTarget(Startup.game.getPlayer());
+		setTarget(Game.game.getPlayer());
+		
+		map = new Map(30);
 	}
 	
 	public void follow(double... param) {
@@ -64,24 +69,29 @@ public class Camera {
 	public void moveY(double dy) { y += dy; }
 	
 	public void drawVisible(Graphics g) {
+		
+		map.tick();
+		
+		if(Game.game.getKeyListener().showMap()) {
+			g.drawImage(map.getImage(), 0, 0, 500, 500, Startup.graphicsThread.getWindow());
+			return;
+		}
+		
 		int relX = (int)x;
 		int relY = (int)y;
 		
 		for(int dx = -5;dx<=5;dx++) {
 			if(dx + relX < 0) continue;
-			if(dx + relX >= Startup.game.getWidth()) break;
+			if(dx + relX >= Game.game.getWidth()) break;
 			for(int dy = -5;dy<=5;dy++) {
 				if(dy + relY < 0) continue;
-				if(dy + relY >= Startup.game.getHeight()) break;
+				if(dy + relY >= Game.game.getHeight()) break;
 				
 				int drawX = (int) Math.round((relX + dx - x) * 50 + 250);
 				int drawY = (int) Math.round((relY + dy - y) * 50 + 250);
-				Land work = Startup.game.getLand(relX + dx, relY + dy);
+				Land work = Game.game.getLand(relX + dx, relY + dy);
 				
-				if(work!=null)
-					g.drawImage(work.getImage(), drawX, drawY, null);
-				else g.drawImage(ResourceLoader.load("water.png"), drawX, drawY, null);
-				
+				g.drawImage(work.getImage(), drawX, drawY, null);
 				
 				if(Game.DEBUG_ACTIVE) {
 					g.setColor(Color.RED);
@@ -94,11 +104,13 @@ public class Camera {
 			for(GameObject go : GameObject.all) {
 				double dx = go.getX() - x;
 				double dy = go.getY() - y;
-				if(dx >= -6 && dx <= 5 && dy >= -6 && dx <= 5) {
-					int drawX = (int) Math.round(dx * 50 + 250);
-					int drawY = (int) Math.round(dy * 50 + 250);
+				if(dx >= -5.5 && dx <= 5.5 && dy >= -5.5 && dy <= 5.5) {
+					BufferedImage image = go.getImage();
+					int drawX = (int) Math.round(dx * 50 + 250) - image.getWidth()/2;
+					int drawY = (int) Math.round(dy * 50 + 250) - image.getHeight()/2;
 					
-					g.drawImage(go.getImage(), drawX, drawY, null);
+					
+					g.drawImage(image, drawX, drawY, null);
 				}
 			}
 		}

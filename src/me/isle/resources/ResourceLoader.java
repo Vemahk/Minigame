@@ -11,7 +11,7 @@ public class ResourceLoader {
 
 	public static HashMap<String, BufferedImage> images = new HashMap<>();
 	
-	public static BufferedImage load(String fileName) {
+	public static BufferedImage get(String fileName) {
 		if(images.containsKey(fileName))
 			return images.get(fileName);
 		

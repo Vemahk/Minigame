@@ -13,8 +13,10 @@ public class GraphicsThread extends Thread{
 		window = new GameWindow();
 		
 		while(true) {
-			window.repaint();
+			
 			window.getCamera().follow(.05);
+			window.repaint();
+			
 			try {
 				Thread.sleep(33);
 			} catch (InterruptedException e) {

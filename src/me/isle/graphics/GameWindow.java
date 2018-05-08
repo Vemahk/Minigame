@@ -1,11 +1,7 @@
 package me.isle.graphics;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
 import javax.swing.JFrame;
 
-import me.isle.Startup;
 import me.isle.game.Game;
 
 public class GameWindow extends JFrame{
@@ -16,7 +12,6 @@ public class GameWindow extends JFrame{
 		super("TBD");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		//TODO Add the panel.
 		this.add(panel = new GamePanel(500, 500));
 
 		this.setResizable(false);
@@ -24,7 +19,7 @@ public class GameWindow extends JFrame{
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 
-		this.addKeyListener(Startup.game.setKeyListener(new ArrowKeyListener()));
+		this.addKeyListener(Game.game.setKeyListener(new ArrowKeyListener()));
 		this.requestFocus();
 	}
 	

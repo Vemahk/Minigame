@@ -7,8 +7,6 @@ import me.isle.game.GameThread;
 import me.isle.graphics.GraphicsThread;
 
 public class Startup {
-
-	public static Game game;
 	
 	public static GraphicsThread graphicsThread;
 	public static GameThread gameThread;
@@ -21,7 +19,7 @@ public class Startup {
 		graphicsThread = new GraphicsThread();
 		gameThread = new GameThread(gTickrate);
 		
-		game = new Game();
+		Game.game = new Game();
 		
 		graphicsThread.start();
 		gameThread.start();
