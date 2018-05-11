@@ -5,7 +5,8 @@ import java.awt.image.BufferedImage;
 import me.isle.game.Game;
 import me.isle.game.land.Water;
 import me.isle.graphics.ArrowKeyListener;
-import me.isle.resources.ResourceLoader;
+import me.isle.graphics.Spritesheet;
+import me.isle.resources.ResourceManager;
 
 public class PlayerEntity extends Entity{
 	
@@ -17,13 +18,13 @@ public class PlayerEntity extends Entity{
 	}
 	
 	@Override
-	public String getResourcePath() {
-		return "player.png";
+	public Spritesheet getSpriteSheet() {
+		return ResourceManager.getSpritesheet("player.png");
 	}
 
 	@Override
 	public BufferedImage getImage() {
-		return ResourceLoader.get(getResourcePath());
+		return getSpriteSheet().getImage(0);
 	}
 
 	@Override

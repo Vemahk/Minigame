@@ -14,7 +14,11 @@ public class GraphicsThread extends Thread{
 		
 		while(true) {
 			
-			window.getCamera().follow(.05);
+			synchronized(Animation.all) {
+				for(Animation anim : Animation.all)
+					anim.tick();
+			}
+			
 			window.repaint();
 			
 			try {

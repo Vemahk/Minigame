@@ -32,26 +32,36 @@ public class Map {
 		if(++t == updateRate) {
 			t = 0;
 			
-			for(int x=0;x<map.getWidth();x++) {
-				for(int y=0;y<map.getHeight();y++) {
-					Land land = Game.game.getLand(x, y);
-					int rgb = 0xFFFF66;
+			PlayerEntity player = Game.game.getPlayer();
+			int px = (int) Math.round(player.getX());
+			int py = (int) Math.round(player.getY());
+			
+			for(int dx=-10;dx<=10;dx++) {
+				int x = px + dx;
+				if(x < 0) continue;
+				if(x >= 512) break;
+				for(int dy=-10;dy<=10;dy++) {
+					int y = py + dy;
+					if(y < 0) continue;
+					if(y >= 512) break;
 					
-					if(land instanceof Water) rgb = 0x0080FF;
-					else if(land instanceof Grass) rgb = 0x006600;
+					if(dx * dx + dy * dy >= 100)
+						continue;
+					
+					Land land = Game.game.getLand(x, y);
+					int rgb = 0xFFFF66; // Default: sand
+					
+					if(land instanceof Water) rgb = 0x0080FF; //light blue fo water
+					else if(land instanceof Grass) rgb = 0x006600; //darkish green for grass.
 					
 					map.setRGB(x, y, rgb);
 				}
 			}
 			
-			PlayerEntity player = Game.game.getPlayer();
-			int drX = (int)player.getX()-2;
-			int drY = (int)player.getY()-2;
-			
 			if(showPlayer = !showPlayer) {
 				Graphics g = map.getGraphics();
 				g.setColor(Color.RED);
-				g.fillOval(drX, drY, 5, 5);
+				g.fillOval(px-2, py-2, 5, 5);
 			}
 		}
 	}

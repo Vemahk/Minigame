@@ -8,7 +8,7 @@ import me.isle.Startup;
 import me.isle.game.Game;
 import me.isle.game.land.Land;
 import me.isle.game.objects.GameObject;
-import me.isle.resources.ResourceLoader;
+import me.isle.resources.ResourceManager;
 
 public class Camera {
 
@@ -34,7 +34,7 @@ public class Camera {
 		map = new Map(30);
 	}
 	
-	public void follow(double... param) {
+	public synchronized void follow(double... param) {
 		if(target == null)
 			return;
 		
@@ -62,13 +62,13 @@ public class Camera {
 	}
 
 	public void setTarget(GameObject go) { target = go; }
-	public void setX(double x) { this.x = x; }
-	public void setY(double y) { this.y = y; }
+	public synchronized void setX(double x) { this.x = x; }
+	public synchronized void setY(double y) { this.y = y; }
 	
 	public void moveX(double dx) { x += dx; }
 	public void moveY(double dy) { y += dy; }
 	
-	public void drawVisible(Graphics g) {
+	public synchronized void drawVisible(Graphics g) {
 		
 		map.tick();
 		

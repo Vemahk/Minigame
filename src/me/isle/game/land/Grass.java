@@ -2,7 +2,8 @@ package me.isle.game.land;
 
 import java.awt.image.BufferedImage;
 
-import me.isle.resources.ResourceLoader;
+import me.isle.graphics.Spritesheet;
+import me.isle.resources.ResourceManager;
 
 public class Grass extends Land{
 	
@@ -11,13 +12,13 @@ public class Grass extends Land{
 	}
 	
 	@Override
-	public String getResourcePath() {
-		return "grass.png";
+	public Spritesheet getSpriteSheet() {
+		return ResourceManager.getSpritesheet("land.png");
 	}
 
 	@Override
 	public BufferedImage getImage() {
-		return ResourceLoader.get(getResourcePath());
+		return getSpriteSheet().getImage(2);
 	}
 
 }

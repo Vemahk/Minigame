@@ -2,7 +2,8 @@ package me.isle.game.objects;
 
 import java.awt.image.BufferedImage;
 
-import me.isle.resources.ResourceLoader;
+import me.isle.graphics.Spritesheet;
+import me.isle.resources.ResourceManager;
 
 public class Tree extends GameObject{
 
@@ -11,13 +12,13 @@ public class Tree extends GameObject{
 	}
 
 	@Override
-	public String getResourcePath() {
-		return "tree.png";
+	public Spritesheet getSpriteSheet() {
+		return ResourceManager.getSpritesheet("tree.png");
 	}
 
 	@Override
 	public BufferedImage getImage() {
-		return ResourceLoader.get(getResourcePath());
+		return getSpriteSheet().getImage(0);
 	}
 
 	@Override

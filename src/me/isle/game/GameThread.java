@@ -1,6 +1,9 @@
 package me.isle.game;
 
+import me.isle.Startup;
 import me.isle.game.objects.GameObject;
+import me.isle.graphics.Camera;
+import me.isle.graphics.GameWindow;
 
 public class GameThread extends Thread{
 
@@ -18,6 +21,13 @@ public class GameThread extends Thread{
 			synchronized(GameObject.all) {
 				for(GameObject go : GameObject.all)
 					go.update(tickrate);
+			}
+			
+			GameWindow win = Startup.graphicsThread.getWindow();
+			if(win!=null) {
+				Camera cam = win.getCamera();
+				if(cam != null)
+					cam.follow(.05);
 			}
 			
 			try {

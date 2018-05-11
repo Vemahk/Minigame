@@ -3,7 +3,9 @@ package me.isle.game.land;
 import java.awt.image.BufferedImage;
 
 import me.isle.game.objects.Drawable;
-import me.isle.resources.ResourceLoader;
+import me.isle.graphics.Animation;
+import me.isle.graphics.Spritesheet;
+import me.isle.resources.ResourceManager;
 
 public class Land implements Drawable{
 	
@@ -19,12 +21,12 @@ public class Land implements Drawable{
 	public int getY() { return y; }
 	
 	@Override
-	public String getResourcePath() {
-		return "land.png";
+	public Spritesheet getSpriteSheet() {
+		return ResourceManager.getSpritesheet("land.png");
 	}
 	
 	@Override
 	public BufferedImage getImage() {
-		return ResourceLoader.get(getResourcePath());
+		return getSpriteSheet().getImage(1);
 	}
 }
