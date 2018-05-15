@@ -1,26 +1,31 @@
-package me.isle.game;
+package me.isle;
 
-import me.isle.Startup;
+import static me.isle.Logger.info;
+
 import me.isle.game.objects.GameObject;
 import me.isle.graphics.Camera;
 import me.isle.graphics.GameWindow;
 
 public class GameThread extends Thread{
 
-	private int tickrate;
+	private int ups; //ups --> Updates per Second
 	
 	public GameThread(int tickrate) {
 		super();
-		this.tickrate = tickrate;
+		this.ups = tickrate;
 	}
 	
 	@Override
 	public void run() {
+		info("Game Thread Started...");
+		
 		while(true) {
 			
+			long start = System.currentTimeMillis();
+
 			synchronized(GameObject.all) {
 				for(GameObject go : GameObject.all)
-					go.update(tickrate);
+					go.update(ups);
 			}
 			
 			GameWindow win = Startup.graphicsThread.getWindow();
@@ -30,8 +35,12 @@ public class GameThread extends Thread{
 					cam.follow(.05);
 			}
 			
+			long deltaTime = System.currentTimeMillis() - start;
+			long tickDelay = 1000/ups - deltaTime;
+			if(tickDelay<=0) continue;
+			
 			try {
-				Thread.sleep(1000/tickrate);
+				Thread.sleep(tickDelay);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

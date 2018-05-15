@@ -1,6 +1,6 @@
 package me.isle.resources;
 
-import static me.isle.Startup.info;
+import static me.isle.Logger.*;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -16,6 +16,8 @@ public class ResourceManager {
 
 	public static HashMap<String, Spritesheet> spritesheets = new HashMap<>();
 	
+	public static final int IMAGE_SIZE = 32;
+	
 	public static Spritesheet getSpritesheet(String fileName) {
 		if(spritesheets.containsKey(fileName))
 			return spritesheets.get(fileName);
@@ -25,22 +27,22 @@ public class ResourceManager {
 		try {
 			BufferedImage found = ImageIO.read(stream);
 			if(found == null)
-				System.err.printf("Failed to find item %s in resouces folder.", fileName);
+				warning("Failed to find item "+fileName+" in resouces folder.");
 			else {
-				if(found.getWidth()%50 != 0 || found.getHeight()%50 != 0)
+				if(found.getWidth()%IMAGE_SIZE != 0 || found.getHeight()%IMAGE_SIZE != 0)
 					info("Spritesheet "+ fileName +" has odd dimensions. Proceeding with caution.");
 				
-				int len = (found.getWidth()/50) * (found.getHeight()/50);
+				int len = (found.getWidth()/IMAGE_SIZE) * (found.getHeight()/IMAGE_SIZE);
 				Spritesheet out = new Spritesheet(len);
 				
-				for(int x=0;x<found.getWidth()/50;x++) {
-					for(int y=0;y<found.getHeight()/50;y++) {
-						BufferedImage subImage = new BufferedImage(50, 50, found.getType());
+				for(int x=0;x<found.getWidth()/IMAGE_SIZE;x++) {
+					for(int y=0;y<found.getHeight()/IMAGE_SIZE;y++) {
+						BufferedImage subImage = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, found.getType());
 						
 						Graphics g = subImage.getGraphics();
-						g.drawImage(found, -x*50, -y*50, null);
+						g.drawImage(found, -x*IMAGE_SIZE, -y*IMAGE_SIZE, null);
 						
-						int imageIndex = x + y*(found.getWidth()/50);
+						int imageIndex = x + y*(found.getWidth()/IMAGE_SIZE);
 						while(!out.setImage(imageIndex, subImage))
 							imageIndex++;
 					}

@@ -19,7 +19,7 @@ public class GamePanel extends JPanel{
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		
-		camera = new Camera();
+		camera = new Camera(w, h, 2);
 		
 		this.setBackground(Color.BLACK);
 	}

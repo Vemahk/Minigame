@@ -36,10 +36,10 @@ public class PlayerEntity extends Entity{
 		
 		double speedMod = 1;
 		if(x >= 0 && x < 512 && y >= 0 && y < 512)
-			if(Game.game.getLand((int)x, (int)y) instanceof Water)		
+			if(Game.game.getLandmass().isWater((int)x, (int)y))		
 				speedMod /= 3;
 		
-		if(Game.game.DEBUG_ACTIVE)
+		if(Game.DEBUG_ACTIVE)
 			speedMod *= 10;
 		
 		double rate = (double)tr;

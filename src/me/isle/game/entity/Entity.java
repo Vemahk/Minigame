@@ -10,7 +10,4 @@ public abstract class Entity extends GameObject{
 		super(x, y);
 		moveSpeed = 10.0;
 	}
-	
-	
-	
 }

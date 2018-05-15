@@ -9,10 +9,10 @@ public class GameWindow extends JFrame{
 	private GamePanel panel;
 	
 	public GameWindow() {
-		super("TBD");
+		super("Minigame");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		this.add(panel = new GamePanel(500, 500));
+		this.add(panel = new GamePanel(512, 512));
 
 		this.setResizable(false);
 		this.pack();

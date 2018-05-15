@@ -4,18 +4,20 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import me.isle.Startup;
 import me.isle.game.Game;
 import me.isle.game.entity.PlayerEntity;
 import me.isle.game.land.Grass;
 import me.isle.game.land.Land;
+import me.isle.game.land.Landmass;
 import me.isle.game.land.Water;
 
 public class Map {
 	
 	private BufferedImage map;
-	private int updateRate;
+	private double updateRate; //Update rate -- IN SECONDS
 	
-	public Map(int ur) {
+	public Map(double ur) {
 		updateRate = ur;
 		map = new BufferedImage(Game.game.getWidth(), Game.game.getHeight(), BufferedImage.TYPE_INT_RGB);
 		t = 0;
@@ -29,7 +31,7 @@ public class Map {
 	private boolean showPlayer = false;
 	
 	public void tick() {
-		if(++t == updateRate) {
+		if(++t >= updateRate * Startup.graphicsThread.getFPS()) {
 			t = 0;
 			
 			PlayerEntity player = Game.game.getPlayer();
@@ -48,11 +50,11 @@ public class Map {
 					if(dx * dx + dy * dy >= 100)
 						continue;
 					
-					Land land = Game.game.getLand(x, y);
+					Landmass lm = Game.game.getLandmass();
 					int rgb = 0xFFFF66; // Default: sand
 					
-					if(land instanceof Water) rgb = 0x0080FF; //light blue fo water
-					else if(land instanceof Grass) rgb = 0x006600; //darkish green for grass.
+					if(lm.isWater(x, y)) rgb = 0x0080FF; //light blue fo water
+					else if(lm.isGrass(x, y)) rgb = 0x006600; //darkish green for grass.
 					
 					map.setRGB(x, y, rgb);
 				}

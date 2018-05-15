@@ -17,21 +17,30 @@ public class Camera {
 	
 	private GameObject target;
 	private int followType;
+
+	private final int WIDTH;
+	private final int HEIGHT;
+	
+	private final int scale;
 	
 	private double x;
 	private double y;
 	
 	private Map map;
 	
-	public Camera() {
-		x = Game.game.getPlayer().getX()/2;
-		y = Game.game.getPlayer().getY()/2;
+	public Camera(int w, int h, int scale) {
+		x = Game.game.getPlayer().getX();
+		y = Game.game.getPlayer().getY();
+		
+		this.WIDTH = w;
+		this.HEIGHT = h;
+		this.scale = scale;
 		
 		followType = SMOOTH_FOLLOW;
 		
 		setTarget(Game.game.getPlayer());
 		
-		map = new Map(30);
+		map = new Map(1.0); //Update the map every 1.0 seconds
 	}
 	
 	public synchronized void follow(double... param) {
@@ -73,25 +82,28 @@ public class Camera {
 		map.tick();
 		
 		if(Game.game.getKeyListener().showMap()) {
-			g.drawImage(map.getImage(), 0, 0, 500, 500, Startup.graphicsThread.getWindow());
+			g.drawImage(map.getImage(), 0, 0, WIDTH, HEIGHT, Startup.graphicsThread.getWindow());
 			return;
 		}
+		
+		int TIS = ResourceManager.IMAGE_SIZE * scale; //TIS --> True Image Size
+		int DR = Math.max(WIDTH, HEIGHT) / TIS / 2; //DR --> Display Radius
 		
 		int relX = (int)x;
 		int relY = (int)y;
 		
-		for(int dx = -5;dx<=5;dx++) {
+		for(int dx = -DR;dx<=DR;dx++) {
 			if(dx + relX < 0) continue;
 			if(dx + relX >= Game.game.getWidth()) break;
-			for(int dy = -5;dy<=5;dy++) {
+			for(int dy = -DR;dy<=DR;dy++) {
 				if(dy + relY < 0) continue;
 				if(dy + relY >= Game.game.getHeight()) break;
 				
-				int drawX = (int) Math.round((relX + dx - x) * 50 + 250);
-				int drawY = (int) Math.round((relY + dy - y) * 50 + 250);
-				Land work = Game.game.getLand(relX + dx, relY + dy);
+				int drawX = (int) Math.round((relX + dx - x) * TIS + WIDTH/2);
+				int drawY = (int) Math.round((relY + dy - y) * TIS + HEIGHT/2);
+				Land work = Game.game.getLandmass().getLand(relX + dx, relY + dy);
 				
-				g.drawImage(work.getImage(), drawX, drawY, null);
+				g.drawImage(work.getImage(), drawX, drawY, TIS, TIS, null);
 				
 				if(Game.DEBUG_ACTIVE) {
 					g.setColor(Color.RED);
@@ -100,17 +112,17 @@ public class Camera {
 			}
 		}
 		
+		double dDR = DR + .5; //dDR --> double Display Radius
 		synchronized(GameObject.all) {
 			for(GameObject go : GameObject.all) {
 				double dx = go.getX() - x;
 				double dy = go.getY() - y;
-				if(dx >= -5.5 && dx <= 5.5 && dy >= -5.5 && dy <= 5.5) {
+				if(dx >= -dDR && dx <= dDR && dy >= -dDR && dy <= dDR) {
 					BufferedImage image = go.getImage();
-					int drawX = (int) Math.round(dx * 50 + 250) - image.getWidth()/2;
-					int drawY = (int) Math.round(dy * 50 + 250) - image.getHeight()/2;
+					int drawX = (int) Math.round(dx * TIS + WIDTH/2) - image.getWidth() / 2 * scale;
+					int drawY = (int) Math.round(dy * TIS + HEIGHT/2) - image.getHeight() / 2 * scale;
 					
-					
-					g.drawImage(image, drawX, drawY, null);
+					g.drawImage(image, drawX, drawY, TIS, TIS, null);
 				}
 			}
 		}
@@ -123,5 +135,4 @@ public class Camera {
 	public double getY() {
 		return y;
 	}
-	
 }

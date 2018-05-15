@@ -1,6 +1,6 @@
 package me.isle.graphics;
 
-import static me.isle.Startup.info;
+import static me.isle.Logger.info;
 
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
