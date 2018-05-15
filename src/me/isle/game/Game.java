@@ -2,14 +2,10 @@ package me.isle.game;
 
 import java.util.Random;
 
-import gustavson.simplex.SimplexNoise;
 import me.isle.game.entity.PlayerEntity;
-import me.isle.game.land.Grass;
-import me.isle.game.land.Land;
 import me.isle.game.land.Landmass;
-import me.isle.game.land.Water;
 import me.isle.game.objects.GameObject;
-import me.isle.game.objects.Tree;
+import me.isle.game.physics.BoxCollider;
 import me.isle.graphics.ArrowKeyListener;
 
 public class Game {
@@ -36,6 +32,8 @@ public class Game {
 		}
 		
 		player = (PlayerEntity) GameObject.instantiate(new PlayerEntity(x, y));
+		player.givePhysicsBody(2.5);
+		player.setCollider(1, 1);
 	}
 	
 	public int getWidth() { return landmass.getWidth(); }

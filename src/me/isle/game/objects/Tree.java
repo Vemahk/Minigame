@@ -22,5 +22,7 @@ public class Tree extends GameObject{
 	}
 
 	@Override
-	public void update(int tr) {}
+	public void update(int tr) {
+		super.update(tr);
+	}
 }

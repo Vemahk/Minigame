@@ -5,6 +5,8 @@ import me.isle.graphics.Animation;
 import me.isle.graphics.GameWindow;
 
 public class GraphicsThread extends Thread{
+
+	public static double deltaTime; //TODO Implement Delta-time
 	
 	private GameWindow window;
 	private int fps;

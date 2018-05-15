@@ -41,11 +41,11 @@ public class Map {
 			for(int dx=-10;dx<=10;dx++) {
 				int x = px + dx;
 				if(x < 0) continue;
-				if(x >= 512) break;
+				if(x >= Game.game.getWidth()) break;
 				for(int dy=-10;dy<=10;dy++) {
 					int y = py + dy;
 					if(y < 0) continue;
-					if(y >= 512) break;
+					if(y >= Game.game.getHeight()) break;
 					
 					if(dx * dx + dy * dy >= 100)
 						continue;

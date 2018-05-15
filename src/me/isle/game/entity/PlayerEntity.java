@@ -3,7 +3,7 @@ package me.isle.game.entity;
 import java.awt.image.BufferedImage;
 
 import me.isle.game.Game;
-import me.isle.game.land.Water;
+import me.isle.game.physics.Vector;
 import me.isle.graphics.ArrowKeyListener;
 import me.isle.graphics.Spritesheet;
 import me.isle.resources.ResourceManager;
@@ -29,21 +29,25 @@ public class PlayerEntity extends Entity{
 
 	@Override
 	public void update(int tr) {
+		super.update(tr);
+		
 		ArrowKeyListener akl = Game.game.getKeyListener();
 		
 		int xMove = akl == null ? 0 : akl.movementX();
 		int yMove = akl == null ? 0 : akl.movementY();
 		
 		double speedMod = 1;
-		if(x >= 0 && x < 512 && y >= 0 && y < 512)
+		if(x >= 0 && x < Game.game.getWidth() && y >= 0 && y < Game.game.getHeight())
 			if(Game.game.getLandmass().isWater((int)x, (int)y))		
-				speedMod /= 3;
+				this.pBody.setFrictionMod(3);
+			else this.pBody.setFrictionMod(1);
 		
 		if(Game.DEBUG_ACTIVE)
 			speedMod *= 10;
 		
-		double rate = (double)tr;
-		this.moveBy(xMove * speed * speedMod / rate, yMove * speed * speedMod / rate);
+		double Fx = xMove * speed * speedMod;
+		double Fy = yMove * speed * speedMod;
+		this.pBody.applyForce(new Vector(Fx, Fy));
 	}
 
 }

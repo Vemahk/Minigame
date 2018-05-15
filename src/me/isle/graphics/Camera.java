@@ -8,6 +8,7 @@ import me.isle.Startup;
 import me.isle.game.Game;
 import me.isle.game.land.Land;
 import me.isle.game.objects.GameObject;
+import me.isle.game.physics.BoxCollider;
 import me.isle.resources.ResourceManager;
 
 public class Camera {
@@ -123,6 +124,15 @@ public class Camera {
 					int drawY = (int) Math.round(dy * TIS + HEIGHT/2) - image.getHeight() / 2 * scale;
 					
 					g.drawImage(image, drawX, drawY, TIS, TIS, null);
+					
+					if(Game.DEBUG_ACTIVE && go.hasCollider()) {
+						BoxCollider c = (BoxCollider) go.getCollider();
+						g.setColor(Color.GREEN);
+						
+						int w = (int) Math.round(c.getWidth() * TIS);
+						int h = (int) Math.round(c.getHeight() * TIS);
+						g.drawRect(drawX + TIS/2 - w / 2, drawY + TIS/2 - h / 2, w, h);
+					}
 				}
 			}
 		}

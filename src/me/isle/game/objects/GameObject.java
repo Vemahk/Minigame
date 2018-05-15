@@ -1,6 +1,11 @@
 package me.isle.game.objects;
 
+import java.util.HashSet;
 import java.util.TreeSet;
+
+import me.isle.game.physics.BoxCollider;
+import me.isle.game.physics.Collider;
+import me.isle.game.physics.PhysicsBody;
 
 public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	
@@ -14,14 +19,53 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 		return go;
 	}
 	
+	public static HashSet<GameObject> queuedToDestroy = new HashSet<>();
+	public static boolean destroy(GameObject go) {
+		if(!all.contains(go)) return false;
+		
+		queuedToDestroy.add(go);
+		return true;
+	}
+	
 	protected double x;
 	protected double y;
 	
 	protected double z;
 	
+	protected PhysicsBody pBody;
+	protected Collider collider;
+	
 	public GameObject(double x, double y) {
 		setPos(x, y);
 		setZ(0);
+	}
+	
+	public PhysicsBody givePhysicsBody() {
+		return givePhysicsBody(1);
+	}
+	
+	public PhysicsBody givePhysicsBody(double mass) {
+		return pBody = new PhysicsBody(this).setMass(mass);
+	}
+	
+	public GameObject setCollider(double w, double h) {
+		this.collider = new BoxCollider(this, w, h);
+		return this;
+	}
+	
+	public boolean hasCollider() { return collider != null; }
+	
+	public boolean hasCollidedWith(GameObject go) {
+		return collider.collidedWith(go.collider);
+	}
+	
+	public Collider getCollider() { return collider; }
+	
+	public boolean withinDistanceOf(GameObject o, double dist) {
+		double dx = x - o.x;
+		double dy = y - o.y;
+		
+		return dx * dx + dy * dy <= dist * dist;
 	}
 	
 	public double getX() { return x; }
@@ -42,7 +86,10 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 		this.y += y;
 	}
 	
-	public abstract void update(int tr);
+	public void update(int tr) {
+		if(pBody != null)
+			pBody.update(tr);
+	}
 	
 	public int compareTo(GameObject o) {
 		if(z == o.z)

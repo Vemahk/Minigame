@@ -6,6 +6,7 @@ import gustavson.simplex.SimplexNoise;
 import me.isle.game.Game;
 import me.isle.game.objects.GameObject;
 import me.isle.game.objects.Tree;
+import me.isle.game.physics.BoxCollider;
 
 public class Landmass {
 
@@ -32,7 +33,7 @@ public class Landmass {
 		for(int x=0;x<WIDTH;x++) {
 			for(int y=0;y<HEIGHT;y++) {
 				if(res[x][y] >= .55 && Math.random()<.2)
-					GameObject.instantiate(new Tree(x+.5, y+.5).setZ(1));
+					GameObject.instantiate(new Tree(x+.5, y+.5).setZ(1).setCollider(.9, .9));
 				if(res[x][y] >= .52)
 					land[x][y] = new Grass(x, y);
 				else if(res[x][y] >= .5)
