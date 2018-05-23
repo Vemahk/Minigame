@@ -24,6 +24,7 @@ public class Startup {
 		gameThread = new GameThread(ups);
 		
 		Game.game = new Game(BOARD_WIDTH, BOARD_HEIGHT);
+		Game.game.build();
 		
 		graphicsThread.start();
 		gameThread.start();

@@ -1,31 +1,32 @@
 package me.isle.game.objects;
 
 import java.util.HashSet;
-import java.util.TreeSet;
 
+import me.isle.game.Game;
 import me.isle.game.physics.BoxCollider;
 import me.isle.game.physics.Collider;
 import me.isle.game.physics.PhysicsBody;
+import me.isle.game.world.Chunk;
 
 public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	
-	public static TreeSet<GameObject> all = new TreeSet<>();
+	public static HashSet<ChunkLoader> chunkLoaders = new HashSet<>();
 	
 	public static GameObject instantiate(GameObject go) {
-		synchronized(all) {
-			all.add(go);
+		go.getPresumedChunk().addObject(go);
+		if(go instanceof ChunkLoader) {
+			chunkLoaders.add((ChunkLoader)go);
 		}
-		
 		return go;
 	}
 	
 	public static HashSet<GameObject> queuedToDestroy = new HashSet<>();
 	public static boolean destroy(GameObject go) {
-		if(!all.contains(go)) return false;
-		
 		queuedToDestroy.add(go);
 		return true;
 	}
+	
+	private Chunk chunk;
 	
 	protected double x;
 	protected double y;
@@ -89,6 +90,10 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	public void update(int tr) {
 		if(pBody != null)
 			pBody.update(tr);
+		
+		Chunk nChunk = getPresumedChunk();
+		if(getAssignedChunk() != nChunk)
+			nChunk.transferObject(chunk, this);
 	}
 	
 	public int compareTo(GameObject o) {
@@ -96,5 +101,20 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 			return this.hashCode() - o.hashCode();
 		
 		return (int)Math.signum(z - o.z);
+	}
+	
+	public GameObject setChunk(Chunk c) {
+		this.chunk = c;
+		return this;
+	}
+	
+	public Chunk getAssignedChunk() {
+		return chunk;
+	}
+	
+	public Chunk getPresumedChunk() {
+		int px = (int)(x/16);
+		int py = (int)(y/16);
+		return Game.game.getWorld().getChunk(px, py);
 	}
 }

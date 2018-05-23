@@ -7,10 +7,10 @@ import java.awt.image.BufferedImage;
 import me.isle.Startup;
 import me.isle.game.Game;
 import me.isle.game.entity.PlayerEntity;
-import me.isle.game.land.Grass;
-import me.isle.game.land.Land;
-import me.isle.game.land.Landmass;
-import me.isle.game.land.Water;
+import me.isle.game.world.Grass;
+import me.isle.game.world.Land;
+import me.isle.game.world.World;
+import me.isle.game.world.Water;
 
 public class Map {
 	
@@ -50,7 +50,7 @@ public class Map {
 					if(dx * dx + dy * dy >= 100)
 						continue;
 					
-					Landmass lm = Game.game.getLandmass();
+					World lm = Game.game.getWorld();
 					int rgb = 0xFFFF66; // Default: sand
 					
 					if(lm.isWater(x, y)) rgb = 0x0080FF; //light blue fo water

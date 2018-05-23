@@ -3,12 +3,15 @@ package me.isle.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.TreeSet;
 
 import me.isle.Startup;
 import me.isle.game.Game;
-import me.isle.game.land.Land;
 import me.isle.game.objects.GameObject;
 import me.isle.game.physics.BoxCollider;
+import me.isle.game.world.Chunk;
+import me.isle.game.world.Land;
 import me.isle.resources.ResourceManager;
 
 public class Camera {
@@ -80,6 +83,7 @@ public class Camera {
 	
 	public synchronized void drawVisible(Graphics g) {
 		
+		//Draw Map
 		map.tick();
 		
 		if(Game.game.getKeyListener().showMap()) {
@@ -87,6 +91,7 @@ public class Camera {
 			return;
 		}
 		
+		//Draw Land
 		int TIS = ResourceManager.IMAGE_SIZE * scale; //TIS --> True Image Size
 		int DR = Math.max(WIDTH, HEIGHT) / TIS / 2; //DR --> Display Radius
 		
@@ -102,7 +107,7 @@ public class Camera {
 				
 				int drawX = (int) Math.round((relX + dx - x) * TIS + WIDTH/2);
 				int drawY = (int) Math.round((relY + dy - y) * TIS + HEIGHT/2);
-				Land work = Game.game.getLandmass().getLand(relX + dx, relY + dy);
+				Land work = Game.game.getWorld().getLand(relX + dx, relY + dy);
 				
 				g.drawImage(work.getImage(), drawX, drawY, TIS, TIS, null);
 				
@@ -112,31 +117,39 @@ public class Camera {
 				}
 			}
 		}
-		
+
+		//Draw Objects
 		double dDR = DR + .5; //dDR --> double Display Radius
-		synchronized(GameObject.all) {
-			for(GameObject go : GameObject.all) {
-				double dx = go.getX() - x;
-				double dy = go.getY() - y;
-				if(dx >= -dDR && dx <= dDR && dy >= -dDR && dy <= dDR) {
-					BufferedImage image = go.getImage();
-					int drawX = (int) Math.round(dx * TIS + WIDTH/2) - image.getWidth() / 2 * scale;
-					int drawY = (int) Math.round(dy * TIS + HEIGHT/2) - image.getHeight() / 2 * scale;
-					
-					g.drawImage(image, drawX, drawY, TIS, TIS, null);
-					
-					if(Game.DEBUG_ACTIVE && go.hasCollider()) {
-						BoxCollider c = (BoxCollider) go.getCollider();
-						g.setColor(Color.GREEN);
-						
-						int w = (int) Math.round(c.getWidth() * TIS);
-						int h = (int) Math.round(c.getHeight() * TIS);
-						g.drawRect(drawX + TIS/2 - w / 2, drawY + TIS/2 - h / 2, w, h);
+		
+		HashSet<Chunk> loaded = Game.game.getWorld().getLoadedChunks();
+		synchronized(loaded) {
+			for(Chunk c : loaded) {
+				TreeSet<GameObject> objs = c.getObjects();
+				synchronized(objs) {
+					for(GameObject go : objs) {
+						double dx = go.getX() - x;
+						double dy = go.getY() - y;
+						if(dx >= -dDR && dx <= dDR && dy >= -dDR && dy <= dDR) {
+							BufferedImage image = go.getImage();
+							int drawX = (int) Math.round(dx * TIS + WIDTH/2) - image.getWidth() / 2 * scale;
+							int drawY = (int) Math.round(dy * TIS + HEIGHT/2) - image.getHeight() / 2 * scale;
+							
+							g.drawImage(image, drawX, drawY, TIS, TIS, null);
+							
+							if(Game.DEBUG_ACTIVE && go.hasCollider()) {
+								BoxCollider coll = (BoxCollider) go.getCollider();
+								g.setColor(Color.GREEN);
+								
+								int w = (int) Math.round(coll.getWidth() * TIS);
+								int h = (int) Math.round(coll.getHeight() * TIS);
+								g.drawRect(drawX + TIS/2 - w / 2, drawY + TIS/2 - h / 2, w, h);
+							}
+						}
 					}
 				}
 			}
 		}
-	}
+	} //Draw visible end
 	
 	public double getX() {
 		return x;

@@ -3,12 +3,14 @@ package me.isle.game.entity;
 import java.awt.image.BufferedImage;
 
 import me.isle.game.Game;
+import me.isle.game.objects.ChunkLoader;
 import me.isle.game.physics.Vector;
+import me.isle.game.world.World;
 import me.isle.graphics.ArrowKeyListener;
 import me.isle.graphics.Spritesheet;
 import me.isle.resources.ResourceManager;
 
-public class PlayerEntity extends Entity{
+public class PlayerEntity extends Entity implements ChunkLoader{
 	
 	private double speed;
 	
@@ -21,12 +23,12 @@ public class PlayerEntity extends Entity{
 	public Spritesheet getSpriteSheet() {
 		return ResourceManager.getSpritesheet("player.png");
 	}
-
+	
 	@Override
 	public BufferedImage getImage() {
 		return getSpriteSheet().getImage(0);
 	}
-
+	
 	@Override
 	public void update(int tr) {
 		super.update(tr);
@@ -38,7 +40,7 @@ public class PlayerEntity extends Entity{
 		
 		double speedMod = 1;
 		if(x >= 0 && x < Game.game.getWidth() && y >= 0 && y < Game.game.getHeight())
-			if(Game.game.getLandmass().isWater((int)x, (int)y))		
+			if(Game.game.getWorld().isWater((int)x, (int)y))		
 				this.pBody.setFrictionMod(3);
 			else this.pBody.setFrictionMod(1);
 		
@@ -49,5 +51,6 @@ public class PlayerEntity extends Entity{
 		double Fy = yMove * speed * speedMod;
 		this.pBody.applyForce(new Vector(Fx, Fy));
 	}
-
+	
+	public int chunkRadius() { return 1; }
 }

@@ -1,4 +1,4 @@
-package me.isle.game.land;
+package me.isle.game.world;
 
 import java.awt.image.BufferedImage;
 

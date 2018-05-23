@@ -1,13 +1,13 @@
-package me.isle.game.land;
+package me.isle.game.world;
 
 import java.awt.image.BufferedImage;
 
 import me.isle.graphics.Spritesheet;
 import me.isle.resources.ResourceManager;
 
-public class Water extends Land{
+public class Sand extends Land{
 
-	public Water(int x, int y) {
+	public Sand(int x, int y) {
 		super(x, y);
 	}
 	
@@ -18,7 +18,6 @@ public class Water extends Land{
 	
 	@Override
 	public BufferedImage getImage() {
-		return getSpriteSheet().getImage(0);
+		return getSpriteSheet().getImage(1);
 	}
-
 }

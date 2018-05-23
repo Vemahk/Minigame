@@ -3,9 +3,9 @@ package me.isle.game;
 import java.util.Random;
 
 import me.isle.game.entity.PlayerEntity;
-import me.isle.game.land.Landmass;
 import me.isle.game.objects.GameObject;
 import me.isle.game.physics.BoxCollider;
+import me.isle.game.world.World;
 import me.isle.graphics.ArrowKeyListener;
 
 public class Game {
@@ -14,19 +14,24 @@ public class Game {
 	public static Game game;
 	public static Random rand = new Random();
 	
-	private Landmass landmass;
+	private World world;
 	
 	private ArrowKeyListener akl;
 	
 	private PlayerEntity player;
 	
 	public Game(int w, int h) {
+		world = new World(w, h);
+	}
+	
+	public void build() {
+		world.build();
 		
-		landmass = new Landmass(w, h);
-		
+		int w = world.getWidth();
+		int h = world.getHeight();
 		int x = w / 4 + rand.nextInt(w / 2);
 		int y = h / 4 + rand.nextInt(h / 2);
-		while(landmass.isWater(x, y)) {
+		while(world.isWater(x, y)) {
 			x = w/4 + rand.nextInt(w/2);
 			y = h/4 + rand.nextInt(h/2);
 		}
@@ -36,10 +41,10 @@ public class Game {
 		player.setCollider(1, 1);
 	}
 	
-	public int getWidth() { return landmass.getWidth(); }
-	public int getHeight() { return landmass.getHeight(); }
+	public int getWidth() { return world.getWidth(); }
+	public int getHeight() { return world.getHeight(); }
 	
-	public Landmass getLandmass() { return landmass; }
+	public World getWorld() { return world; }
 	public PlayerEntity getPlayer() { return player; }
 	
 	public ArrowKeyListener getKeyListener() {
