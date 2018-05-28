@@ -1,9 +1,7 @@
-package me.isle.graphics;
+package me.isle.game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
-import me.isle.game.Game;
 
 public class ArrowKeyListener implements KeyListener{
 	boolean left = false;

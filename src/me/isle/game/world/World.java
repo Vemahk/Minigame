@@ -87,6 +87,10 @@ public class World {
 	}
 	
 	public Chunk getChunk(int cx, int cy) {
+		
+		if(cx < 0 || cx >= chunks.length || cy < 0 || cy >= chunks[cx].length)
+			return null;
+		
 		return chunks[cx][cy];
 	}
 }

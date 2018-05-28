@@ -14,9 +14,8 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	
 	public static GameObject instantiate(GameObject go) {
 		go.getPresumedChunk().addObject(go);
-		if(go instanceof ChunkLoader) {
+		if(go instanceof ChunkLoader)
 			chunkLoaders.add((ChunkLoader)go);
-		}
 		return go;
 	}
 	
@@ -30,7 +29,6 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	
 	protected double x;
 	protected double y;
-	
 	protected double z;
 	
 	protected PhysicsBody pBody;
@@ -92,8 +90,8 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 			pBody.update(tr);
 		
 		Chunk nChunk = getPresumedChunk();
-		if(getAssignedChunk() != nChunk)
-			nChunk.transferObject(chunk, this);
+		if(chunk != nChunk)
+			chunk.queueTransfer(nChunk, this);
 	}
 	
 	public int compareTo(GameObject o) {

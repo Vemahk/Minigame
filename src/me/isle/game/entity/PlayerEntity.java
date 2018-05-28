@@ -2,11 +2,11 @@ package me.isle.game.entity;
 
 import java.awt.image.BufferedImage;
 
+import me.isle.game.ArrowKeyListener;
 import me.isle.game.Game;
 import me.isle.game.objects.ChunkLoader;
 import me.isle.game.physics.Vector;
 import me.isle.game.world.World;
-import me.isle.graphics.ArrowKeyListener;
 import me.isle.graphics.Spritesheet;
 import me.isle.resources.ResourceManager;
 

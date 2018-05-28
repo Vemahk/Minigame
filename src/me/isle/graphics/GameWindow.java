@@ -2,6 +2,7 @@ package me.isle.graphics;
 
 import javax.swing.JFrame;
 
+import me.isle.game.ArrowKeyListener;
 import me.isle.game.Game;
 
 public class GameWindow extends JFrame{

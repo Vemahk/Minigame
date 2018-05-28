@@ -2,6 +2,7 @@ package me.isle.game.world;
 
 import java.util.TreeSet;
 
+import me.isle.Startup;
 import me.isle.game.objects.GameObject;
 
 public class Chunk {
@@ -55,12 +56,8 @@ public class Chunk {
 		}
 	}
 	
-	public boolean transferObject(Chunk from, GameObject go) {
-		if(from.removeObject(go)) {
-			addObject(go);
-			return true;
-		}
-		return false;
+	public void queueTransfer(Chunk to, GameObject go) {
+		Startup.gameThread.queueChunkTransfer(new ChunkQueue(this, to, go));
 	}
 	
 	public Land getLand(int x, int y) {

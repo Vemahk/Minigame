@@ -3,20 +3,21 @@ package me.isle.game;
 import java.util.Random;
 
 import me.isle.game.entity.PlayerEntity;
+import me.isle.game.event.CollisionListener;
+import me.isle.game.event.EventHandler;
 import me.isle.game.objects.GameObject;
-import me.isle.game.physics.BoxCollider;
 import me.isle.game.world.World;
-import me.isle.graphics.ArrowKeyListener;
 
 public class Game {
 
-	public static boolean DEBUG_ACTIVE = false;
+	public static boolean DEBUG_ACTIVE = true;
 	public static Game game;
 	public static Random rand = new Random();
 	
 	private World world;
 	
 	private ArrowKeyListener akl;
+	private EventHandler events;
 	
 	private PlayerEntity player;
 	
@@ -39,6 +40,9 @@ public class Game {
 		player = (PlayerEntity) GameObject.instantiate(new PlayerEntity(x, y));
 		player.givePhysicsBody(2.5);
 		player.setCollider(1, 1);
+		
+		events = new EventHandler();
+		events.registerListener(new CollisionListener());
 	}
 	
 	public int getWidth() { return world.getWidth(); }
@@ -54,5 +58,9 @@ public class Game {
 	public ArrowKeyListener setKeyListener(ArrowKeyListener akl) {
 		this.akl = akl;
 		return akl;
+	}
+	
+	public EventHandler getEventHandler() {
+		return events;
 	}
 }
