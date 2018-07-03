@@ -1,12 +1,16 @@
 package me.isle.graphics;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+import javax.swing.JPanel;
+
 import me.isle.Startup;
+import me.isle.game.ArrowKeyListener;
 import me.isle.game.Game;
 import me.isle.game.objects.GameObject;
 import me.isle.game.physics.BoxCollider;
@@ -14,7 +18,7 @@ import me.isle.game.world.Chunk;
 import me.isle.game.world.Land;
 import me.isle.resources.ResourceManager;
 
-public class Camera {
+public class Camera extends JPanel{
 
 	public static int SMOOTH_FOLLOW = 1;
 	public static int RIGID_FOLLOW = 2;;
@@ -33,18 +37,14 @@ public class Camera {
 	private Map map;
 	
 	public Camera(int w, int h, int scale) {
-		x = Game.game.getPlayer().getX();
-		y = Game.game.getPlayer().getY();
+		this.setBackground(Color.BLACK);
+		x = y = 0;
 		
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		this.scale = scale;
 		
 		followType = SMOOTH_FOLLOW;
-		
-		setTarget(Game.game.getPlayer());
-		
-		map = new Map(1.0); //Update the map every 1.0 seconds
 	}
 	
 	public synchronized void follow(double... param) {
@@ -52,8 +52,7 @@ public class Camera {
 			return;
 		
 		if(followType == RIGID_FOLLOW) {
-			setX(target.getX());
-			setY(target.getY());
+			setPos(target.getX(), target.getY());
 		}else if(followType == SMOOTH_FOLLOW) {
 			double damping = .1;
 			if(param.length > 0)
@@ -74,20 +73,44 @@ public class Camera {
 		}
 	}
 
-	public void setTarget(GameObject go) { target = go; }
+	public void setTarget(GameObject go) {
+		setTarget(go, false);
+	}
+	
+	public void setTarget(GameObject go, boolean snapToTarget) {
+		if(snapToTarget) 
+			setPos(go.getX(), go.getY());
+		target = go;
+	}
+	
 	public synchronized void setX(double x) { this.x = x; }
 	public synchronized void setY(double y) { this.y = y; }
+	
+	public synchronized void setPos(double x, double y) {
+		setX(x); setY(y);
+	}
 	
 	public void moveX(double dx) { x += dx; }
 	public void moveY(double dy) { y += dy; }
 	
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		drawVisible(g);
+	}
+	
 	public synchronized void drawVisible(Graphics g) {
+		if(!Game.initialized)
+			return;
+		
+		if(map == null)
+			map = new Map(1.0); //Update the map every 1.0 seconds
 		
 		//Draw Map
 		map.tick();
 		
-		if(Game.game.getKeyListener().showMap()) {
-			g.drawImage(map.getImage(), 0, 0, WIDTH, HEIGHT, Startup.graphicsThread.getWindow());
+		if(Game.getKeyListener().showMap()) {
+			g.drawImage(map.getImage(), 0, 0, WIDTH, HEIGHT, this);
 			return;
 		}
 		
@@ -100,14 +123,14 @@ public class Camera {
 		
 		for(int dx = -DR;dx<=DR;dx++) {
 			if(dx + relX < 0) continue;
-			if(dx + relX >= Game.game.getWidth()) break;
+			if(dx + relX >= Game.getWidth()) break;
 			for(int dy = -DR;dy<=DR;dy++) {
 				if(dy + relY < 0) continue;
-				if(dy + relY >= Game.game.getHeight()) break;
+				if(dy + relY >= Game.getHeight()) break;
 				
 				int drawX = (int) Math.round((relX + dx - x) * TIS + WIDTH/2);
 				int drawY = (int) Math.round((relY + dy - y) * TIS + HEIGHT/2);
-				Land work = Game.game.getWorld().getLand(relX + dx, relY + dy);
+				Land work = Game.getWorld().getLand(relX + dx, relY + dy);
 				
 				g.drawImage(work.getImage(), drawX, drawY, TIS, TIS, null);
 				
@@ -121,7 +144,7 @@ public class Camera {
 		//Draw Objects
 		double dDR = DR + .5; //dDR --> double Display Radius
 		
-		HashSet<Chunk> loaded = Game.game.getWorld().getLoadedChunks();
+		HashSet<Chunk> loaded = Game.getWorld().getLoadedChunks();
 		synchronized(loaded) {
 			for(Chunk c : loaded) {
 				TreeSet<GameObject> objs = c.getObjects();
@@ -151,11 +174,16 @@ public class Camera {
 		}
 	} //Draw visible end
 	
-	public double getX() {
+	public double getCamX() {
 		return x;
 	}
 	
-	public double getY() {
+	public double getCamY() {
 		return y;
+	}
+	
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(WIDTH, HEIGHT);
 	}
 }

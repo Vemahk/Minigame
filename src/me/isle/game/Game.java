@@ -2,6 +2,7 @@ package me.isle.game;
 
 import java.util.Random;
 
+import me.isle.Startup;
 import me.isle.game.entity.PlayerEntity;
 import me.isle.game.event.CollisionListener;
 import me.isle.game.event.EventHandler;
@@ -10,26 +11,18 @@ import me.isle.game.world.World;
 
 public class Game {
 
-	public static boolean DEBUG_ACTIVE = true;
-	public static Game game;
-	public static Random rand = new Random();
+	public static boolean initialized = false;
 	
-	private World world;
+	public static boolean DEBUG_ACTIVE = false;
+	public static Random rand;
+	public static World world;
 	
-	private ArrowKeyListener akl;
-	private EventHandler events;
-	
-	private PlayerEntity player;
-	
-	public Game(int w, int h) {
-		world = new World(w, h);
-	}
-	
-	public void build() {
-		world.build();
+	public static void gameStartup(int w, int h) {
+		if(rand == null)
+			rand = new Random();
 		
-		int w = world.getWidth();
-		int h = world.getHeight();
+		world = new World(w, h);
+		
 		int x = w / 4 + rand.nextInt(w / 2);
 		int y = h / 4 + rand.nextInt(h / 2);
 		while(world.isWater(x, y)) {
@@ -40,27 +33,40 @@ public class Game {
 		player = (PlayerEntity) GameObject.instantiate(new PlayerEntity(x, y));
 		player.givePhysicsBody(2.5);
 		player.setCollider(1, 1);
+		Startup.getCamera().setTarget(player, true);
 		
 		events = new EventHandler();
 		events.registerListener(new CollisionListener());
+		
+		initialized = true;
 	}
 	
-	public int getWidth() { return world.getWidth(); }
-	public int getHeight() { return world.getHeight(); }
+	public static void gameStartup(int w, int h, long seed) { 
+		rand = new Random(seed);
+		gameStartup(w, h);
+	}
 	
-	public World getWorld() { return world; }
-	public PlayerEntity getPlayer() { return player; }
+	private static ArrowKeyListener akl;
+	private static EventHandler events;
 	
-	public ArrowKeyListener getKeyListener() {
+	private static PlayerEntity player;
+	
+	
+	public static int getWidth() { return world.getWidth(); }
+	public static int getHeight() { return world.getHeight(); }
+	
+	public static World getWorld() { return world; }
+	public static PlayerEntity getPlayer() { return player; }
+	
+	public static ArrowKeyListener getKeyListener() {
 		return akl;
 	}
 	
-	public ArrowKeyListener setKeyListener(ArrowKeyListener akl) {
-		this.akl = akl;
-		return akl;
+	public static ArrowKeyListener setKeyListener(ArrowKeyListener akl) {
+		return Game.akl = akl;
 	}
 	
-	public EventHandler getEventHandler() {
+	public static EventHandler getEventHandler() {
 		return events;
 	}
 }

@@ -7,16 +7,21 @@ import me.isle.game.physics.BoxCollider;
 import me.isle.game.physics.Collider;
 import me.isle.game.physics.PhysicsBody;
 import me.isle.game.world.Chunk;
+import me.isle.io.Savable;
 
-public abstract class GameObject implements Drawable, Comparable<GameObject>{
+public abstract class GameObject implements Drawable, Comparable<GameObject>, Savable<GameObject>{
 	
 	public static HashSet<ChunkLoader> chunkLoaders = new HashSet<>();
 	
-	public static GameObject instantiate(GameObject go) {
-		go.getPresumedChunk().addObject(go);
+	public static GameObject instantiate(GameObject go, Chunk c) {
+		c.addObject(go);
 		if(go instanceof ChunkLoader)
 			chunkLoaders.add((ChunkLoader)go);
 		return go;
+	}
+	
+	public static GameObject instantiate(GameObject go) {
+		return instantiate(go, go.getPresumedChunk());
 	}
 	
 	public static HashSet<GameObject> queuedToDestroy = new HashSet<>();
@@ -46,6 +51,12 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	public PhysicsBody givePhysicsBody(double mass) {
 		return pBody = new PhysicsBody(this).setMass(mass);
 	}
+	
+	public PhysicsBody getPhysicsBody() {
+		return pBody;
+	}
+	
+	public boolean hasPhysicsBody() { return pBody != null; }
 	
 	public GameObject setCollider(double w, double h) {
 		this.collider = new BoxCollider(this, w, h);
@@ -113,6 +124,6 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>{
 	public Chunk getPresumedChunk() {
 		int px = (int)(x/16);
 		int py = (int)(y/16);
-		return Game.game.getWorld().getChunk(px, py);
+		return Game.getWorld().getChunk(px, py);
 	}
 }

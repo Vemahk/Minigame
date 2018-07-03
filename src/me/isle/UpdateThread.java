@@ -3,27 +3,30 @@ package me.isle;
 import static me.isle.Logger.debug;
 import static me.isle.Logger.info;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
 
 import me.isle.game.Game;
 import me.isle.game.objects.ChunkLoader;
 import me.isle.game.objects.GameObject;
+import me.isle.game.physics.Vector;
 import me.isle.game.world.Chunk;
 import me.isle.game.world.ChunkQueue;
 import me.isle.game.world.World;
 import me.isle.graphics.Camera;
-import me.isle.graphics.GameWindow;
 
-public class GameThread extends Thread{
+public class UpdateThread extends Thread{
 	
-	public static final boolean DISPLAY_TIME_INFO = true;
+	public static final boolean DISPLAY_TIME_INFO = false;
 
 	public static double deltaTime; //TODO Implement Delta-time
 	
 	private int ups; //ups --> Updates per Second
 	
-	public GameThread(int tickrate) {
+	public UpdateThread(int tickrate) {
 		super();
 		this.ups = tickrate;
 	}
@@ -37,7 +40,7 @@ public class GameThread extends Thread{
 
 			/* --==BEGIN PHYSICS UPDATE==-- */
 			
-			World world = Game.game.getWorld();
+			World world = Game.getWorld();
 			
 			long prUp = preUpdate(world);
 			long up = update(world);
@@ -49,12 +52,7 @@ public class GameThread extends Thread{
 				debug("Post-Update time in nanoseconds: " + poUp);
 			}
 			
-			GameWindow win = Startup.graphicsThread.getWindow();
-			if(win!=null) {
-				Camera cam = win.getCamera();
-				if(cam != null)
-					cam.follow(.05);
-			}
+			Startup.getCamera().follow(.05);
 			
 			/* --==END PHYSICS UPDATE==-- */
 			
@@ -144,13 +142,26 @@ public class GameThread extends Thread{
 			}
 		}
 		
+		HashMap<GameObject, List<GameObject>> fsh = new HashMap<>();
 		for(GameObject go : loadedObjects) {
-			go.update(ups);
 			if(go.hasCollider())
 				for(GameObject go2 : loadedObjects)
-					if(go != go2 && go2.hasCollider())
-						if(go.hasCollidedWith(go2))
-							System.out.println("Collision detected!");
+					if(go != go2 && go2.hasCollider()) {
+						if(fsh.containsKey(go2) && fsh.get(go2).contains(go)) continue;
+						if(go.hasCollidedWith(go2)) {
+							
+							if(go.hasPhysicsBody())
+								go.getPhysicsBody().applyForce(Vector.posDiff(go, go2).inverseMag(3));
+							if(go2.hasPhysicsBody())
+								go2.getPhysicsBody().applyForce(Vector.posDiff(go2, go).inverseMag(3));
+							
+							if(!fsh.containsKey(go))
+								fsh.put(go, new ArrayList<>());
+							fsh.get(go).add(go2);
+						}
+					}
+
+			go.update(ups);
 		}
 		
 		return System.nanoTime() - start;

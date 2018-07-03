@@ -26,10 +26,8 @@ public class World {
 		this.HEIGHT = h;
     	loaded = new HashSet<>();
     	chunks = new Chunk[WIDTH/16][HEIGHT/16];
-	}
-	
-	public void build() {
-		Random rand = Game.rand;
+    	
+    	Random rand = Game.rand;
 		SimplexNoise sn = new SimplexNoise(300, .5, rand.nextInt());
 		
     	double[][] res = new double[WIDTH][HEIGHT];
@@ -47,7 +45,7 @@ public class World {
 				for (int sx = x * 16; sx < x * 16 + 16; sx++) {
 					for (int sy = y * 16; sy < y * 16 + 16; sy++) {
     					if(res[sx][sy] >= .55 && Math.random()<.2)
-    						GameObject.instantiate(new Tree(sx+.5, sy+.5).setZ(1).setCollider(.9, .9)); //TODO Assign to chunk
+    						GameObject.instantiate(new Tree(sx+.5, sy+.5).setZ(1).setCollider(.9, .9), c); //
     					if(res[sx][sy] >= .52)
     						c.setLand(sx&15, sy&15, new Grass(sx, sy));
     					else if(res[sx][sy] >= .5)

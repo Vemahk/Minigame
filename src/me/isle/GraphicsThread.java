@@ -2,13 +2,11 @@ package me.isle;
 
 import static me.isle.Logger.info;
 import me.isle.graphics.Animation;
-import me.isle.graphics.GameWindow;
 
 public class GraphicsThread extends Thread{
 
 	public static double deltaTime; //TODO Implement Delta-time
 	
-	private GameWindow window;
 	private int fps;
 	
 	public GraphicsThread(int fps) {
@@ -22,8 +20,6 @@ public class GraphicsThread extends Thread{
 	public void run() {
 		info("Graphics Thread Started...");
 		
-		window = new GameWindow();
-		
 		while(true) {
 			
 			long start = System.currentTimeMillis();
@@ -33,7 +29,7 @@ public class GraphicsThread extends Thread{
 					anim.tick();
 			}
 			
-			window.repaint();
+			Startup.getWindow().repaint();
 			
 			long deltaTime = System.currentTimeMillis() - start;
 			long frameDelay = 1000/fps - deltaTime; //Graphics Thread Sleep
@@ -45,9 +41,5 @@ public class GraphicsThread extends Thread{
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public GameWindow getWindow() {
-		return window;
 	}
 }

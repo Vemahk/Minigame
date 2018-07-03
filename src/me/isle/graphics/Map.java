@@ -19,7 +19,7 @@ public class Map {
 	
 	public Map(double ur) {
 		updateRate = ur;
-		map = new BufferedImage(Game.game.getWidth(), Game.game.getHeight(), BufferedImage.TYPE_INT_RGB);
+		map = new BufferedImage(Game.getWidth(), Game.getHeight(), BufferedImage.TYPE_INT_RGB);
 		t = 0;
 	}
 	
@@ -34,23 +34,23 @@ public class Map {
 		if(++t >= updateRate * Startup.graphicsThread.getFPS()) {
 			t = 0;
 			
-			PlayerEntity player = Game.game.getPlayer();
+			PlayerEntity player = Game.getPlayer();
 			int px = (int) Math.round(player.getX());
 			int py = (int) Math.round(player.getY());
 			
 			for(int dx=-10;dx<=10;dx++) {
 				int x = px + dx;
 				if(x < 0) continue;
-				if(x >= Game.game.getWidth()) break;
+				if(x >= Game.getWidth()) break;
 				for(int dy=-10;dy<=10;dy++) {
 					int y = py + dy;
 					if(y < 0) continue;
-					if(y >= Game.game.getHeight()) break;
+					if(y >= Game.getHeight()) break;
 					
 					if(dx * dx + dy * dy >= 100)
 						continue;
 					
-					World lm = Game.game.getWorld();
+					World lm = Game.getWorld();
 					int rgb = 0xFFFF66; // Default: sand
 					
 					if(lm.isWater(x, y)) rgb = 0x0080FF; //light blue fo water

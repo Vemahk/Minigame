@@ -57,7 +57,7 @@ public class Chunk {
 	}
 	
 	public void queueTransfer(Chunk to, GameObject go) {
-		Startup.gameThread.queueChunkTransfer(new ChunkQueue(this, to, go));
+		Startup.updateThread.queueChunkTransfer(new ChunkQueue(this, to, go));
 	}
 	
 	public Land getLand(int x, int y) {
