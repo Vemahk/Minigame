@@ -24,9 +24,9 @@ public class SNOctave { // Simplex noise in 2D
 	public static int RANDOMSEED = 0;
 
 	private static Grad grad3[] = {
-			new Grad(1,1,0),new Grad(-1,1,0),new Grad(1,-1,0),new Grad(-1,-1,0),
-            new Grad(1,0,1),new Grad(-1,0,1),new Grad(1,0,-1),new Grad(-1,0,-1),
-            new Grad(0,1,1),new Grad(0,-1,1),new Grad(0,1,-1),new Grad(0,-1,-1)
+			new Grad(1,1),new Grad(-1,1),new Grad(1,-1),new Grad(-1,-1),
+            new Grad(1,0),new Grad(-1,0),new Grad(1,0),new Grad(-1,0),
+            new Grad(0,1),new Grad(0,-1),new Grad(0,1),new Grad(0,-1)
 	};
 	
 	private short[] p;
@@ -144,12 +144,11 @@ public class SNOctave { // Simplex noise in 2D
 	// Inner class to speed upp gradient computations
 	// (array access is a lot slower than member access)
 	private static class Grad {
-		double x, y, z;
+		double x, y;
 
-		Grad(double x, double y, double z) {
+		Grad(double x, double y) {
 			this.x = x;
 			this.y = y;
-			this.z = z;
 		}
 	}
 }

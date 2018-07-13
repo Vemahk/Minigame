@@ -3,14 +3,13 @@ package me.vem.isle.graphics;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
-import me.vem.isle.App;
-import me.vem.isle.game.ArrowKeyListener;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.physics.BoxCollider;
@@ -104,12 +103,12 @@ public class Camera extends JPanel{
 			return;
 		
 		if(map == null)
-			map = new Map(1.0); //Update the map every 1.0 seconds
+			map = new Map(new Point((int)Game.getPlayer().getX() - 256, (int)Game.getPlayer().getY() - 256), 1.0); //Update the map every 1.0 seconds
 		
 		//Draw Map
 		map.tick();
 		
-		if(Game.getKeyListener().showMap()) {
+		if(Game.getInput().showMap()) {
 			g.drawImage(map.getImage(), 0, 0, WIDTH, HEIGHT, this);
 			return;
 		}
@@ -118,16 +117,11 @@ public class Camera extends JPanel{
 		int TIS = ResourceManager.IMAGE_SIZE * scale; //TIS --> True Image Size
 		int DR = Math.max(WIDTH, HEIGHT) / TIS / 2; //DR --> Display Radius
 		
-		int relX = (int)x;
-		int relY = (int)y;
+		int relX = (int)Math.round(x);
+		int relY = (int)Math.round(y);
 		
-		for(int dx = -DR;dx<=DR;dx++) {
-			if(dx + relX < 0) continue;
-			if(dx + relX >= Game.getWidth()) break;
-			for(int dy = -DR;dy<=DR;dy++) {
-				if(dy + relY < 0) continue;
-				if(dy + relY >= Game.getHeight()) break;
-				
+		for(int dx = -DR-1;dx<=DR;dx++) {
+			for(int dy = -DR-1;dy<=DR;dy++) {
 				int drawX = (int) Math.round((relX + dx - x) * TIS + WIDTH/2);
 				int drawY = (int) Math.round((relY + dy - y) * TIS + HEIGHT/2);
 				Land work = Game.getWorld().getLand(relX + dx, relY + dy);

@@ -1,6 +1,7 @@
 package me.vem.isle.resources;
 
-import static me.vem.isle.Logger.*;
+import static me.vem.isle.Logger.info;
+import static me.vem.isle.Logger.warning;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -56,5 +57,13 @@ public class ResourceManager {
 			return null;
 		}
 		return null;
+	}
+	
+	public static InputStream getResource(String fileName) {
+		return ResourceManager.class.getClassLoader().getResourceAsStream(fileName);
+	}
+	
+	public static InputStream getResource(String path, String fileName) {
+		return ResourceManager.class.getClassLoader().getResourceAsStream(path + "/" + fileName);
 	}
 }

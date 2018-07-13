@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import me.vem.isle.game.ArrowKeyListener;
+import me.vem.isle.game.Input;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.ChunkLoader;
 import me.vem.isle.game.objects.GameObject;
@@ -36,16 +36,19 @@ public class PlayerEntity extends Entity implements ChunkLoader{
 	public void update(int tr) {
 		super.update(tr);
 		
-		ArrowKeyListener akl = Game.getKeyListener();
+		int ix = (int)Math.floor(x);
+		int iy = (int)Math.floor(y);		
+		
+		Input akl = Game.getInput();
 		
 		int xMove = akl == null ? 0 : akl.movementX();
 		int yMove = akl == null ? 0 : akl.movementY();
 		
 		double speedMod = 1;
-		if(x >= 0 && x < Game.getWidth() && y >= 0 && y < Game.getHeight())
-			if(Game.getWorld().isWater((int)x, (int)y))		
-				this.pBody.setFrictionMod(3);
-			else this.pBody.setFrictionMod(1);
+		
+		if(Game.getWorld().isWater(ix, iy))		
+			this.pBody.setFrictionMod(3);
+		else this.pBody.setFrictionMod(1);
 		
 		/*if(Game.DEBUG_ACTIVE)
 			speedMod *= 10;*/

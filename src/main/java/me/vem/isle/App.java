@@ -6,9 +6,10 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
-import me.vem.isle.game.ArrowKeyListener;
 import me.vem.isle.game.Game;
+import me.vem.isle.game.Input;
 import me.vem.isle.graphics.Camera;
+import me.vem.isle.menu.MainMenu;
 
 public class App {
 	
@@ -25,35 +26,38 @@ public class App {
 	private static final int BOARD_HEIGHT = 512;
 	
 	private static JFrame window;
+	public static MainMenu menu;
 	private static Camera camera;
 	
 	public static void createWindow() {
 		window = new JFrame(GAME_TITLE);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		window.add(camera = new Camera(512, 512, 2));
+		//window.add(camera = new Camera(512, 512, 2));
 
+		window.add(menu = new MainMenu());
+		
 		window.setResizable(false);
 		window.pack();
 		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		
-		window.addKeyListener(Game.setKeyListener(new ArrowKeyListener()));
+		window.addKeyListener(Game.setInput(new Input()));
 		window.requestFocus();
+		
+		window.repaint();
 		
 		if(Game.DEBUG_ACTIVE)
 			Logger.debug("JFrame created and loaded.");
 	}
 	
 	public static JFrame getWindow() { return window; }
-	public static Camera getCamera() { return camera; }
 	
-	public static void main(String[] args) throws IOException{
-		info("Hello World!");
+	public static void newGame() {
+		window.add(camera = new Camera(512, 512, 2));
 		
-		createWindow();
-		
-		Game.gameStartup(BOARD_WIDTH, BOARD_HEIGHT);
+		Game.getInput().setType(Input.TYPE_GAME);
+		Game.gameStartup();
 		info("Game started.");
 		
 		graphicsThread = new GraphicsThread(fps);		
@@ -61,5 +65,13 @@ public class App {
 		
 		updateThread = new UpdateThread(ups);
 		updateThread.start();
+	}
+	
+	public static Camera getCamera() { return camera; }
+	
+	public static void main(String[] args) throws IOException{
+		info("Hello World!");
+		
+		createWindow();
 	}
 }
