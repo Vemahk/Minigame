@@ -1,24 +1,63 @@
 package me.vem.isle.game.physics;
 
+import java.awt.Point;
+
 import me.vem.isle.game.objects.GameObject;
 
-public final class Vector {
+public class Vector {
 
-	private final double x;
-	private final double y;
+	public static final Vector origin = new Vector();
+	
+	private float x;
+	private float y;
 	
 	public Vector() { this(0, 0); }
 	
-	public Vector(double x, double y) {
+	public Vector(float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	public double getX() { return x; }
-	public double getY() { return y; }
+	public float getX() { return x; }
+	public int roundX() { return Math.round(x); }
+	public int floorX() { return (int) Math.floor(x); }
+	public int ceilX () { return (int) Math.ceil (x); }
 	
-	public double getMagnetude() {
-		return Math.sqrt(x * x + y * y);
+	public float getY() { return y; }
+	public int roundY() { return Math.round(y); }
+	public int floorY() { return (int) Math.floor(y); }
+	public int ceilY () { return (int) Math.ceil (y); }
+	
+	public Point round() { return new Point(roundX(), roundY()); }
+	public Point floor() { return new Point(floorX(), floorY()); }
+	public Point ceil() { return new Point(ceilX(), ceilY()); }
+	
+	public void setX(float x) { this.x = x; }
+	public void setY(float y) { this.y = y; }
+	
+	public void set(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	public void offset(float dx, float dy) {
+		this.x += dx;
+		this.y += dy;
+	}
+	
+	public void offset(Vector dv) {
+		offset(dv.x, dv.y);
+	}
+	
+	public void offsetX(float dx) { this.x += dx; }
+	public void offsetY(float dy) { this.y += dy; }
+	
+	public float getMagnetude() {
+		return (float) Math.sqrt(x * x + y * y);
+	}
+
+	public float getMagSq() {
+		return x*x + y*y;
 	}
 	
 	public Vector add(Vector v) {
@@ -29,20 +68,23 @@ public final class Vector {
 		return new Vector(x - v.x, y - v.y);
 	}
 	
-	public Vector scale(double scalar) {
+	public Vector scale(float scalar) {
 		return new Vector(x * scalar, y * scalar);
 	}
 	
-	public double dotProduct(Vector v) { 
+	public float dot(Vector v) { 
 		return x * v.x + y * v.y;
 	}
 	
-	public Vector inverseMag(double numerator) {
-		double nx = this.x;
-		double ny = this.y;
+	public Vector inverseMag(float numerator) {
+		float nx = this.x;
+		float ny = this.y;
 		
-		double mag = getMagnetude();
-		double prop = numerator / mag / mag;
+		if(nx == 0 && ny == 0) 
+			return Vector.origin;
+		
+		float mag = getMagnetude();
+		float prop = numerator / mag / mag;
 		
 		nx *= prop;
 		ny *= prop;
@@ -56,11 +98,11 @@ public final class Vector {
 	 * @param th Angle (in radians)
 	 * @return
 	 */
-	public static Vector fromPolar(double r, double th) {
-		return new Vector(r * Math.cos(th), r * Math.sin(th));
+	public static Vector fromPolar(float r, float th) {
+		return new Vector(r * (float)Math.cos(th), r * (float)Math.sin(th));
 	}
 	
-	public static Vector pointDiff(double x1, double y1, double x2, double y2) {
+	public static Vector pointDiff(float x1, float y1, float x2, float y2) {
 		return new Vector(x1 - x2, y1-y2);
 	}
 	

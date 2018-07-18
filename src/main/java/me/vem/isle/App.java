@@ -22,9 +22,6 @@ public class App {
 	private static final int fps = 60; //fps --> frames per second
 	private static final int ups = 60; //ups --> updates per second
 	
-	private static final int BOARD_WIDTH = 512;
-	private static final int BOARD_HEIGHT = 512;
-	
 	private static JFrame window;
 	public static MainMenu menu;
 	private static Camera camera;
@@ -47,7 +44,7 @@ public class App {
 		
 		window.repaint();
 		
-		if(Game.DEBUG_ACTIVE)
+		if(Game.isDebugActive())
 			Logger.debug("JFrame created and loaded.");
 	}
 	
@@ -56,7 +53,6 @@ public class App {
 	public static void newGame() {
 		window.add(camera = new Camera(512, 512, 2));
 		
-		Game.getInput().setType(Input.TYPE_GAME);
 		Game.gameStartup();
 		info("Game started.");
 		
@@ -68,6 +64,11 @@ public class App {
 	}
 	
 	public static Camera getCamera() { return camera; }
+	
+	public static void shutdown() {
+		getWindow().dispose();
+		System.exit(0);
+	}
 	
 	public static void main(String[] args) throws IOException{
 		info("Hello World!");

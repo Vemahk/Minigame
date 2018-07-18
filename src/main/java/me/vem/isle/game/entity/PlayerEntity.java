@@ -11,14 +11,16 @@ import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.physics.Vector;
 import me.vem.isle.graphics.Spritesheet;
 import me.vem.isle.io.DataFormater;
+import me.vem.isle.menu.Setting;
 import me.vem.isle.resources.ResourceManager;
 
 public class PlayerEntity extends Entity implements ChunkLoader{
 	
-	private double speed;
+	private float speed;
 	
-	public PlayerEntity(double x, double y) {
+	public PlayerEntity(float x, float y) {
 		super(x, y);
+		this.pBody.setMass(2.5f);
 		speed = 3;
 	}
 	
@@ -36,25 +38,26 @@ public class PlayerEntity extends Entity implements ChunkLoader{
 	public void update(int tr) {
 		super.update(tr);
 		
-		int ix = (int)Math.floor(x);
-		int iy = (int)Math.floor(y);		
+		int ix = pos.floorX();
+		int iy = pos.floorY();
 		
-		Input akl = Game.getInput();
+		boolean left = Setting.MOVE_LEFT.getState();
+		boolean right = Setting.MOVE_RIGHT.getState();
+		boolean up = Setting.MOVE_UP.getState();
+		boolean down = Setting.MOVE_DOWN.getState();
 		
-		int xMove = akl == null ? 0 : akl.movementX();
-		int yMove = akl == null ? 0 : akl.movementY();
-		
-		double speedMod = 1;
+		int xMove = left ^ right ? (left ? -1 : 1) : 0;
+		int yMove = up ^ down ? (up ? -1 : 1) : 0;
 		
 		if(Game.getWorld().isWater(ix, iy))		
-			this.pBody.setFrictionMod(3);
-		else this.pBody.setFrictionMod(1);
+			this.getPhysicsBody().setFriction(.6f);
+		else this.getPhysicsBody().setFriction(.3f);
 		
 		/*if(Game.DEBUG_ACTIVE)
 			speedMod *= 10;*/
 		
-		double Fx = xMove * speed * speedMod;
-		double Fy = yMove * speed * speedMod;
+		float Fx = xMove * speed;
+		float Fy = yMove * speed;
 		this.pBody.applyForce(new Vector(Fx, Fy));
 	}
 	
@@ -65,8 +68,8 @@ public class PlayerEntity extends Entity implements ChunkLoader{
 	@Override
 	public byte[] compress() {
 		byte[] write = new byte[writeSize()];
-		DataFormater.add(write, DataFormater.floatToBytes((float)x), 0);
-		DataFormater.add(write, DataFormater.floatToBytes((float)y), 4);
+		DataFormater.add(write, DataFormater.floatToBytes(pos.getX()), 0);
+		DataFormater.add(write, DataFormater.floatToBytes(pos.getY()), 4);
 		return write;
 	}
 
@@ -77,9 +80,8 @@ public class PlayerEntity extends Entity implements ChunkLoader{
 		
 		float rx = DataFormater.readFloat(read, 0);
 		float ry = DataFormater.readFloat(read, 4);
-		
-		this.x = rx;
-		this.y = ry;
+
+		this.pos.set(rx, ry);
 		
 		return this;
 	}

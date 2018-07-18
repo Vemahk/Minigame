@@ -138,7 +138,7 @@ public class SNOctave { // Simplex noise in 2D
 		}
 		// Add contributions from each corner to get the final noise value.
 		// The result is scaled to return values in the interval [-1,1].
-		return 70.0 * (n0 + n1 + n2);
+		return 35.0 * (n0 + n1 + n2) + .5;
 	}
 
 	// Inner class to speed upp gradient computations

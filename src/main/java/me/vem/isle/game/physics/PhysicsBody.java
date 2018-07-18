@@ -1,29 +1,37 @@
 package me.vem.isle.game.physics;
 
+import me.vem.isle.game.entity.Entity;
 import me.vem.isle.game.objects.GameObject;
 
 public class PhysicsBody {
 
-	private final GameObject parent;
+	private final Entity parent;
 	
 	private Vector vel;
 	private Vector appliedForce;
 	
-	private double mass;
+	private float mass;
 	
-	private double friction;
-	private double frictionMult; // Friction Multiplier
+	private float friction;
 	
-	public PhysicsBody(GameObject parent) {
+	public PhysicsBody(Entity parent) {
+		this(parent, 1, .3f);
+	}
+	
+	public PhysicsBody(Entity parent, float mass) {
+		this(parent, mass, .3f);
+	}
+	
+	public PhysicsBody(Entity parent, float mass, float friction) {
 		this.parent = parent;
-		mass = 1;
-		friction = .3;
+		this.mass = mass;
+		this.friction = friction;
 		
 		vel = new Vector();
 		appliedForce = new Vector();
 	}
 	
-	public PhysicsBody setMass(double m) {
+	public PhysicsBody setMass(float m) {
 		mass = m;
 		return this;
 	}
@@ -33,16 +41,12 @@ public class PhysicsBody {
 	 * @param f
 	 * @return
 	 */
-	public PhysicsBody setFriction(double f) {
+	public PhysicsBody setFriction(float f) {
 		this.friction = f;
 		return this;
 	}
 	
-	public void setFrictionMod(double fm) {
-		this.frictionMult = fm;
-	}
-	
-	public double getFriction() {
+	public float getFriction() {
 		return friction;
 	}
 	
@@ -54,9 +58,9 @@ public class PhysicsBody {
 		
 		// Velocity + Fa/Mass - Velocity * Mu
 		
-		vel = vel.add(appliedForce.scale(1 / mass).sub(vel.scale(friction * frictionMult)));
+		vel = vel.add(appliedForce.scale(1 / mass).sub(vel.scale(friction)));
 		appliedForce = new Vector(); //Reset applied force.
-		Vector dispos = vel.scale(1.0 / ups); //Scale to updates per second so you don't ZOOOOOM
-		parent.moveBy(dispos.getX(), dispos.getY());
+		Vector dispos = vel.scale(1f / ups); //Scale to updates per second so you don't ZOOOOOM
+		parent.offset(dispos.getX(), dispos.getY());
 	}
 }

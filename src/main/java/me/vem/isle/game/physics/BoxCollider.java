@@ -6,21 +6,19 @@ public class BoxCollider implements Collider{
 
 	private final GameObject parent;
 	
-	private double width;
-	private double height;
+	private Vector dim;
 	
 	public BoxCollider(GameObject parent) {
 		this(parent, 1, 1);
 	}
 	
-	public BoxCollider(GameObject parent, double width, double height) {
+	public BoxCollider(GameObject parent, float width, float height) {
 		this.parent = parent;
-		this.width = width;
-		this.height = height;
+		dim = new Vector(width, height);
 	}
 	
-	public double getWidth() { return width; }
-	public double getHeight() { return height; }
+	public double getWidth() { return dim.getX(); }
+	public double getHeight() { return dim.getY(); }
 	
 	public boolean collidedWith(Collider c) {
 		
@@ -30,7 +28,7 @@ public class BoxCollider implements Collider{
 			double dx = Math.abs(this.parent.getX() - o.parent.getX());
 			double dy = Math.abs(this.parent.getY() - o.parent.getY());
 			
-			return (width / 2 + o.width / 2) >= dx && (height + o.height) / 2 >= dy;
+			return (getWidth() + o.getWidth()) / 2 >= dx && (getHeight() + o.getHeight()) / 2 >= dy;
 		}
 		
 		return false;

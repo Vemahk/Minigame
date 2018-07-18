@@ -10,7 +10,7 @@ import me.vem.isle.resources.ResourceManager;
 
 public class Tree extends GameObject{
 
-	public Tree(double x, double y) {
+	public Tree(float x, float y) {
 		super(x, y);
 	}
 
@@ -25,17 +25,15 @@ public class Tree extends GameObject{
 	}
 
 	@Override
-	public void update(int tr) {
-		super.update(tr);
-	}
+	public void update(int tr) {}
 
 	@Override public int writeSize() { return 8; }
 
 	@Override
 	public byte[] compress() {
 		byte[] write = new byte[writeSize()];
-		DataFormater.add(write, DataFormater.floatToBytes((float)x), 0);
-		DataFormater.add(write, DataFormater.floatToBytes((float)y), 4);
+		DataFormater.add(write, DataFormater.floatToBytes(pos.getX()), 0);
+		DataFormater.add(write, DataFormater.floatToBytes(pos.getY()), 4);
 		return write;
 	}
 
@@ -46,9 +44,8 @@ public class Tree extends GameObject{
 		
 		float rx = DataFormater.readFloat(read, 0);
 		float ry = DataFormater.readFloat(read, 4);
-		
-		this.x = rx;
-		this.y = ry;
+
+		this.pos.set(rx, ry);
 		
 		return this;
 	}

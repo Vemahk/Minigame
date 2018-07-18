@@ -8,12 +8,12 @@ import me.vem.isle.game.event.CollisionListener;
 import me.vem.isle.game.event.EventHandler;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.world.World;
+import me.vem.isle.menu.Setting;
 
 public class Game {
 
 	public static boolean initialized = false;
 	
-	public static boolean DEBUG_ACTIVE = false;
 	public static Random rand;
 	public static World world;
 	
@@ -32,7 +32,6 @@ public class Game {
 		
 		player = (PlayerEntity) GameObject.instantiate(new PlayerEntity(x, y));*/
 		player = (PlayerEntity) GameObject.instantiate(new PlayerEntity(0, 0));
-		player.givePhysicsBody(2.5);
 		player.setCollider(1, 1);
 		App.getCamera().setTarget(player, true);
 		
@@ -47,7 +46,7 @@ public class Game {
 		gameStartup();
 	}
 	
-	private static Input akl;
+	private static Input input;
 	private static EventHandler events;
 	
 	private static PlayerEntity player;
@@ -56,14 +55,18 @@ public class Game {
 	public static PlayerEntity getPlayer() { return player; }
 	
 	public static Input getInput() {
-		return akl;
+		return input;
 	}
 	
-	public static Input setInput(Input akl) {
-		return Game.akl = akl;
+	public static Input setInput(Input input) {
+		return Game.input = input;
 	}
 	
 	public static EventHandler getEventHandler() {
 		return events;
+	}
+	
+	public static boolean isDebugActive() {
+		return Setting.TOGGLE_DEBUG.getState();
 	}
 }

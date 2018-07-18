@@ -6,10 +6,13 @@ import static me.vem.isle.Logger.info;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.TreeSet;
 
 import me.vem.isle.game.Game;
+import me.vem.isle.game.entity.Entity;
 import me.vem.isle.game.objects.ChunkLoader;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.physics.Vector;
@@ -51,7 +54,7 @@ public class UpdateThread extends Thread{
 				debug("Post-Update time in nanoseconds: " + poUp);
 			}
 			
-			App.getCamera().follow(.05);
+			App.getCamera().follow(.05f);
 			
 			/* --==END PHYSICS UPDATE==-- */
 			
@@ -77,8 +80,7 @@ public class UpdateThread extends Thread{
 		
 		HashSet<Chunk> loadedChunks = world.getLoadedChunks();
 		synchronized(loadedChunks) {
-			
-			HashSet<Chunk> shouldBeLoaded = new HashSet<Chunk>();
+			loadedChunks.clear();
 			
 			HashSet<ChunkLoader> loaders = GameObject.chunkLoaders;
 			synchronized(loaders){
@@ -86,37 +88,16 @@ public class UpdateThread extends Thread{
 				for(ChunkLoader cl : loaders) {
 					GameObject go = (GameObject) cl;
 					
-					int px = (int)(go.getX()/16);
-					int py = (int)(go.getY()/16);
+					int px = go.getPos().floorX() >> 4;
+					int py = go.getPos().floorY() >> 4;
 					int r = cl.chunkRadius();
 					
-					for(int x = px - r; x<= px + r; x++) {
-						for(int y = py - r; y<= py + r; y++) {
-							Chunk c = world.getChunk(x, y);
-							if(c != null)
-								shouldBeLoaded.add(c);
-						}
-					}
+					for(int x = px - r; x<= px + r; x++)
+						for(int y = py - r; y<= py + r; y++)
+							loadedChunks.add(world.getChunk(x, y));
 				}
 				
 			}
-			
-			HashSet<Chunk> toLoad = new HashSet<>();
-			HashSet<Chunk> toUnload = new HashSet<>();
-			
-			for(Chunk c : loadedChunks)
-				if(!shouldBeLoaded.contains(c))
-					toUnload.add(c);
-			
-			for(Chunk c : shouldBeLoaded)
-				if(!loadedChunks.contains(c))
-					toLoad.add(c);
-			
-			loadedChunks.addAll(toLoad);
-			toLoad.clear();
-			
-			loadedChunks.removeAll(toUnload);
-			toUnload.clear();
 		}
 		
 		return System.nanoTime() - start;
@@ -141,23 +122,26 @@ public class UpdateThread extends Thread{
 			}
 		}
 		
-		HashMap<GameObject, List<GameObject>> fsh = new HashMap<>();
+		HashMap<Entity, List<Entity>> fsh = new HashMap<>();
 		for(GameObject go : loadedObjects) {
-			if(go.hasCollider())
+			if(go instanceof Entity && go.hasCollider())
 				for(GameObject go2 : loadedObjects)
-					if(go != go2 && go2.hasCollider()) {
-						if(fsh.containsKey(go2) && fsh.get(go2).contains(go)) continue;
-						if(go.hasCollidedWith(go2)) {
+					if(go != go2 && go2.hasCollider() && go.hasCollidedWith(go2)) {
+						Entity ent = (Entity)go;
+						if(go2 instanceof Entity) {
+							Entity ent2 = (Entity)go2;
+							List<Entity> f = fsh.get(ent2);
+							if(f != null && f.contains(ent))
+								continue;
 							
-							if(go.hasPhysicsBody())
-								go.getPhysicsBody().applyForce(Vector.posDiff(go, go2).inverseMag(3));
-							if(go2.hasPhysicsBody())
-								go2.getPhysicsBody().applyForce(Vector.posDiff(go2, go).inverseMag(3));
+							if(f == null)
+								fsh.put(ent, f = new LinkedList<>());
+							f.add(ent2);
+
+							ent.getPhysicsBody().applyForce(ent.getPos().sub(ent2.getPos()).inverseMag(3));
+							ent2.getPhysicsBody().applyForce(ent2.getPos().sub(ent.getPos()).inverseMag(3));
 							
-							if(!fsh.containsKey(go))
-								fsh.put(go, new ArrayList<GameObject>());
-							fsh.get(go).add(go2);
-						}
+						}else ent.getPhysicsBody().applyForce(ent.getPos().sub(go2.getPos()).inverseMag(3));
 					}
 
 			go.update(ups);
@@ -172,19 +156,19 @@ public class UpdateThread extends Thread{
 	private long postUpdate(World world) {
 		long start = System.nanoTime();
 		
-		for(GameObject go : GameObject.queuedToDestroy)
+		while(!GameObject.queuedToDestroy.isEmpty()) {
+			GameObject go = GameObject.queuedToDestroy.poll();
 			go.getAssignedChunk().removeObject(go);
-		GameObject.queuedToDestroy.clear();
+		}
 		
 		//TODO Handle queued chunk tradeoffs.
-		for(ChunkQueue cq : chunkQueue)
-			cq.execute();
-		chunkQueue.clear();
+		while(!chunkQueue.isEmpty())
+			chunkQueue.poll().execute();
 		
 		return System.nanoTime() - start;
 	}
 	
-	private HashSet<ChunkQueue> chunkQueue = new HashSet<>();
+	private Queue<ChunkQueue> chunkQueue = new LinkedList<>();
 	public void queueChunkTransfer(ChunkQueue cq) {
 		chunkQueue.add(cq);
 	}

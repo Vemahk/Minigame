@@ -10,11 +10,14 @@ import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
+import me.vem.isle.Logger;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.physics.BoxCollider;
+import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.Land;
+import me.vem.isle.menu.Setting;
 import me.vem.isle.resources.ResourceManager;
 
 public class Camera extends JPanel{
@@ -24,51 +27,35 @@ public class Camera extends JPanel{
 	
 	private GameObject target;
 	private int followType;
-
-	private final int WIDTH;
-	private final int HEIGHT;
 	
 	private final int scale;
 	
-	private double x;
-	private double y;
+	private Vector pos;
 	
 	private Map map;
 	
 	public Camera(int w, int h, int scale) {
 		this.setBackground(Color.BLACK);
-		x = y = 0;
+		this.setPreferredSize(new Dimension(w, h));
+		pos = new Vector();
 		
-		this.WIDTH = w;
-		this.HEIGHT = h;
 		this.scale = scale;
 		
 		followType = SMOOTH_FOLLOW;
 	}
 	
-	public synchronized void follow(double... param) {
+	public synchronized void follow(float... param) {
 		if(target == null)
 			return;
 		
 		if(followType == RIGID_FOLLOW) {
 			setPos(target.getX(), target.getY());
 		}else if(followType == SMOOTH_FOLLOW) {
-			double damping = .1;
+			float damping = .1f;
 			if(param.length > 0)
 				damping = param[0];
 			
-			double dx = x - target.getX();
-			double dy = y - target.getY();
-			
-			double dist = Math.sqrt(dx * dx + dy * dy);
-			double angle = Math.atan2(dy, dx);
-			dist -= dist * damping;
-			
-			double ndx = dist * Math.cos(angle);
-			double ndy = dist * Math.sin(angle);
-			
-			this.setX(target.getX() + ndx);
-			this.setY(target.getY() + ndy);
+			pos.offset(pos.sub(target.getPos()).scale(-damping));
 		}
 	}
 
@@ -82,15 +69,15 @@ public class Camera extends JPanel{
 		target = go;
 	}
 	
-	public synchronized void setX(double x) { this.x = x; }
-	public synchronized void setY(double y) { this.y = y; }
+	public synchronized void setX(float x) { pos.setX(x); }
+	public synchronized void setY(float y) { pos.setY(y); }
 	
-	public synchronized void setPos(double x, double y) {
-		setX(x); setY(y);
+	public synchronized void setPos(float x, float y) {
+		pos.set(x, y);
 	}
 	
-	public void moveX(double dx) { x += dx; }
-	public void moveY(double dy) { y += dy; }
+	public void moveX(float dx) { pos.offsetX(dx); }
+	public void moveY(float dy) { pos.offsetY(dy); }
 	
 	@Override
 	public void paintComponent(Graphics g) {
@@ -102,33 +89,36 @@ public class Camera extends JPanel{
 		if(!Game.initialized)
 			return;
 		
-		if(map == null)
-			map = new Map(new Point((int)Game.getPlayer().getX() - 256, (int)Game.getPlayer().getY() - 256), 1.0); //Update the map every 1.0 seconds
+		if(map == null) {
+			Point p = Game.getPlayer().getPos().floor();
+			p.translate(-256, -256);
+			map = new Map(p, 1.0); //Update the map every 1.0 seconds
+		}
 		
 		//Draw Map
 		map.tick();
 		
-		if(Game.getInput().showMap()) {
-			g.drawImage(map.getImage(), 0, 0, WIDTH, HEIGHT, this);
+		if(Setting.TOGGLE_MAP.getState()) {
+			g.drawImage(map.getImage(), 0, 0, getWidth(), getHeight(), this);
 			return;
 		}
 		
 		//Draw Land
 		int TIS = ResourceManager.IMAGE_SIZE * scale; //TIS --> True Image Size
-		int DR = Math.max(WIDTH, HEIGHT) / TIS / 2; //DR --> Display Radius
+		int DR = Math.max(getWidth(), getHeight()) / TIS / 2; //DR --> Display Radius
 		
-		int relX = (int)Math.round(x);
-		int relY = (int)Math.round(y);
+		int relX = pos.floorX();
+		int relY = pos.floorY();
 		
-		for(int dx = -DR-1;dx<=DR;dx++) {
-			for(int dy = -DR-1;dy<=DR;dy++) {
-				int drawX = (int) Math.round((relX + dx - x) * TIS + WIDTH/2);
-				int drawY = (int) Math.round((relY + dy - y) * TIS + HEIGHT/2);
+		for(int dx = -DR;dx<=DR;dx++) {
+			for(int dy = -DR;dy<=DR;dy++) {
+				int drawX = (int) Math.round((relX + dx - pos.getX()) * TIS + getWidth()/2);
+				int drawY = (int) Math.round((relY + dy - pos.getY()) * TIS + getHeight()/2);
 				Land work = Game.getWorld().getLand(relX + dx, relY + dy);
 				
 				g.drawImage(work.getImage(), drawX, drawY, TIS, TIS, null);
 				
-				if(Game.DEBUG_ACTIVE) {
+				if(Game.isDebugActive()) {
 					g.setColor(Color.RED);
 					g.drawString((relX + dx) + "|" + (relY + dy), drawX, drawY+10);
 				}
@@ -144,16 +134,16 @@ public class Camera extends JPanel{
 				TreeSet<GameObject> objs = c.getObjects();
 				synchronized(objs) {
 					for(GameObject go : objs) {
-						double dx = go.getX() - x;
-						double dy = go.getY() - y;
+						double dx = go.getX() - pos.getX();
+						double dy = go.getY() - pos.getY();
 						if(dx >= -dDR && dx <= dDR && dy >= -dDR && dy <= dDR) {
 							BufferedImage image = go.getImage();
-							int drawX = (int) Math.round(dx * TIS + WIDTH/2) - image.getWidth() / 2 * scale;
-							int drawY = (int) Math.round(dy * TIS + HEIGHT/2) - image.getHeight() / 2 * scale;
+							int drawX = (int) Math.round(dx * TIS + getWidth()/2) - image.getWidth() / 2 * scale;
+							int drawY = (int) Math.round(dy * TIS + getHeight()/2) - image.getHeight() / 2 * scale;
 							
 							g.drawImage(image, drawX, drawY, TIS, TIS, null);
 							
-							if(Game.DEBUG_ACTIVE && go.hasCollider()) {
+							if(Game.isDebugActive() && go.hasCollider()) {
 								BoxCollider coll = (BoxCollider) go.getCollider();
 								g.setColor(Color.GREEN);
 								
@@ -167,17 +157,4 @@ public class Camera extends JPanel{
 			}
 		}
 	} //Draw visible end
-	
-	public double getCamX() {
-		return x;
-	}
-	
-	public double getCamY() {
-		return y;
-	}
-	
-	@Override
-	public Dimension getPreferredSize() {
-		return new Dimension(WIDTH, HEIGHT);
-	}
 }

@@ -26,7 +26,7 @@ public class ChunkQueue{
 		if(from.removeObject(go)) {
 			boolean out = to.addObject(go);
 			
-			if(Game.DEBUG_ACTIVE)
+			if(Game.isDebugActive())
 				debug(String.format("Object %s moved from chunk %s to %s.", go, from, to));
 			
 			return out;

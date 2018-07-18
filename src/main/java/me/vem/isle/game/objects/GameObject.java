@@ -1,15 +1,21 @@
 package me.vem.isle.game.objects;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
+import me.vem.isle.Logger;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.physics.BoxCollider;
 import me.vem.isle.game.physics.Collider;
-import me.vem.isle.game.physics.PhysicsBody;
+import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.io.Savable;
 
 public abstract class GameObject implements Drawable, Comparable<GameObject>, Savable<GameObject>{
+	
+	public static HashMap<Class<? extends GameObject>, Property> properties = new HashMap<>();
 	
 	public static HashSet<ChunkLoader> chunkLoaders = new HashSet<>();
 	
@@ -24,41 +30,25 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>, Sa
 		return instantiate(go, go.getPresumedChunk());
 	}
 	
-	public static HashSet<GameObject> queuedToDestroy = new HashSet<>();
+	public static Queue<GameObject> queuedToDestroy = new LinkedList<>();
 	public static boolean destroy(GameObject go) {
 		queuedToDestroy.add(go);
 		return true;
 	}
 	
-	private Chunk chunk;
+	protected Chunk chunk;
 	
-	protected double x;
-	protected double y;
-	protected double z;
+	protected Vector pos;
+	protected float z;
 	
-	protected PhysicsBody pBody;
 	protected Collider collider;
 	
-	public GameObject(double x, double y) {
-		setPos(x, y);
+	public GameObject(float x, float y) {
+		pos = new Vector(x, y);
 		setZ(0);
 	}
 	
-	public PhysicsBody givePhysicsBody() {
-		return givePhysicsBody(1);
-	}
-	
-	public PhysicsBody givePhysicsBody(double mass) {
-		return pBody = new PhysicsBody(this).setMass(mass);
-	}
-	
-	public PhysicsBody getPhysicsBody() {
-		return pBody;
-	}
-	
-	public boolean hasPhysicsBody() { return pBody != null; }
-	
-	public GameObject setCollider(double w, double h) {
+	public GameObject setCollider(float w, float h) {
 		this.collider = new BoxCollider(this, w, h);
 		return this;
 	}
@@ -71,38 +61,25 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>, Sa
 	
 	public Collider getCollider() { return collider; }
 	
-	public boolean withinDistanceOf(GameObject o, double dist) {
-		double dx = x - o.x;
-		double dy = y - o.y;
-		
-		return dx * dx + dy * dy <= dist * dist;
+	public boolean withinDistanceOf(GameObject o, float dist) {
+		return pos.sub(o.getPos()).getMagSq() <= dist * dist;
 	}
 	
-	public double getX() { return x; }
-	public double getY() { return y; }
+	public Vector getPos() { return pos; }
+	public float getX() { return pos.getX(); }
+	public float getY() { return pos.getY(); }
 	
-	public void setPos(double x, double y) {
-		this.x = x;
-		this.y = y;
+	public void setPos(float x, float y) {
+		pos.set(x, y);
 	}
 	
-	public GameObject setZ(double z) {
+	public GameObject setZ(float z) {
 		this.z = z;
 		return this;
 	}
 	
-	public void moveBy(double x, double y) {
-		this.x += x;
-		this.y += y;
-	}
-	
-	public void update(int tr) {
-		if(pBody != null)
-			pBody.update(tr);
-		
-		Chunk nChunk = getPresumedChunk();
-		if(chunk != nChunk)
-			chunk.queueTransfer(nChunk, this);
+	public void offset(float dx, float dy) {
+		pos.offset(dx, dy);
 	}
 	
 	public int compareTo(GameObject o) {
@@ -122,8 +99,8 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>, Sa
 	}
 	
 	public Chunk getPresumedChunk() {
-		int px = (int)(x/16);
-		int py = (int)(y/16);
-		return Game.getWorld().getChunk(px, py);
+		return Game.getWorld().getChunk(pos.floorX() >> 4, pos.floorY() >> 4);
 	}
+
+	public abstract void update(int tr);
 }
