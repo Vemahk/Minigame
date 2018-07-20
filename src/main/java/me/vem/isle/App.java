@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.Input;
 import me.vem.isle.graphics.Camera;
+import me.vem.isle.menu.ActionSet;
 import me.vem.isle.menu.MainMenu;
 
 public class App {
@@ -31,7 +32,7 @@ public class App {
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		//window.add(camera = new Camera(512, 512, 2));
-
+		ActionSet.implementActionSet(ActionSet.MAIN_MENU);
 		window.add(menu = new MainMenu());
 		
 		window.setResizable(false);
@@ -39,7 +40,7 @@ public class App {
 		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		
-		window.addKeyListener(Game.setInput(new Input()));
+		window.addKeyListener(new Input());
 		window.requestFocus();
 		
 		window.repaint();
@@ -53,6 +54,7 @@ public class App {
 	public static void newGame() {
 		window.add(camera = new Camera(512, 512, 2));
 		
+		ActionSet.implementActionSet(ActionSet.GAME);
 		Game.gameStartup();
 		info("Game started.");
 		

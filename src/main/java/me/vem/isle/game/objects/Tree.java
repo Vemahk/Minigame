@@ -1,27 +1,14 @@
 package me.vem.isle.game.objects;
 
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import me.vem.isle.graphics.Spritesheet;
 import me.vem.isle.io.DataFormater;
-import me.vem.isle.resources.ResourceManager;
 
 public class Tree extends GameObject{
 
 	public Tree(float x, float y) {
 		super(x, y);
-	}
-
-	@Override
-	public Spritesheet getSpriteSheet() {
-		return ResourceManager.getSpritesheet("tree.png");
-	}
-
-	@Override
-	public BufferedImage getImage() {
-		return getSpriteSheet().getImage(0);
 	}
 
 	@Override

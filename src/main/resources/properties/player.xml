@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<property id="ent_player">
+	<isChunkLoader radius="1"/>
+	<collider type="box" width="1"/>
+	<sprite sheet="player.png" id="0"/>
+	<entity mass="2.5" friction=".3" speed="3"/>
+</property>

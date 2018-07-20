@@ -1,8 +1,10 @@
 package me.vem.isle.game.world;
 
-import me.vem.isle.game.objects.Drawable;
+import java.awt.image.BufferedImage;
 
-public abstract class Land implements Drawable{
+import me.vem.isle.graphics.Spritesheet;
+
+public abstract class Land{
 	
 	private final int x;
 	private final int y;
@@ -14,4 +16,7 @@ public abstract class Land implements Drawable{
 
 	public int getX() { return x; }
 	public int getY() { return y; }
+	
+	public abstract Spritesheet getSpriteSheet();
+	public abstract BufferedImage getImage();
 }

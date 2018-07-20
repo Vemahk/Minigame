@@ -23,7 +23,7 @@ public class SNOctave { // Simplex noise in 2D
 
 	public static int RANDOMSEED = 0;
 
-	private static Grad grad3[] = {
+	private static Grad grad2[] = {
 			new Grad(1,1),new Grad(-1,1),new Grad(1,-1),new Grad(-1,-1),
             new Grad(1,0),new Grad(-1,0),new Grad(1,0),new Grad(-1,0),
             new Grad(0,1),new Grad(0,-1),new Grad(0,1),new Grad(0,-1)
@@ -120,24 +120,24 @@ public class SNOctave { // Simplex noise in 2D
 			n0 = 0.0;
 		else {
 			t0 *= t0;
-			n0 = t0 * t0 * dot(grad3[gi0], x0, y0); // (x,y) of grad3 used for 2D gradient
+			n0 = t0 * t0 * dot(grad2[gi0], x0, y0); // (x,y) of grad3 used for 2D gradient
 		}
 		double t1 = 0.5 - x1 * x1 - y1 * y1;
 		if (t1 < 0)
 			n1 = 0.0;
 		else {
 			t1 *= t1;
-			n1 = t1 * t1 * dot(grad3[gi1], x1, y1);
+			n1 = t1 * t1 * dot(grad2[gi1], x1, y1);
 		}
 		double t2 = 0.5 - x2 * x2 - y2 * y2;
 		if (t2 < 0)
 			n2 = 0.0;
 		else {
 			t2 *= t2;
-			n2 = t2 * t2 * dot(grad3[gi2], x2, y2);
+			n2 = t2 * t2 * dot(grad2[gi2], x2, y2);
 		}
 		// Add contributions from each corner to get the final noise value.
-		// The result is scaled to return values in the interval [-1,1].
+		// The result is scaled to return values in the interval [0, 1].
 		return 35.0 * (n0 + n1 + n2) + .5;
 	}
 

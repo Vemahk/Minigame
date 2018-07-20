@@ -1,5 +1,6 @@
 package me.vem.isle.game.objects;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -11,9 +12,11 @@ import me.vem.isle.game.physics.BoxCollider;
 import me.vem.isle.game.physics.Collider;
 import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
+import me.vem.isle.graphics.Spritesheet;
 import me.vem.isle.io.Savable;
+import me.vem.isle.resources.ResourceManager;
 
-public abstract class GameObject implements Drawable, Comparable<GameObject>, Savable<GameObject>{
+public abstract class GameObject implements Comparable<GameObject>, Savable<GameObject>{
 	
 	public static HashMap<Class<? extends GameObject>, Property> properties = new HashMap<>();
 	
@@ -100,6 +103,18 @@ public abstract class GameObject implements Drawable, Comparable<GameObject>, Sa
 	
 	public Chunk getPresumedChunk() {
 		return Game.getWorld().getChunk(pos.floorX() >> 4, pos.floorY() >> 4);
+	}
+	
+	public Spritesheet getSpriteSheet() {
+		return ResourceManager.getSpritesheet(getProperties().getSpritesheetName());
+	}
+	
+	public BufferedImage getImage() {
+		return getSpriteSheet().getImage(Integer.parseInt(getProperties().getImageID()));
+	}
+	
+	public Property getProperties() {
+		return properties.get(this.getClass());
 	}
 
 	public abstract void update(int tr);

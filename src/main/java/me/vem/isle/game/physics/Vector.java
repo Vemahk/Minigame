@@ -92,6 +92,10 @@ public class Vector {
 		return new Vector(nx, ny);
 	}
 	
+	public String toString() {
+		return String.format("Vector[%.3f, %.3f]", x, y);
+	}
+	
 	/**
 	 * Creates an x-y Vector based on a polar vector of magnitude r and direction th (theta).
 	 * @param r Magnitude

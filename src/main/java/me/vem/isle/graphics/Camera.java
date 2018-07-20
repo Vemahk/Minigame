@@ -98,7 +98,7 @@ public class Camera extends JPanel{
 		//Draw Map
 		map.tick();
 		
-		if(Setting.TOGGLE_MAP.getState()) {
+		if(Setting.TOGGLE_MAP.isToggled()) {
 			g.drawImage(map.getImage(), 0, 0, getWidth(), getHeight(), this);
 			return;
 		}

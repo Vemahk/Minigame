@@ -13,13 +13,8 @@ public class Input implements KeyListener, MouseListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		for(Setting setting : Setting.all)
-			if(setting.getKeyCode() == e.getKeyCode()) {
-				if(!setting.isType(Setting.TYPE_TOGGLE))
-					setting.setOn();
-				if(Setting.actionPressed.contains(setting))
-				if(setting.isType(Setting.TYPE_ONPRESS))
-					setting.run();
-			}
+			if(setting.getKeyCode() == e.getKeyCode())
+				setting.setPressed();
 		
 		//Logger.debug("Key pressed! " + KeyEvent.getKeyText(e.getKeyCode()));
 	}
@@ -28,13 +23,9 @@ public class Input implements KeyListener, MouseListener{
 	public void keyReleased(KeyEvent e) {
 		for(Setting setting : Setting.all)
 			if(setting.getKeyCode() == e.getKeyCode()) {
-				if(!setting.isType(Setting.TYPE_TOGGLE))
-					setting.setOff();
-				if(Setting.actionReleased.contains(setting))
-					if(setting.isType(Setting.TYPE_TOGGLE))
-						setting.toggleState();
-					else if(setting.isType(Setting.TYPE_ONRELEASE))
-						setting.run();
+				setting.setReleased();
+				setting.toggle();
+				setting.run();
 			}
 		
 		//System.out.printf("Key %d released.%n", key);

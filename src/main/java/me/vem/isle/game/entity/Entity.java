@@ -7,11 +7,11 @@ import me.vem.isle.game.world.Chunk;
 public abstract class Entity extends GameObject{
 
 	protected PhysicsBody pBody;
-	protected double moveSpeed;
+	protected float speed;
 	
 	public Entity(float x, float y) {
 		super(x, y);
-		moveSpeed = 10.0;
+		speed = 1;
 		pBody = new PhysicsBody(this);
 	}
 	

@@ -8,6 +8,10 @@ import java.util.HashSet;
 public class Animation {
 
 	public static HashSet<Animation> all = new HashSet<>();
+
+	public static Animation getAnimation(String str) {
+		return null;//TODO Implement this
+	}
 	
 	private Spritesheet sprites;
 	private int[] imageOrder;

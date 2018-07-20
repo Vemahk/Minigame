@@ -120,6 +120,7 @@ public class MainMenu extends JPanel{
 		if(!isVisible()) return;
 		
 		int sel = selected;
+		
 		do {
 			if(--sel < 0) return;
 		}while(opt[sel] == null);

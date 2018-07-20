@@ -10,72 +10,62 @@ import me.vem.isle.Logger;
 public class Setting {
 
 	public static LinkedList<Setting> all = new LinkedList<>();
-	public static HashSet<Setting> actionPressed = new HashSet<>();
-	public static HashSet<Setting> actionReleased = new HashSet<>();
 	
-	public static final int TYPE_TOGGLE = 0;
-	public static final int TYPE_ONPRESS = 1;
-	public static final int TYPE_ONRELEASE = 2;
+	public static Setting MOVE_UP = new Setting("Move Up", KeyEvent.VK_UP);
+	public static Setting MOVE_DOWN = new Setting("Move Down", KeyEvent.VK_DOWN);
+	public static Setting MOVE_LEFT = new Setting("Move Left", KeyEvent.VK_LEFT);
+	public static Setting MOVE_RIGHT = new Setting("Move Right", KeyEvent.VK_RIGHT);
 	
-	public static Setting MOVE_UP = new Setting("Move Up", KeyEvent.VK_UP, TYPE_ONRELEASE)
-									.setAction(() -> App.menu.moveUp());
+	public static Setting SELECT = new Setting("Menu - Select", KeyEvent.VK_ENTER);
+	public static Setting EXIT_GAME = new Setting("Quick Close", KeyEvent.VK_ESCAPE, ActionSet.SHUTDOWN);
 	
-	public static Setting MOVE_DOWN = new Setting("Move Down", KeyEvent.VK_DOWN, TYPE_ONRELEASE)
-									.setAction(() -> App.menu.moveDown());
+	public static Setting TOGGLE_MAP = new Setting("Toggle Map", KeyEvent.VK_M);
+	public static Setting TOGGLE_DEBUG = new Setting("Toggle Debug", KeyEvent.VK_F3);
 	
-	public static Setting MOVE_LEFT = new Setting("Move Left", KeyEvent.VK_LEFT, TYPE_ONRELEASE);
-	public static Setting MOVE_RIGHT = new Setting("Move Right", KeyEvent.VK_RIGHT, TYPE_ONRELEASE);
+	private byte state;
 	
-	public static Setting SELECT = new Setting("Menu - Select", KeyEvent.VK_ENTER, TYPE_ONRELEASE)
-									.setAction(() -> App.menu.select());
-	public static Setting EXIT_GAME = new Setting("Quick Close", KeyEvent.VK_ESCAPE, TYPE_ONRELEASE)
-									.setAction(() -> App.shutdown());
-	
-	public static Setting TOGGLE_MAP = new Setting("Toggle Map", KeyEvent.VK_M, TYPE_TOGGLE);
-	public static Setting TOGGLE_DEBUG = new Setting("Toggle Debug", KeyEvent.VK_F3, TYPE_TOGGLE);
-	
-	private boolean state;
-	
-	private int type;
 	private int key;
 	private String display;
 	
-	private Runnable run;
+	private Runnable action;
 	
-	private Setting(String display, int initKey, int type) {
+	private Setting(String display, int initKey, Runnable action) {
 		this.key = initKey;
 		this.display = display;
-		this.type = type;
+		this.action = action;
 		
 		all.add(this);
-		if(type == 1)
-			actionPressed.add(this);
-		else
-			actionReleased.add(this);
+	}
+	
+	private Setting(String display, int initKey) {
+		this(display, initKey, null);
 	}
 	
 	public Setting setAction(Runnable r) {
-		this.run = r;
+		this.action = r;
 		return this;
 	}
 	
 	public void run() {
-		if(run == null)
+		if(action == null)
 			return;
-		run.run();
+		action.run();
 	}
 	
-	public void setKeyCode(int key) { this.key = key; } 
-	
-	public boolean getState() { return state; }
-	public void toggleState() {  state = !state; }
+	public void setKeyCode(int key) { this.key = key; }
 
-	public void setOn() { this.state = true; }
-	public void setOff() { this.state = false; }
+	public boolean isPressed() { return (state & 1) != 0; }
+	public boolean isToggled() { return (state & 2) != 0; }
+	
+	public void toggle() { state ^= 2; }
+	public void setPressed() { state |= 1; }
+	public void setReleased() { state &= 0xFE; }
+	
+	public void resetAction() { this.action = null; }
 	
 	public int getKeyCode() { return key; }
 	public String getKeyDisplay() { return KeyEvent.getKeyText(key); }
 	public String getDisplay() { return display; }
-	public boolean isType(int t) { return this.type == t; }
 	
 }
+

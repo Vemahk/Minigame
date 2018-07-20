@@ -12,6 +12,7 @@ public class PhysicsBody {
 	
 	private float mass;
 	
+	private final float defFrict;
 	private float friction;
 	
 	public PhysicsBody(Entity parent) {
@@ -25,6 +26,7 @@ public class PhysicsBody {
 	public PhysicsBody(Entity parent, float mass, float friction) {
 		this.parent = parent;
 		this.mass = mass;
+		this.defFrict = friction;
 		this.friction = friction;
 		
 		vel = new Vector();
@@ -44,6 +46,10 @@ public class PhysicsBody {
 	public PhysicsBody setFriction(float f) {
 		this.friction = f;
 		return this;
+	}
+	
+	public float getDefaultFriction() {
+		return defFrict;
 	}
 	
 	public float getFriction() {

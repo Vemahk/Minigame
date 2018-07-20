@@ -1,37 +1,24 @@
 package me.vem.isle.game.entity;
 
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import me.vem.isle.game.Input;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.ChunkLoader;
 import me.vem.isle.game.objects.GameObject;
+import me.vem.isle.game.objects.Property;
 import me.vem.isle.game.physics.Vector;
-import me.vem.isle.graphics.Spritesheet;
 import me.vem.isle.io.DataFormater;
 import me.vem.isle.menu.Setting;
-import me.vem.isle.resources.ResourceManager;
 
 public class PlayerEntity extends Entity implements ChunkLoader{
 	
-	private float speed;
-	
 	public PlayerEntity(float x, float y) {
 		super(x, y);
-		this.pBody.setMass(2.5f);
-		speed = 3;
-	}
-	
-	@Override
-	public Spritesheet getSpriteSheet() {
-		return ResourceManager.getSpritesheet("player.png");
-	}
-	
-	@Override
-	public BufferedImage getImage() {
-		return getSpriteSheet().getImage(0);
+		Property prop = this.getProperties();
+		this.pBody.setMass(prop.getMass());
+		this.pBody.setFriction(prop.getFriction());
+		this.speed = prop.getSpeed();
 	}
 	
 	@Override
@@ -41,20 +28,17 @@ public class PlayerEntity extends Entity implements ChunkLoader{
 		int ix = pos.floorX();
 		int iy = pos.floorY();
 		
-		boolean left = Setting.MOVE_LEFT.getState();
-		boolean right = Setting.MOVE_RIGHT.getState();
-		boolean up = Setting.MOVE_UP.getState();
-		boolean down = Setting.MOVE_DOWN.getState();
+		boolean left = Setting.MOVE_LEFT.isPressed();
+		boolean right = Setting.MOVE_RIGHT.isPressed();
+		boolean up = Setting.MOVE_UP.isPressed();
+		boolean down = Setting.MOVE_DOWN.isPressed();
 		
 		int xMove = left ^ right ? (left ? -1 : 1) : 0;
 		int yMove = up ^ down ? (up ? -1 : 1) : 0;
 		
 		if(Game.getWorld().isWater(ix, iy))		
-			this.getPhysicsBody().setFriction(.6f);
-		else this.getPhysicsBody().setFriction(.3f);
-		
-		/*if(Game.DEBUG_ACTIVE)
-			speedMod *= 10;*/
+			this.getPhysicsBody().setFriction(1 - pBody.getDefaultFriction());
+		else this.getPhysicsBody().setFriction(pBody.getDefaultFriction());
 		
 		float Fx = xMove * speed;
 		float Fy = yMove * speed;
