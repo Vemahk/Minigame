@@ -6,9 +6,9 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
-import me.vem.isle.App;
-import me.vem.isle.game.Game;
-import me.vem.isle.game.entity.PlayerEntity;
+import me.vem.isle.ClientThread;
+import me.vem.isle.game.entity.Player;
+import me.vem.isle.game.world.Land;
 import me.vem.isle.game.world.World;
 
 public class Map {
@@ -38,10 +38,10 @@ public class Map {
 	}
 	
 	public void tick() {
-		if(++t >= updateRate * App.graphicsThread.getFPS()) {
+		if(++t >= updateRate * ClientThread.FPS){
 			t = 0;
 			
-			PlayerEntity player = Game.getPlayer();
+			Player player = Player.getInstance();
 			int px = (int) Math.round(player.getX());
 			int py = (int) Math.round(player.getY());
 			
@@ -56,11 +56,11 @@ public class Map {
 					if(dx * dx + dy * dy >= 100)
 						continue;
 					
-					World lm = Game.getWorld();
-					int rgb = 0xFFFF66; // Default: sand
+					Land land = World.getInstance().getLand(x, y);
+					int rgb = 0x0080FF; // Default: water
 					
-					if(lm.isWater(x, y)) rgb = 0x0080FF; //light blue fo water
-					else if(lm.isGrass(x, y)) rgb = 0x006600; //darkish green for grass.
+					if(land.isSand()) rgb = 0xFFFF66; //sandy color for sand?
+					else if(land.isGrass()) rgb = 0x006600; //darkish green for grass.
 					
 					map.setRGB(x - corner.x, y - corner.y, rgb);
 				}

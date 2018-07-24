@@ -2,21 +2,25 @@ package me.vem.isle.game.world;
 
 import java.awt.image.BufferedImage;
 
-import me.vem.isle.graphics.Spritesheet;
+import me.vem.isle.resources.ResourceManager;
 
-public abstract class Land{
+public enum Land{
 	
-	private final int x;
-	private final int y;
+	WATER(0), SAND(1), GRASS(2);
 	
-	protected Land(int x, int y) {
-		this.x = x;
-		this.y = y;
+	private byte id;
+	
+	private Land(int id) {
+		this.id = (byte)id;
 	}
-
-	public int getX() { return x; }
-	public int getY() { return y; }
 	
-	public abstract Spritesheet getSpriteSheet();
-	public abstract BufferedImage getImage();
+	public byte getId() { return id; }
+	
+	public BufferedImage getImage() {
+		return ResourceManager.getSpritesheet("land.png").getImage(id);
+	}
+	
+	public boolean isWater() { return this==WATER; }
+	public boolean isSand() { return this==SAND; }
+	public boolean isGrass() { return this==GRASS; }
 }

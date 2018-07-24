@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<property id="obj_tree">
+<property id="obj_test">
 	<z>1.0</z>
 	<isChunkLoader radius="1"/>
 	<collider type="box" width="0.9" height="0.9"/>
@@ -9,5 +9,5 @@
 		<anim>other#2</anim>
 		<anim>other#3</anim>
 	</animation>
-	<entity mass="1.0" friction="0.3" speed="1.0"/>
+	<physics mass="1.0" friction="0.3" speed="1.0"/>
 </property>

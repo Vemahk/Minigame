@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.vem.isle</groupId>
 	<artifactId>Dopey-Survival</artifactId>
-	<version>0.1.11-SNAPSHOT</version>
+	<version>0.1.13-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>

@@ -6,26 +6,23 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import me.vem.isle.Logger;
-import me.vem.isle.game.Game;
 import me.vem.isle.game.physics.BoxCollider;
 import me.vem.isle.game.physics.Collider;
+import me.vem.isle.game.physics.Physics;
 import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
-import me.vem.isle.graphics.Spritesheet;
-import me.vem.isle.io.Savable;
-import me.vem.isle.resources.ResourceManager;
+import me.vem.isle.game.world.ChunkQueue;
+import me.vem.isle.game.world.World;
 
-public abstract class GameObject implements Comparable<GameObject>, Savable<GameObject>{
+public class GameObject implements Comparable<GameObject>{
 	
-	public static HashMap<Class<? extends GameObject>, Property> properties = new HashMap<>();
-	
-	public static HashSet<ChunkLoader> chunkLoaders = new HashSet<>();
+	public static HashMap<String, Property> properties = new HashMap<>();
+	public static HashSet<GameObject> chunkLoaders = new HashSet<>();
 	
 	public static GameObject instantiate(GameObject go, Chunk c) {
 		c.addObject(go);
-		if(go instanceof ChunkLoader)
-			chunkLoaders.add((ChunkLoader)go);
+		if(go.isChunkLoader())
+			chunkLoaders.add(go);
 		return go;
 	}
 	
@@ -33,89 +30,85 @@ public abstract class GameObject implements Comparable<GameObject>, Savable<Game
 		return instantiate(go, go.getPresumedChunk());
 	}
 	
-	public static Queue<GameObject> queuedToDestroy = new LinkedList<>();
+	public static Queue<GameObject> toDestroy = new LinkedList<>();
 	public static boolean destroy(GameObject go) {
-		queuedToDestroy.add(go);
-		return true;
+		return toDestroy.add(go);
 	}
+	
+	public static void destroyQueue() {
+		while(!toDestroy.isEmpty())
+			toDestroy.peek().getAssignedChunk().removeObject(toDestroy.poll());
+	}
+	
 	
 	protected Chunk chunk;
 	
+	protected final Property prop;
+
 	protected Vector pos;
 	protected float z;
-	
+
+	protected Physics physics;	
 	protected Collider collider;
 	
-	public GameObject(float x, float y) {
+	public GameObject(String id, float x, float y) {
+		prop = GameObject.properties.get(id);
 		pos = new Vector(x, y);
-		setZ(0);
+		
+		if(prop.isPhysics())
+			physics = new Physics(this, prop.getMass(), prop.getFriction(), prop.getSpeed());
+		
+		if(prop.hasCollider()) {
+			Vector size = prop.getCollisionBoxSize();
+			this.collider = new BoxCollider(this, size.getX(), size.getY());
+		}
 	}
 	
-	public GameObject setCollider(float w, float h) {
-		this.collider = new BoxCollider(this, w, h);
-		return this;
-	}
-	
-	public boolean hasCollider() { return collider != null; }
-	
-	public boolean hasCollidedWith(GameObject go) {
-		return collider.collidedWith(go.collider);
-	}
-	
-	public Collider getCollider() { return collider; }
-	
-	public boolean withinDistanceOf(GameObject o, float dist) {
-		return pos.sub(o.getPos()).getMagSq() <= dist * dist;
-	}
-	
+	public String getId() { return prop.getId(); }
+
 	public Vector getPos() { return pos; }
 	public float getX() { return pos.getX(); }
 	public float getY() { return pos.getY(); }
+	public float getZ() { return prop.getZ(); }
 	
-	public void setPos(float x, float y) {
-		pos.set(x, y);
+	public Physics getPhysics() { return physics; }
+	public Collider getCollider() { return collider; }
+	
+	public Chunk getAssignedChunk() { return chunk; }
+	public Chunk getPresumedChunk() { return World.getInstance().getPresumedChunk(pos); }
+	
+	public boolean hasPhysics() { return physics != null; }
+	public boolean hasCollider() { return collider != null; }
+	
+	public boolean isChunkLoader() { return prop.isChunkLoader(); }
+	public int chunkRadius() { return prop.getLoadRadius(); }
+	
+	public BufferedImage getImage() { return prop.getImage(); }
+	
+	public boolean collidedWith(GameObject go) {
+		return collider.collidedWith(go.collider);
 	}
 	
-	public GameObject setZ(float z) {
-		this.z = z;
-		return this;
-	}
+	public void setPos(float x, float y) { pos.set(x, y); }
+	public void move(float dx, float dy) { pos.offset(dx, dy); }
 	
-	public void offset(float dx, float dy) {
-		pos.offset(dx, dy);
-	}
+	public void setChunk(Chunk c) { this.chunk = c; }
 	
-	public int compareTo(GameObject o) {
-		if(z == o.z)
-			return this.hashCode() - o.hashCode();
+	public void update(int tr) {
+		if(hasPhysics()) {
+			physics.update(tr);
 		
-		return (int)Math.signum(z - o.z);
-	}
-	
-	public GameObject setChunk(Chunk c) {
-		this.chunk = c;
-		return this;
-	}
-	
-	public Chunk getAssignedChunk() {
-		return chunk;
-	}
-	
-	public Chunk getPresumedChunk() {
-		return Game.getWorld().getChunk(pos.floorX() >> 4, pos.floorY() >> 4);
-	}
-	
-	public Spritesheet getSpriteSheet() {
-		return ResourceManager.getSpritesheet(getProperties().getSpritesheetName());
-	}
-	
-	public BufferedImage getImage() {
-		return getSpriteSheet().getImage(Integer.parseInt(getProperties().getImageID()));
-	}
-	
-	public Property getProperties() {
-		return properties.get(this.getClass());
+			Chunk nChunk = getPresumedChunk();
+			if(chunk != nChunk)
+				ChunkQueue.queue(chunk, nChunk, this);
+		}
 	}
 
-	public abstract void update(int tr);
+	@Override
+	public int compareTo(GameObject o) {
+		if(getZ() == o.getZ())
+			return hashCode() - o.hashCode();
+		
+		return (int)Math.signum(getZ() - o.getZ());
+	}
 }

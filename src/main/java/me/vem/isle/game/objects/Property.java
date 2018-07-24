@@ -1,25 +1,25 @@
 package me.vem.isle.game.objects;
 
+import static me.vem.isle.Logger.error;
+import static me.vem.isle.Logger.fatalError;
+import static me.vem.isle.Logger.warning;
+
+import java.awt.image.BufferedImage;
+import java.lang.reflect.Field;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import me.vem.isle.Logger;
 import me.vem.isle.game.physics.Vector;
 import me.vem.isle.graphics.Animation;
+import me.vem.isle.graphics.Spritesheet;
 import me.vem.isle.resources.ResourceManager;
-import static me.vem.isle.Logger.*;
-
-
 
 public class Property {
 	
-	public static void register(Class<? extends GameObject> cls, String filename) throws DocumentException {
-		if(GameObject.properties.containsKey(cls)) {
-			Logger.error("GameObject being registered twice: "+ cls.getName());
-			return;
-		}
+	public static void register(String filename) throws DocumentException {
 		
 		SAXReader reader = new SAXReader();
 		Document doc = reader.read(ResourceManager.getResource("properties", filename));
@@ -34,7 +34,7 @@ public class Property {
 		if(prop.id == null)
 			fatalError("XML Property File '"+filename+"' not formatted correctly. 'property' element requires 'id' attribute for object id.");
 		
-		GameObject.properties.put(cls, prop);
+		GameObject.properties.put(prop.id, prop);
 		
 		//z coordinate
 		Element zed = root.element("z");
@@ -130,15 +130,15 @@ public class Property {
 		//TODO ANIMOTIONS!
 		
 		//Entity
-		Element ent = root.element("entity");
+		Element ent = root.element("physics");
 		if(ent != null) {
-			prop.isEntity = true;
+			prop.isPhysics = true;
 			String mass = ent.attributeValue("mass");
 			if(mass != null) {
 				try {
 					prop.mass = Float.parseFloat(mass);
 				}catch(NumberFormatException e) {
-					error("Error parsing 'mass' for entity. Defaulting to 1.0");
+					error("Error parsing 'mass' for physics. Defaulting to 1.0");
 					prop.mass = 1f;
 				}
 			}else{
@@ -151,7 +151,7 @@ public class Property {
 				try {
 					prop.friction = Float.parseFloat(fr);
 				}catch(NumberFormatException e) {
-					error("Error parsing 'friction' for entity. Defaulting to .3");
+					error("Error parsing 'friction' for physics. Defaulting to .3");
 					prop.friction = .3f;
 				}
 			}else {
@@ -164,7 +164,7 @@ public class Property {
 				try {
 					prop.speed = Float.parseFloat(speed);
 				}catch(NumberFormatException e) {
-					error("Error parsing 'speed' for entity. Defaulting to 1.0");
+					error("Error parsing 'speed' for physics. Defaulting to 1.0");
 					prop.speed = 1f;
 				}
 			}else {
@@ -193,7 +193,7 @@ public class Property {
 	private Animation defAnimation;
 	private Animation[] others; //?
 	
-	private boolean isEntity;
+	private boolean isPhysics;
 	private float mass;
 	private float friction;
 	private float speed;
@@ -212,16 +212,24 @@ public class Property {
 	public String getSpritesheetName() { return spritesheetName; }
 	public String getImageID() { return imageId; }
 	
+	public Spritesheet getSpriteSheet() {
+		return ResourceManager.getSpritesheet(spritesheetName);
+	}
+	
+	public BufferedImage getImage() {
+		return getSpriteSheet().getImage(Integer.parseInt(imageId));
+	}
+	
 	public boolean hasAnimation() { return hasAnimation; }
 	public Animation getDefaultAnimation() { return defAnimation; }
 	public Animation[] getAnimations() { return others; }
 	
-	public boolean isEntity() { return isEntity; }
+	public boolean isPhysics() { return isPhysics; }
 	public float getMass() { return mass; }
 	public float getFriction() { return friction; }
 	public float getSpeed() { return speed; }
 	
-	/*public String toString() {
+	public String toString() {
 		StringBuffer out = new StringBuffer("Property: \n");
 		
 		for(Field f : this.getClass().getDeclaredFields()) {
@@ -233,5 +241,5 @@ public class Property {
 		}
 		
 		return out.toString();
-	}*/
+	}
 }

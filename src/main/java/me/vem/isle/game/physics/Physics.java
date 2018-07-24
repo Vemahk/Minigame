@@ -1,11 +1,10 @@
 package me.vem.isle.game.physics;
 
-import me.vem.isle.game.entity.Entity;
 import me.vem.isle.game.objects.GameObject;
 
-public class PhysicsBody {
+public class Physics {
 
-	private final Entity parent;
+	private final GameObject parent;
 	
 	private Vector vel;
 	private Vector appliedForce;
@@ -15,25 +14,32 @@ public class PhysicsBody {
 	private final float defFrict;
 	private float friction;
 	
-	public PhysicsBody(Entity parent) {
-		this(parent, 1, .3f);
+	private float speed;
+	
+	public Physics(GameObject parent) {
+		this(parent, 1, .3f, 1f);
 	}
 	
-	public PhysicsBody(Entity parent, float mass) {
-		this(parent, mass, .3f);
+	public Physics(GameObject parent, float mass) {
+		this(parent, mass, .3f, 1f);
 	}
 	
-	public PhysicsBody(Entity parent, float mass, float friction) {
+	public Physics(GameObject parent, float mass, float friction) {
+		this(parent, mass, friction, 1f);
+	}
+	
+	public Physics(GameObject parent, float mass, float friction, float speed) {
 		this.parent = parent;
 		this.mass = mass;
 		this.defFrict = friction;
 		this.friction = friction;
+		this.speed = speed;
 		
 		vel = new Vector();
 		appliedForce = new Vector();
 	}
 	
-	public PhysicsBody setMass(float m) {
+	public Physics setMass(float m) {
 		mass = m;
 		return this;
 	}
@@ -43,7 +49,7 @@ public class PhysicsBody {
 	 * @param f
 	 * @return
 	 */
-	public PhysicsBody setFriction(float f) {
+	public Physics setFriction(float f) {
 		this.friction = f;
 		return this;
 	}
@@ -54,6 +60,10 @@ public class PhysicsBody {
 	
 	public float getFriction() {
 		return friction;
+	}
+	
+	public float getSpeed() {
+		return speed;	
 	}
 	
 	public void applyForce(Vector v) {
@@ -67,6 +77,6 @@ public class PhysicsBody {
 		vel = vel.add(appliedForce.scale(1 / mass).sub(vel.scale(friction)));
 		appliedForce = new Vector(); //Reset applied force.
 		Vector dispos = vel.scale(1f / ups); //Scale to updates per second so you don't ZOOOOOM
-		parent.offset(dispos.getX(), dispos.getY());
+		parent.move(dispos.getX(), dispos.getY());
 	}
 }

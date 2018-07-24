@@ -7,11 +7,17 @@ import java.util.Random;
 
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.game.Game;
-import me.vem.isle.game.objects.GameObject;
-import me.vem.isle.game.objects.Tree;
+import me.vem.isle.game.physics.Vector;
 
 public class World {
 
+	private static World instance;
+	public static World getInstance() {
+		if(instance == null)
+			instance = new World();
+		return instance;
+	}
+	
 	private SimplexNoise noiseGen;
 	
 	private HashMap<Point, Chunk> chunks;
@@ -21,7 +27,7 @@ public class World {
 		return loaded;
 	}
 	
-	public World() {
+	private World() {
     	chunks = new HashMap<>();
     	loaded = new HashSet<>();
     	
@@ -38,18 +44,6 @@ public class World {
 		return getChunk(x>>4, y>>4).getLand(x&15, y&15);
 	}
 	
-	public boolean isWater(int x, int y) {
-		return getLand(x,y) instanceof Water;
-	}
-	
-	public boolean isSand(int x, int y) {
-		return getLand(x,y) instanceof Sand;
-	}
-	
-	public boolean isGrass(int x, int y) {
-		return getLand(x,y) instanceof Grass;
-	}
-	
 	public Chunk getChunk(int cx, int cy) {
 		Chunk c = chunks.get(new Point(cx, cy));
 		
@@ -57,5 +51,9 @@ public class World {
 			chunks.put(new Point(cx, cy), c = new Chunk(cx, cy, noiseGen));
 		
 		return c;
+	}
+	
+	public Chunk getPresumedChunk(Vector pos) {
+		return getChunk(pos.floorX() >> 4, pos.floorY() >> 4);
 	}
 }

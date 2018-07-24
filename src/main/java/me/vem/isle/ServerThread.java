@@ -3,35 +3,30 @@ package me.vem.isle;
 import static me.vem.isle.Logger.debug;
 import static me.vem.isle.Logger.info;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.TreeSet;
 
-import me.vem.isle.game.Game;
-import me.vem.isle.game.entity.Entity;
-import me.vem.isle.game.objects.ChunkLoader;
 import me.vem.isle.game.objects.GameObject;
-import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.ChunkQueue;
 import me.vem.isle.game.world.World;
 
-public class UpdateThread extends Thread{
+public class ServerThread extends Thread{
 	
+	private static final int UPS = 60;
 	public static final boolean DISPLAY_TIME_INFO = false;
-
-	public static double deltaTime; //TODO Implement Delta-time
 	
-	private int ups; //ups --> Updates per Second
-	
-	public UpdateThread(int tickrate) {
-		super();
-		this.ups = tickrate;
+	private static ServerThread instance;
+	public static ServerThread getInstance() {
+		if(instance == null)
+			instance = new ServerThread();
+		return instance;
 	}
+	
+	private ServerThread() {}
 	
 	@Override
 	public void run() {
@@ -42,11 +37,9 @@ public class UpdateThread extends Thread{
 
 			/* --==BEGIN PHYSICS UPDATE==-- */
 			
-			World world = Game.getWorld();
-			
-			long prUp = preUpdate(world);
-			long up = update(world);
-			long poUp = postUpdate(world);
+			long prUp = preUpdate();
+			long up = update();
+			long poUp = postUpdate();
 			
 			if(DISPLAY_TIME_INFO) {
 				debug("Pre-Update time in nanoseconds: " + prUp);
@@ -54,13 +47,11 @@ public class UpdateThread extends Thread{
 				debug("Post-Update time in nanoseconds: " + poUp);
 			}
 			
-			App.getCamera().follow(.05f);
-			
 			/* --==END PHYSICS UPDATE==-- */
 			
 			long deltaTime = System.currentTimeMillis() - start;
 			
-			long tickDelay = 1000/ups - deltaTime;
+			long tickDelay = 1000/UPS - deltaTime;
 			if(tickDelay<=0) continue;
 			
 			try {
@@ -75,26 +66,25 @@ public class UpdateThread extends Thread{
 	 * Part 1 of 3 of the physics update. Handles, currently, chunk loading.
 	 * @param world
 	 */
-	private long preUpdate(World world) {
+	private long preUpdate() {
 		long start = System.nanoTime();
 		
-		HashSet<Chunk> loadedChunks = world.getLoadedChunks();
+		HashSet<Chunk> loadedChunks = World.getInstance().getLoadedChunks();
 		synchronized(loadedChunks) {
 			loadedChunks.clear();
 			
-			HashSet<ChunkLoader> loaders = GameObject.chunkLoaders;
+			HashSet<GameObject> loaders = GameObject.chunkLoaders;
 			synchronized(loaders){
 				
-				for(ChunkLoader cl : loaders) {
-					GameObject go = (GameObject) cl;
+				for(GameObject cl : loaders) {
 					
-					int px = go.getPos().floorX() >> 4;
-					int py = go.getPos().floorY() >> 4;
+					int px = cl.getPos().floorX() >> 4;
+					int py = cl.getPos().floorY() >> 4;
 					int r = cl.chunkRadius();
 					
 					for(int x = px - r; x<= px + r; x++)
 						for(int y = py - r; y<= py + r; y++)
-							loadedChunks.add(world.getChunk(x, y));
+							loadedChunks.add(World.getInstance().getChunk(x, y));
 				}
 				
 			}
@@ -107,10 +97,10 @@ public class UpdateThread extends Thread{
 	 * Part 2 of 3 of the physics update. Handles movement & collisions. (NOTE: collisions not yet implemented)
 	 * @param world
 	 */
-	private long update(World world) {
+	private long update() {
 		long start = System.nanoTime();
 		
-		HashSet<Chunk> loadedChunks = world.getLoadedChunks();
+		HashSet<Chunk> loadedChunks = World.getInstance().getLoadedChunks();
 		TreeSet<GameObject> loadedObjects = new TreeSet<>();
 		synchronized(loadedChunks) {
 			for(Chunk c : loadedChunks) {
@@ -122,29 +112,27 @@ public class UpdateThread extends Thread{
 			}
 		}
 		
-		HashMap<Entity, List<Entity>> fsh = new HashMap<>();
+		HashMap<GameObject, List<GameObject>> fsh = new HashMap<>();
 		for(GameObject go : loadedObjects) {
-			if(go instanceof Entity && go.hasCollider())
+			if(go.hasPhysics() && go.hasCollider())
 				for(GameObject go2 : loadedObjects)
-					if(go != go2 && go2.hasCollider() && go.hasCollidedWith(go2)) {
-						Entity ent = (Entity)go;
-						if(go2 instanceof Entity) {
-							Entity ent2 = (Entity)go2;
-							List<Entity> f = fsh.get(ent2);
-							if(f != null && f.contains(ent))
+					if(go != go2 && go2.hasCollider() && go.collidedWith(go2)) {
+						if(go2.hasPhysics()) {
+							List<GameObject> f = fsh.get(go2);
+							if(f != null && f.contains(go))
 								continue;
 							
 							if(f == null)
-								fsh.put(ent, f = new LinkedList<>());
-							f.add(ent2);
+								fsh.put(go, f = new LinkedList<>());
+							f.add(go2);
 
-							ent.getPhysicsBody().applyForce(ent.getPos().sub(ent2.getPos()).inverseMag(3));
-							ent2.getPhysicsBody().applyForce(ent2.getPos().sub(ent.getPos()).inverseMag(3));
+							go.getPhysics().applyForce(go.getPos().sub(go2.getPos()).inverseMag(3));
+							go2.getPhysics().applyForce(go2.getPos().sub(go.getPos()).inverseMag(3));
 							
-						}else ent.getPhysicsBody().applyForce(ent.getPos().sub(go2.getPos()).inverseMag(3));
+						}else go.getPhysics().applyForce(go.getPos().sub(go2.getPos()).inverseMag(3));
 					}
 
-			go.update(ups);
+			go.update(UPS);
 		}
 		
 		return System.nanoTime() - start;
@@ -153,23 +141,12 @@ public class UpdateThread extends Thread{
 	/**
 	 * Part 3 of 3 of the physics update. Handles queued tasks that could not be run during the chunk synchronization.
 	 */
-	private long postUpdate(World world) {
+	private long postUpdate() {
 		long start = System.nanoTime();
 		
-		while(!GameObject.queuedToDestroy.isEmpty()) {
-			GameObject go = GameObject.queuedToDestroy.poll();
-			go.getAssignedChunk().removeObject(go);
-		}
-		
-		//TODO Handle queued chunk tradeoffs.
-		while(!chunkQueue.isEmpty())
-			chunkQueue.poll().execute();
+		GameObject.destroyQueue();
+		ChunkQueue.emptyQueue();
 		
 		return System.nanoTime() - start;
-	}
-	
-	private Queue<ChunkQueue> chunkQueue = new LinkedList<>();
-	public void queueChunkTransfer(ChunkQueue cq) {
-		chunkQueue.add(cq);
 	}
 }

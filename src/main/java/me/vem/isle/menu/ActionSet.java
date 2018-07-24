@@ -9,9 +9,9 @@ public class ActionSet{
 	public static final int SETTINGS = 2;
 	public static final int INGAME_MENU = 3;
 	
-	public static final Runnable MAINMENU_UP = () -> App.menu.moveUp();
-	public static final Runnable MAINMENU_DOWN = () -> App.menu.moveDown();
-	public static final Runnable MAINMENU_SELECT = () -> App.menu.select();
+	public static final Runnable MAINMENU_UP = () -> App.getMainMenu().moveUp();
+	public static final Runnable MAINMENU_DOWN = () -> App.getMainMenu().moveDown();
+	public static final Runnable MAINMENU_SELECT = () -> App.getMainMenu().select();
 	
 	public static final Runnable SHUTDOWN = () -> App.shutdown();
 	

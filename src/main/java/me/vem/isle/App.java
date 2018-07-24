@@ -15,23 +15,15 @@ import me.vem.isle.menu.MainMenu;
 public class App {
 	
 	public static final String GAME_TITLE = "Dopey Survival";
-	public static final String VERSION = "0.1.9";
-	
-	public static GraphicsThread graphicsThread;
-	public static UpdateThread updateThread;
-	
-	private static final int fps = 60; //fps --> frames per second
-	private static final int ups = 60; //ups --> updates per second
+	public static final String VERSION = "0.1.13";
 	
 	private static JFrame window;
-	public static MainMenu menu;
-	private static Camera camera;
+	private static MainMenu menu;
 	
 	public static void createWindow() {
 		window = new JFrame(GAME_TITLE);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		//window.add(camera = new Camera(512, 512, 2));
 		ActionSet.implementActionSet(ActionSet.MAIN_MENU);
 		window.add(menu = new MainMenu());
 		
@@ -48,24 +40,20 @@ public class App {
 		if(Game.isDebugActive())
 			Logger.debug("JFrame created and loaded.");
 	}
-	
+
 	public static JFrame getWindow() { return window; }
+	public static MainMenu getMainMenu() { return menu; }
 	
 	public static void newGame() {
-		window.add(camera = new Camera(512, 512, 2));
+		window.add(Camera.getInstance());
 		
 		ActionSet.implementActionSet(ActionSet.GAME);
 		Game.gameStartup();
 		info("Game started.");
 		
-		graphicsThread = new GraphicsThread(fps);		
-		graphicsThread.start();
-		
-		updateThread = new UpdateThread(ups);
-		updateThread.start();
+		ClientThread.getInstance().start();
+		ServerThread.getInstance().start();
 	}
-	
-	public static Camera getCamera() { return camera; }
 	
 	public static void shutdown() {
 		getWindow().dispose();

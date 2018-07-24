@@ -10,20 +10,29 @@ import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
-import me.vem.isle.Logger;
 import me.vem.isle.game.Game;
+import me.vem.isle.game.entity.Player;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.physics.BoxCollider;
 import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.Land;
+import me.vem.isle.game.world.World;
 import me.vem.isle.menu.Setting;
 import me.vem.isle.resources.ResourceManager;
 
 public class Camera extends JPanel{
-
+	
+	private static final long serialVersionUID = 988250869004283965L;
 	public static int SMOOTH_FOLLOW = 1;
 	public static int RIGID_FOLLOW = 2;;
+	
+	private static Camera instance;
+	public static Camera getInstance() {
+		if(instance == null)
+			instance = new Camera(512, 512, 2);
+		return instance;
+	}
 	
 	private GameObject target;
 	private int followType;
@@ -34,7 +43,7 @@ public class Camera extends JPanel{
 	
 	private Map map;
 	
-	public Camera(int w, int h, int scale) {
+	private Camera(int w, int h, int scale) {
 		this.setBackground(Color.BLACK);
 		this.setPreferredSize(new Dimension(w, h));
 		pos = new Vector();
@@ -90,7 +99,7 @@ public class Camera extends JPanel{
 			return;
 		
 		if(map == null) {
-			Point p = Game.getPlayer().getPos().floor();
+			Point p = Player.getInstance().getPos().floor();
 			p.translate(-256, -256);
 			map = new Map(p, 1.0); //Update the map every 1.0 seconds
 		}
@@ -114,9 +123,9 @@ public class Camera extends JPanel{
 			for(int dy = -DR;dy<=DR;dy++) {
 				int drawX = (int) Math.round((relX + dx - pos.getX()) * TIS + getWidth()/2);
 				int drawY = (int) Math.round((relY + dy - pos.getY()) * TIS + getHeight()/2);
-				Land work = Game.getWorld().getLand(relX + dx, relY + dy);
+				Land land = World.getInstance().getLand(relX + dx, relY + dy);
 				
-				g.drawImage(work.getImage(), drawX, drawY, TIS, TIS, null);
+				g.drawImage(land.getImage(), drawX, drawY, TIS, TIS, null);
 				
 				if(Game.isDebugActive()) {
 					g.setColor(Color.RED);
@@ -128,7 +137,7 @@ public class Camera extends JPanel{
 		//Draw Objects
 		double dDR = DR + .5; //dDR --> double Display Radius
 		
-		HashSet<Chunk> loaded = Game.getWorld().getLoadedChunks();
+		HashSet<Chunk> loaded = World.getInstance().getLoadedChunks();
 		synchronized(loaded) {
 			for(Chunk c : loaded) {
 				TreeSet<GameObject> objs = c.getObjects();

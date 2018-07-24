@@ -3,21 +3,20 @@ package me.vem.isle.game.world;
 import java.util.TreeSet;
 
 import gustavson.simplex.SimplexNoise;
-import me.vem.isle.App;
 import me.vem.isle.game.objects.GameObject;
-import me.vem.isle.game.objects.Tree;
 
 public class Chunk {
-
+	
 	private TreeSet<GameObject> objs;
-	private Land[][] land;
+	private byte[][] land;
 	
 	private boolean isLoaded = false;
 	
 	public Chunk(int cx, int cy, SimplexNoise sn) {
 		
-		land = new Land[16][16];
-		objs = new TreeSet<>();
+		land = new byte[16][16];
+		
+		objs = new TreeSet<GameObject>();
 		
 		for(int x=0;x<16;x++)
     		for(int y=0;y<16;y++) {
@@ -27,13 +26,10 @@ public class Chunk {
                 double d = sn.getNoise(sx, sy);
                 
                 if(d >= .55 && Math.random()<.2)
-					GameObject.instantiate(new Tree(sx+.5f, sy+.5f).setZ(1).setCollider(.9f, .9f), this); 
-                
-				if(d >= .52)
-					setLand(x, y, new Grass(sx, sy));
-				else if(d >= .5)
-					setLand(x, y, new Sand(sx, sy));
-				else setLand(x, y, new Water(sx, sy));
+					GameObject.instantiate(new GameObject("obj_tree", sx+.5f, sy+.5f), this); 
+
+				if(d >= .5) land[x][y]++;
+				if(d >= .52) land[x][y]++;
     		}
 	}
 	
@@ -70,27 +66,7 @@ public class Chunk {
 		}
 	}
 	
-	public void queueTransfer(Chunk to, GameObject go) {
-		App.updateThread.queueChunkTransfer(new ChunkQueue(this, to, go));
-	}
-	
 	public Land getLand(int x, int y) {
-		return land[x][y];
-	}
-	
-	public void setLand(int x, int y, Land l) {
-		land[x][y] = l;
-	}
-	
-	public boolean isWater(int x, int y) {
-		return land[x][y] instanceof Water;
-	}
-	
-	public boolean isSand(int x, int y) {
-		return land[x][y] instanceof Sand;
-	}
-	
-	public boolean isGrass(int x, int y) {
-		return land[x][y] instanceof Grass;
+		return Land.values()[land[x][y]];
 	}
 }

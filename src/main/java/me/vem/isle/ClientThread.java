@@ -3,19 +3,20 @@ package me.vem.isle;
 import static me.vem.isle.Logger.info;
 
 import me.vem.isle.graphics.Animation;
+import me.vem.isle.graphics.Camera;
 
-public class GraphicsThread extends Thread{
+public class ClientThread extends Thread{
 
-	public static double deltaTime; //TODO Implement Delta-time
+	public static final int FPS = 60;
 	
-	private int fps;
-	
-	public GraphicsThread(int fps) {
-		super();
-		this.fps = fps;
+	private static ClientThread instance;
+	public static ClientThread getInstance() {
+		if(instance == null)
+			instance = new ClientThread();
+		return instance;
 	}
 	
-	public int getFPS() { return fps; }
+	private ClientThread() {}
 	
 	@Override
 	public void run() {
@@ -29,11 +30,12 @@ public class GraphicsThread extends Thread{
 				for(Animation anim : Animation.all)
 					anim.tick();
 			}
-			
+
+			Camera.getInstance().follow(.05f);
 			App.getWindow().repaint();
 			
 			long deltaTime = System.currentTimeMillis() - start;
-			long frameDelay = 1000/fps - deltaTime; //Graphics Thread Sleep
+			long frameDelay = 1000/FPS - deltaTime; //Graphics Thread Sleep
 			if(frameDelay <= 0) continue;
 			
 			try {

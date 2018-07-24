@@ -1,11 +1,7 @@
 package me.vem.isle.menu;
 
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
 import java.util.LinkedList;
-
-import me.vem.isle.App;
-import me.vem.isle.Logger;
 
 public class Setting {
 
