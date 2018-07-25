@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <property id="obj_test">
 	<z>1.0</z>
-	<isChunkLoader radius="1"/>
+	<loader radius="1"/>
 	<collider type="box" width="0.9" height="0.9"/>
-	<sprite sheet="tree.png" id="0"/>
+	<sprite id="spriteid"/>
 	<animation default="testanim">
 		<anim>other#1</anim>
 		<anim>other#2</anim>

@@ -3,6 +3,7 @@ package me.vem.isle.game.world;
 import java.awt.image.BufferedImage;
 
 import me.vem.isle.resources.ResourceManager;
+import me.vem.isle.resources.Sprite;
 
 public enum Land{
 	
@@ -16,8 +17,8 @@ public enum Land{
 	
 	public byte getId() { return id; }
 	
-	public BufferedImage getImage() {
-		return ResourceManager.getSpritesheet("land.png").getImage(id);
+	public Sprite getSprite() {
+		return Sprite.get(this.toString().toLowerCase());
 	}
 	
 	public boolean isWater() { return this==WATER; }

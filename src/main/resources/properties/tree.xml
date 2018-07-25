@@ -2,5 +2,5 @@
 <property id="obj_tree">
 	<z>1.0</z>
 	<collider type="box" width="0.9" height="0.9"/>
-	<sprite sheet="tree.png" id="0"/>
+	<sprite id="tree"/>
 </property>

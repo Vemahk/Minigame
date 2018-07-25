@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <property id="ent_player">
-	<isChunkLoader radius="1"/>
-	<collider type="box" width="1"/>
-	<sprite sheet="player.png" id="0"/>
-	<physics mass="2.5" friction=".3" speed="3"/>
+	<loader radius="1"/>
+	<collider type="box" width="1" height="1"/>
+	<sprite id="player"/>
+	<physics mass="2.5" friction="0.3" speed="3.0"/>
 </property>

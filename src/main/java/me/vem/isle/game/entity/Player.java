@@ -2,10 +2,10 @@ package me.vem.isle.game.entity;
 
 import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.GameObject;
-import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.World;
 import me.vem.isle.graphics.Camera;
 import me.vem.isle.menu.Setting;
+import me.vem.utils.math.Vector;
 
 public class Player extends GameObject{
 	

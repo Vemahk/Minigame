@@ -1,62 +1,45 @@
 package me.vem.isle.resources;
 
-import static me.vem.isle.Logger.info;
-import static me.vem.isle.Logger.warning;
-
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
-import me.vem.isle.graphics.Spritesheet;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 public class ResourceManager {
-
-	public static HashMap<String, Spritesheet> spritesheets = new HashMap<>();
 	
-	public static final int IMAGE_SIZE = 32;
-	
-	public static Spritesheet getSpritesheet(String fileName) {
-		if(spritesheets.containsKey(fileName))
-			return spritesheets.get(fileName);
-		
-		InputStream stream = ResourceManager.class.getClassLoader().getResourceAsStream(fileName);
-		
+	static {
 		try {
-			BufferedImage found = ImageIO.read(stream);
-			if(found == null)
-				warning("Failed to find item "+fileName+" in resouces folder.");
-			else {
-				if(found.getWidth()%IMAGE_SIZE != 0 || found.getHeight()%IMAGE_SIZE != 0)
-					info("Spritesheet "+ fileName +" has odd dimensions. Proceeding with caution.");
-				
-				int len = (found.getWidth()/IMAGE_SIZE) * (found.getHeight()/IMAGE_SIZE);
-				Spritesheet out = new Spritesheet(len);
-				
-				for(int x=0;x<found.getWidth()/IMAGE_SIZE;x++) {
-					for(int y=0;y<found.getHeight()/IMAGE_SIZE;y++) {
-						BufferedImage subImage = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, found.getType());
-						
-						Graphics g = subImage.getGraphics();
-						g.drawImage(found, -x*IMAGE_SIZE, -y*IMAGE_SIZE, null);
-						
-						int imageIndex = x + y*(found.getWidth()/IMAGE_SIZE);
-						while(!out.setImage(imageIndex, subImage))
-							imageIndex++;
-					}
-				}
-				
-				spritesheets.put(fileName, out);
-				return out;
-			}
-		}catch (IOException e) {
+			ResourceManager.registerSpritesheet("main");
+		} catch (IOException | DocumentException e) {
 			e.printStackTrace();
-			return null;
 		}
-		return null;
+	}
+	
+	public static void registerSpritesheet(String filename) throws IOException, DocumentException {
+		BufferedImage sheet = ImageIO.read(getResource("sprites", filename+".png"));
+		
+		SAXReader reader = new SAXReader();
+		Document doc = reader.read(getResource("spritedata", filename+".xml"));
+		
+		Element root = doc.getRootElement();
+		for(Element spr : root.elements()) {
+			String id = spr.attributeValue("id");
+			int x = Integer.parseInt(spr.attributeValue("x"));
+			int y = Integer.parseInt(spr.attributeValue("y"));
+			int w = Integer.parseInt(spr.attributeValue("w"));
+			int h = Integer.parseInt(spr.attributeValue("h"));
+			
+			BufferedImage spriteImage = new BufferedImage(w, h, sheet.getType());
+			spriteImage.getGraphics().drawImage(sheet, -x, -y, null);
+			
+			new Sprite(id, spriteImage);
+		}
 	}
 	
 	public static InputStream getResource(String fileName) {

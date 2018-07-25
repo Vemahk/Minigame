@@ -9,10 +9,11 @@ import java.util.Queue;
 import me.vem.isle.game.physics.BoxCollider;
 import me.vem.isle.game.physics.Collider;
 import me.vem.isle.game.physics.Physics;
-import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.ChunkQueue;
 import me.vem.isle.game.world.World;
+import me.vem.isle.resources.Sprite;
+import me.vem.utils.math.Vector;
 
 public class GameObject implements Comparable<GameObject>{
 	
@@ -46,8 +47,7 @@ public class GameObject implements Comparable<GameObject>{
 	protected final Property prop;
 
 	protected Vector pos;
-	protected float z;
-
+	
 	protected Physics physics;	
 	protected Collider collider;
 	
@@ -83,7 +83,7 @@ public class GameObject implements Comparable<GameObject>{
 	public boolean isChunkLoader() { return prop.isChunkLoader(); }
 	public int chunkRadius() { return prop.getLoadRadius(); }
 	
-	public BufferedImage getImage() { return prop.getImage(); }
+	public Sprite getSprite() { return prop.getSprite(); }
 	
 	public boolean collidedWith(GameObject go) {
 		return collider.collidedWith(go.collider);

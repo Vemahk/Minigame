@@ -14,12 +14,12 @@ import me.vem.isle.game.Game;
 import me.vem.isle.game.entity.Player;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.physics.BoxCollider;
-import me.vem.isle.game.physics.Vector;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.Land;
 import me.vem.isle.game.world.World;
 import me.vem.isle.menu.Setting;
 import me.vem.isle.resources.ResourceManager;
+import me.vem.utils.math.Vector;
 
 public class Camera extends JPanel{
 	
@@ -113,27 +113,53 @@ public class Camera extends JPanel{
 		}
 		
 		//Draw Land
-		int TIS = ResourceManager.IMAGE_SIZE * scale; //TIS --> True Image Size
-		int DR = Math.max(getWidth(), getHeight()) / TIS / 2; //DR --> Display Radius
+		int TS = (int)(UnitConversion.PPU * scale); //TS --> True Scale
+		int DR = Math.max(getWidth(), getHeight()) / TS / 2; //DR --> Display Radius
 		
-		int relX = pos.floorX();
-		int relY = pos.floorY();
+		int DW = getWidth() / TS + 1;
+		int DH = getHeight() / TS + 1;
 		
-		for(int dx = -DR;dx<=DR;dx++) {
-			for(int dy = -DR;dy<=DR;dy++) {
-				int drawX = (int) Math.round((relX + dx - pos.getX()) * TIS + getWidth()/2);
-				int drawY = (int) Math.round((relY + dy - pos.getY()) * TIS + getHeight()/2);
-				Land land = World.getInstance().getLand(relX + dx, relY + dy);
+		BufferedImage display = new BufferedImage(UnitConversion.toPixels(DW), UnitConversion.toPixels(DH), BufferedImage.TYPE_INT_ARGB);
+		Graphics dg = display.getGraphics();
+		
+		int relX = pos.floorX() - DW/2;
+		int relY = pos.floorY() - DH/2;
+		
+		for(int x = 0;x < DW;x++) {
+			for(int y = 0;y < DH;y++) {
+				Land land = World.getInstance().getLand(relX + x, relY + y);
 				
-				g.drawImage(land.getImage(), drawX, drawY, TIS, TIS, null);
+				int drawX = UnitConversion.toPixels(x);
+				int drawY = UnitConversion.toPixels(y);
+				
+				dg.drawImage(land.getSprite().getImage(), drawX, drawY, null);
 				
 				if(Game.isDebugActive()) {
-					g.setColor(Color.RED);
-					g.drawString((relX + dx) + "|" + (relY + dy), drawX, drawY+10);
+					dg.setColor(Color.RED);
+					dg.drawString((relX + x) + "," + (relY + y), drawX, drawY);
 				}
 			}
 		}
-
+		
+		/*HashSet<Chunk> lc = World.getInstance().getLoadedChunks();//lc >> Loaded Chunks
+		synchronized(lc) {
+			for(Chunk c : lc) {
+				TreeSet<GameObject> objs = c.getObjects();
+				synchronized(objs) {
+					for(GameObject go : objs) {
+						Vector pos = go.getPos();
+						if(pos.getX() >= relX && pos.getX() <= relX + DW && pos.getY() >= relY && pos.getY() <= relY + DH) {
+							
+						}
+					}
+				}
+			}
+		}*/
+		
+		g.drawImage(display, UnitConversion.toPixels((pos.floorX() - pos.getX()) * scale), 
+							 UnitConversion.toPixels((pos.floorY() - pos.getY()) * scale), 
+							 DW * TS, DH * TS, this);
+		
 		//Draw Objects
 		double dDR = DR + .5; //dDR --> double Display Radius
 		
@@ -146,24 +172,39 @@ public class Camera extends JPanel{
 						double dx = go.getX() - pos.getX();
 						double dy = go.getY() - pos.getY();
 						if(dx >= -dDR && dx <= dDR && dy >= -dDR && dy <= dDR) {
-							BufferedImage image = go.getImage();
-							int drawX = (int) Math.round(dx * TIS + getWidth()/2) - image.getWidth() / 2 * scale;
-							int drawY = (int) Math.round(dy * TIS + getHeight()/2) - image.getHeight() / 2 * scale;
+							BufferedImage image = go.getSprite().getImage();
+							int drawX = (int) Math.round(dx * TS + getWidth()/2) - image.getWidth() / 2 * scale;
+							int drawY = (int) Math.round(dy * TS + getHeight()/2) - image.getHeight() / 2 * scale;
 							
-							g.drawImage(image, drawX, drawY, TIS, TIS, null);
+							g.drawImage(image, drawX, drawY, TS, TS, null);
 							
 							if(Game.isDebugActive() && go.hasCollider()) {
 								BoxCollider coll = (BoxCollider) go.getCollider();
 								g.setColor(Color.GREEN);
 								
-								int w = (int) Math.round(coll.getWidth() * TIS);
-								int h = (int) Math.round(coll.getHeight() * TIS);
-								g.drawRect(drawX + TIS/2 - w / 2, drawY + TIS/2 - h / 2, w, h);
+								int w = (int) Math.round(coll.getWidth() * TS);
+								int h = (int) Math.round(coll.getHeight() * TS);
+								g.drawRect(drawX + TS/2 - w / 2, drawY + TS/2 - h / 2, w, h);
 							}
 						}
 					}
 				}
 			}
 		}
+		
+		/*for(int dx = -DR;dx<=DR;dx++) {
+			for(int dy = -DR;dy<=DR;dy++) {
+				int drawX = (int) Math.round((relX + dx - pos.getX()) * TS + getWidth()/2);
+				int drawY = (int) Math.round((relY + dy - pos.getY()) * TS + getHeight()/2);
+				Land land = World.getInstance().getLand(relX + dx, relY + dy);
+				
+				g.drawImage(land.getImage(), drawX, drawY, TS, TS, null);
+				
+				if(Game.isDebugActive()) {
+					g.setColor(Color.RED);
+					g.drawString((relX + dx) + "|" + (relY + dy), drawX, drawY+10);
+				}
+			}
+		}*/
 	} //Draw visible end
 }

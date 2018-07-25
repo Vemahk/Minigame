@@ -47,10 +47,6 @@ public class App {
 	public static void newGame() {
 		window.add(Camera.getInstance());
 		
-		ActionSet.implementActionSet(ActionSet.GAME);
-		Game.gameStartup();
-		info("Game started.");
-		
 		ClientThread.getInstance().start();
 		ServerThread.getInstance().start();
 	}

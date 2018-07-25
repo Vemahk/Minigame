@@ -9,10 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
+import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.ChunkQueue;
 import me.vem.isle.game.world.World;
+import me.vem.isle.menu.ActionSet;
 
 public class ServerThread extends Thread{
 	
@@ -31,6 +33,10 @@ public class ServerThread extends Thread{
 	@Override
 	public void run() {
 		info("Game Thread Started...");
+		
+		ActionSet.implementActionSet(ActionSet.GAME);
+		Game.gameStartup();
+		info("Game started.");
 		
 		while(true) {
 			long start = System.currentTimeMillis();

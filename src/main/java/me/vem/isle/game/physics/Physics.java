@@ -1,6 +1,7 @@
 package me.vem.isle.game.physics;
 
 import me.vem.isle.game.objects.GameObject;
+import me.vem.utils.math.Vector;
 
 public class Physics {
 

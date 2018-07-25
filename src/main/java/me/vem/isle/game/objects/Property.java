@@ -1,21 +1,20 @@
 package me.vem.isle.game.objects;
 
-import static me.vem.isle.Logger.error;
 import static me.vem.isle.Logger.fatalError;
-import static me.vem.isle.Logger.warning;
 
-import java.awt.image.BufferedImage;
-import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import me.vem.isle.game.physics.Vector;
 import me.vem.isle.graphics.Animation;
-import me.vem.isle.graphics.Spritesheet;
 import me.vem.isle.resources.ResourceManager;
+import me.vem.isle.resources.Sprite;
+import me.vem.utils.math.Vector;
 
 public class Property {
 	
@@ -35,210 +34,77 @@ public class Property {
 			fatalError("XML Property File '"+filename+"' not formatted correctly. 'property' element requires 'id' attribute for object id.");
 		
 		GameObject.properties.put(prop.id, prop);
+		prop.values = new LinkedHashMap<>();
 		
-		//z coordinate
-		Element zed = root.element("z");
-		if(zed!=null) {
-			try {
-				prop.z = Float.parseFloat(zed.getStringValue());
-			}catch(NumberFormatException e) {
-				error("Failed to parse floating point number in 'z' field. -> " + filename);
-			}
+		for(Element e : root.elements()) {
+			String name = e.getName();
+			String text = e.getTextTrim();
+			
+			if(text.isEmpty())
+				prop.values.put(name, true);
+			else prop.values.put(name, text);
+			
+			for(Attribute a : e.attributes())
+				prop.values.put(name+"."+a.getName(), a.getText().trim());
+
+			LinkedList<String> list = new LinkedList<>();
+			for(Element e2 : e.elements())
+				list.add(e2.getText());
+			if(list.size() > 0)
+				prop.values.put(name, list);
 		}
 		
-		//ChunkLoader
-		Element cl = root.element("isChunkLoader");
-		if(cl != null) {
-			prop.chunkLoader = true;
-			String rad = cl.attributeValue("radius");
-			if(rad == null) {
-				warning("No 'radius' attribute in isChunkLoader element. Defaulting to 0.");
-				prop.loadRadius = 0;
-			}else {
-				try {
-					prop.loadRadius = Integer.parseInt(rad);
-				}catch(NumberFormatException e) {
-					error("Failed to parse integer from 'radius' attribute. Defaulting to 0.");
-					prop.loadRadius = 0;
-				}
-			}
-		}
-		
-		//Collider
-		Element collider = root.element("collider");
-		if(collider != null) {
-			prop.hasCollider = true;
-			String type = collider.attributeValue("type");
-			if(type == null) {
-				warning("Collider attribute 'type' missing. Defaulting to Box collider.");
-				prop.colliderType = "box";
-			}else prop.colliderType = type;
-			
-			float w;
-			float h;
-			
-			String width = collider.attributeValue("width");
-			if(width == null) {
-				warning("Collider attribute 'width' missing. Defaulting to 1.0");
-				w = 1f;
-			}else {
-				try {
-					w = Float.parseFloat(width);
-				}catch(NumberFormatException e) {
-					error("Error parsing 'width' for box collider. Defaulting to 1.0");
-					w = 1f;
-				}
-			}
-			
-			String height = collider.attributeValue("height");
-			if(height == null) {
-				warning("Collider attribute 'height' missing. Matching 'width'");
-				h = w;
-			}else {
-				try {
-					h = Float.parseFloat(height);
-				}catch(NumberFormatException e) {
-					error("Error parsing 'height' for box collider. Matching 'width'");
-					h = w;
-				}
-			}
-			
-			prop.colliderSize = new Vector(w, h);
-		}
-		
-		//Sprite info
-		Element sprite = root.element("sprite");
-		if(sprite!=null) {
-			String sheetname = sprite.attributeValue("sheet");
-			if(sheetname == null)
-				error("No sheet name for sprite information. No sprite info will be loaded.");
-			else {
-				prop.hasSprite = true;
-				prop.spritesheetName = sheetname;
-				
-				String spriteid = sprite.attributeValue("id");
-				if(spriteid==null) {
-					spriteid = "0";
-					warning("No sprite 'id' found. Defaulting to 0.");
-				}
-				
-				prop.imageId = spriteid;
-			}
-		}else
-			warning("No sprite information found in '"+filename+"'");
-		
-		//TODO ANIMOTIONS!
-		
-		//Entity
-		Element ent = root.element("physics");
-		if(ent != null) {
-			prop.isPhysics = true;
-			String mass = ent.attributeValue("mass");
-			if(mass != null) {
-				try {
-					prop.mass = Float.parseFloat(mass);
-				}catch(NumberFormatException e) {
-					error("Error parsing 'mass' for physics. Defaulting to 1.0");
-					prop.mass = 1f;
-				}
-			}else{
-				warning("Entity attribute 'mass' missing. Defaulting to 1.0");
-				prop.mass = 1f;
-			}
-			
-			String fr = ent.attributeValue("friction");
-			if(fr != null) {
-				try {
-					prop.friction = Float.parseFloat(fr);
-				}catch(NumberFormatException e) {
-					error("Error parsing 'friction' for physics. Defaulting to .3");
-					prop.friction = .3f;
-				}
-			}else {
-				warning("Entity attribute 'friction' missing. Defaulting to .3");
-				prop.friction = .3f;
-			}
-			
-			String speed = ent.attributeValue("speed");
-			if(speed != null) {
-				try {
-					prop.speed = Float.parseFloat(speed);
-				}catch(NumberFormatException e) {
-					error("Error parsing 'speed' for physics. Defaulting to 1.0");
-					prop.speed = 1f;
-				}
-			}else {
-				warning("Entity attribute 'speed' missing. Defaulting to 1.0");
-				prop.speed = 1f;
-			}
-		}
+		//Logger.info(prop);
 	}
 	
 	private String id;
+	private LinkedHashMap<String, Object> values;
 	
-	private float z;
+	public boolean asBoolean(String key) { return values.containsKey(key); }
+	public String asString(String key) { return asBoolean(key) ? values.get(key).toString() : null; }
+	public int asInt(String key) { return asBoolean(key) ? Integer.parseInt(asString(key)) : 0; }
+	public float asFloat(String key) { return asBoolean(key) ? Float.parseFloat(asString(key)) : 0f; }
 	
-	private boolean chunkLoader;
-	private int loadRadius;
-	
-	private boolean hasCollider;
-	private String colliderType;
-	private Vector colliderSize;
-	
-	private boolean hasSprite;
-	private String spritesheetName;
-	private String imageId;
-	
-	private boolean hasAnimation;
-	private Animation defAnimation;
-	private Animation[] others; //?
-	
-	private boolean isPhysics;
-	private float mass;
-	private float friction;
-	private float speed;
+	@SuppressWarnings("unchecked")
+	public LinkedList<String> asList(String key){ return asBoolean(key) ? (LinkedList<String>)values.get(key) : null; }
 	
 	public String getId() { return id; }
-	public float getZ() { return z; }
 	
-	public boolean isChunkLoader() { return chunkLoader; }
-	public int getLoadRadius() { return isChunkLoader() ? loadRadius : 0; }
+	public float getZ() { return asFloat("z"); }
 	
-	public boolean hasCollider() { return hasCollider || colliderSize!= null; }
-	public String getType() { return colliderType; }
-	public Vector getCollisionBoxSize() { return colliderSize; }
+	public boolean isChunkLoader() { return asBoolean("loader"); }
+	public int getLoadRadius() { return asInt("loader.radius"); }
 	
-	public boolean hasSprite() { return hasSprite; }
-	public String getSpritesheetName() { return spritesheetName; }
-	public String getImageID() { return imageId; }
+	public boolean hasCollider() { return asBoolean("collider"); }
+	public String getType() { return asString("collider.type"); }
+	public Vector getCollisionBoxSize() { return hasCollider() ? new Vector(asFloat("collider.width"), asFloat("collider.height")) : null; }
 	
-	public Spritesheet getSpriteSheet() {
-		return ResourceManager.getSpritesheet(spritesheetName);
+	public boolean hasSprite() { return asBoolean("sprite"); }
+	public String getImageId() { return asString("sprite.id"); } 
+	public Sprite getSprite() { return Sprite.get(getImageId()); }
+	
+	public boolean hasAnimation() { return asBoolean("animation"); }
+	public Animation getDefaultAnimation() { return Animation.getAnimation(asString("animation.default")); }
+	public Animation[] getAnimations() {
+		LinkedList<String> list = asList("animation");
+		if(list==null) return null;
+		
+		Animation[] out = new Animation[list.size()];
+		for(int i=0;i<out.length;i++)
+			out[i] = Animation.getAnimation(list.get(i));
+		return out;
 	}
 	
-	public BufferedImage getImage() {
-		return getSpriteSheet().getImage(Integer.parseInt(imageId));
-	}
-	
-	public boolean hasAnimation() { return hasAnimation; }
-	public Animation getDefaultAnimation() { return defAnimation; }
-	public Animation[] getAnimations() { return others; }
-	
-	public boolean isPhysics() { return isPhysics; }
-	public float getMass() { return mass; }
-	public float getFriction() { return friction; }
-	public float getSpeed() { return speed; }
+	public boolean isPhysics() { return asBoolean("physics"); }
+	public float getMass() { return asFloat("physics.mass"); }
+	public float getFriction() { return asFloat("physics.friction"); }
+	public float getSpeed() { return asFloat("physics.speed"); }
 	
 	public String toString() {
-		StringBuffer out = new StringBuffer("Property: \n");
+		StringBuffer out = new StringBuffer("Property: "+id+"\n");
 		
-		for(Field f : this.getClass().getDeclaredFields()) {
-			try {
-				out.append(f.getName() + ": " + f.get(this) + "\n");
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
+		for(String key : values.keySet()) 
+			out.append(key + ": " + values.get(key) + "\n");
 		
 		return out.toString();
 	}

@@ -7,7 +7,7 @@ import java.util.Random;
 
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.game.Game;
-import me.vem.isle.game.physics.Vector;
+import me.vem.utils.math.Vector;
 
 public class World {
 

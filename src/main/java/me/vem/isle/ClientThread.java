@@ -2,8 +2,13 @@ package me.vem.isle;
 
 import static me.vem.isle.Logger.info;
 
+import java.io.IOException;
+
+import org.dom4j.DocumentException;
+
 import me.vem.isle.graphics.Animation;
 import me.vem.isle.graphics.Camera;
+import me.vem.isle.resources.ResourceManager;
 
 public class ClientThread extends Thread{
 

@@ -5,6 +5,8 @@ import static me.vem.isle.Logger.info;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 
+import me.vem.isle.resources.Sprite;
+
 public class Animation {
 
 	public static HashSet<Animation> all = new HashSet<>();
@@ -13,26 +15,22 @@ public class Animation {
 		return null;//TODO Implement this
 	}
 	
-	private Spritesheet sprites;
-	private int[] imageOrder;
+	private Sprite[] sprites;
 	private int frameDelay;
 	
-	private int nextImageIndex;
-	private int curImage;
+	private int cur;
 	
-	public Animation(Spritesheet s, int delay, int... order) {
+	public Animation(int delay, Sprite... sprites) {
 		
-		if(order.length <= 1) { //U don guufed.
+		if(sprites.length <= 1) { //U don guufed.
 			info("Cannot create animation of one or no image order.");
 			return;
 		}
 		
-		sprites = s;
-		imageOrder = order;
+		this.sprites = sprites;
 		frameDelay = delay;
 		
-		curImage = order[0];
-		nextImageIndex = 1;
+		cur = 0;
 		
 		synchronized(all) {
 			all.add(this);
@@ -43,14 +41,12 @@ public class Animation {
 	public void tick() {
 		if(++tick >= frameDelay) {
 			tick = 0;
-			curImage = imageOrder[nextImageIndex++];
-			if(nextImageIndex == imageOrder.length)
-				nextImageIndex = 0;
+			if(++cur >= sprites.length)
+				cur = 0;
 		}
 	}
 	
-	public BufferedImage getCurImage() {
-		return sprites.getImage(curImage);
+	public Sprite getCurrent() {
+		return sprites[cur];
 	}
-	
 }
