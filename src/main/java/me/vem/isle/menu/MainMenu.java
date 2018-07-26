@@ -73,10 +73,8 @@ public class MainMenu extends JPanel{
 		if(!isVisible()) return;
 		
 		if(selected == 0) { //GET ME DAT NEW GAME BOOIIII
-			this.setVisible(false);
 			App.newGame();
 		}else if(selected == 4) { //SHOW ME DA CREDITS
-			//TODO
 			creditsActive = true;
 			creditsOffset = 0f;
 			

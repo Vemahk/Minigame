@@ -1,6 +1,7 @@
 package me.vem.isle.menu;
 
 import me.vem.isle.App;
+import me.vem.isle.ClientThread;
 
 public class ActionSet{
 	
@@ -9,9 +10,9 @@ public class ActionSet{
 	public static final int SETTINGS = 2;
 	public static final int INGAME_MENU = 3;
 	
-	public static final Runnable MAINMENU_UP = () -> App.getMainMenu().moveUp();
-	public static final Runnable MAINMENU_DOWN = () -> App.getMainMenu().moveDown();
-	public static final Runnable MAINMENU_SELECT = () -> App.getMainMenu().select();
+	public static final Runnable MAINMENU_UP = () -> ClientThread.getInstance().getMainMenu().moveUp();
+	public static final Runnable MAINMENU_DOWN = () -> ClientThread.getInstance().getMainMenu().moveDown();
+	public static final Runnable MAINMENU_SELECT = () -> ClientThread.getInstance().getMainMenu().select();
 	
 	public static final Runnable SHUTDOWN = () -> App.shutdown();
 	

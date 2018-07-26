@@ -34,9 +34,7 @@ public class ServerThread extends Thread{
 	public void run() {
 		info("Game Thread Started...");
 		
-		ActionSet.implementActionSet(ActionSet.GAME);
 		Game.gameStartup();
-		info("Game started.");
 		
 		while(true) {
 			long start = System.currentTimeMillis();

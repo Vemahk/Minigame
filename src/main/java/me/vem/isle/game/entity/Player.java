@@ -3,7 +3,6 @@ package me.vem.isle.game.entity;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.world.World;
-import me.vem.isle.graphics.Camera;
 import me.vem.isle.menu.Setting;
 import me.vem.utils.math.Vector;
 
@@ -12,6 +11,7 @@ public class Player extends GameObject{
 	private static Player instance;
 	public static Player getInstance() {
 		if(instance == null) {
+			if(!Game.initialized) return null;
 			int x;
 			int y;
 			do {
@@ -20,7 +20,7 @@ public class Player extends GameObject{
 			}while(!World.getInstance().getLand(x, y).isSand());
 			
 			instance = (Player) GameObject.instantiate(new Player(x, y));
-			Camera.getInstance().setTarget(instance, true);
+			//Camera.getInstance().setTarget(instance, true);
 		}
 		return instance;
 	}

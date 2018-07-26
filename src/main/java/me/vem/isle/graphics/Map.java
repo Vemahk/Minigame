@@ -26,9 +26,9 @@ public class Map {
 		t = 0;
 	}
 	
-	public BufferedImage getImage() {
-		return map;
-	}
+	public BufferedImage getImage() { return map; }
+	public int getWidth() { return map.getWidth(); }
+	public int getHeight() { return map.getHeight(); }
 	
 	private int t;
 	private boolean showPlayer = false;

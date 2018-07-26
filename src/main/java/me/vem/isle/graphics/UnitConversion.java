@@ -9,6 +9,6 @@ public class UnitConversion {
 	}
 	
 	public static int toPixels(float f) {
-		return (int)(f * PPU);
+		return (int)Math.floor(f * PPU);
 	}
 }

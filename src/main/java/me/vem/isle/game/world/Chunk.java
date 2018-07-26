@@ -3,6 +3,8 @@ package me.vem.isle.game.world;
 import java.util.TreeSet;
 
 import gustavson.simplex.SimplexNoise;
+import me.vem.isle.Logger;
+import me.vem.isle.game.Game;
 import me.vem.isle.game.objects.GameObject;
 
 public class Chunk {
@@ -25,12 +27,15 @@ public class Chunk {
     			
                 double d = sn.getNoise(sx, sy);
                 
-                if(d >= .55 && Math.random()<.2)
+                if(d >= .55 && Math.random()<.1)
 					GameObject.instantiate(new GameObject("obj_tree", sx+.5f, sy+.5f), this); 
 
 				if(d >= .5) land[x][y]++;
 				if(d >= .52) land[x][y]++;
     		}
+		
+		if(Game.isDebugActive())
+			Logger.debug(String.format("Chunk generated at %d, %d.", cx, cy));
 	}
 	
 	public Chunk setLoaded(boolean b) {

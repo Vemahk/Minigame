@@ -18,16 +18,16 @@ public class BoxCollider implements Collider{
 		dim = new Vector(width, height);
 	}
 	
-	public double getWidth() { return dim.getX(); }
-	public double getHeight() { return dim.getY(); }
+	public float getWidth() { return dim.getX(); }
+	public float getHeight() { return dim.getY(); }
 	
 	public boolean collidedWith(Collider c) {
 		
 		if(c instanceof BoxCollider) {
 			BoxCollider o = (BoxCollider) c;
 			
-			double dx = Math.abs(this.parent.getX() - o.parent.getX());
-			double dy = Math.abs(this.parent.getY() - o.parent.getY());
+			float dx = Math.abs(this.parent.getX() - o.parent.getX());
+			float dy = Math.abs(this.parent.getY() - o.parent.getY());
 			
 			return (getWidth() + o.getWidth()) / 2 >= dx && (getHeight() + o.getHeight()) / 2 >= dy;
 		}

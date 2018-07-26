@@ -1,5 +1,7 @@
 package me.vem.isle.game;
 
+import static me.vem.isle.Logger.info;
+
 import java.util.Random;
 
 import org.dom4j.DocumentException;
@@ -30,6 +32,7 @@ public class Game {
 		Player.getInstance();
 		
 		initialized = true;
+		info("Game started.");
 	}
 	
 	public static void gameStartup(long seed) { 

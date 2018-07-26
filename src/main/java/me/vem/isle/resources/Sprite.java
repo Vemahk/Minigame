@@ -3,6 +3,8 @@ package me.vem.isle.resources;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import static me.vem.isle.graphics.UnitConversion.toFloat;
+
 public class Sprite {
 
 	private static HashMap<String, Sprite> sprites = new HashMap<>();
@@ -21,8 +23,9 @@ public class Sprite {
 	public String getId() { return id; }
 	public BufferedImage getImage() { return image; }
 	
-	public int getWidth() { return image.getWidth(); }
-	public int getHeight() { return image.getHeight(); }
-	
+	public float getWidth() { return toFloat(image.getWidth()); }
+	public float getHeight() { return toFloat(image.getHeight()); }
+	public int getPixelWidth() { return image.getWidth(); }
+	public int getPixelHeight() { return image.getHeight(); }
 	
 }
