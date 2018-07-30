@@ -82,7 +82,8 @@ public class ClientThread extends Thread{
 		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		
-		window.addKeyListener(new Input());
+		window.addKeyListener(Input.getInstance());
+		window.addMouseWheelListener(Input.getInstance());
 		window.requestFocus();
 		
 		window.repaint();

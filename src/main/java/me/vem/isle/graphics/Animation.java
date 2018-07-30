@@ -2,7 +2,6 @@ package me.vem.isle.graphics;
 
 import static me.vem.isle.Logger.info;
 
-import java.awt.image.BufferedImage;
 import java.util.HashSet;
 
 import me.vem.isle.resources.Sprite;

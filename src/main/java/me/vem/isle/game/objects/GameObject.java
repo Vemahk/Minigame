@@ -1,6 +1,5 @@
 package me.vem.isle.game.objects;
 
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;

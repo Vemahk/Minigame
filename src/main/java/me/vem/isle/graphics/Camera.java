@@ -1,5 +1,7 @@
 package me.vem.isle.graphics;
 
+import static me.vem.isle.graphics.UnitConversion.toPixels;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -11,7 +13,6 @@ import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
-import me.vem.isle.Logger;
 import me.vem.isle.game.Game;
 import me.vem.isle.game.entity.Player;
 import me.vem.isle.game.objects.GameObject;
@@ -21,8 +22,6 @@ import me.vem.isle.game.world.Land;
 import me.vem.isle.game.world.World;
 import me.vem.isle.menu.Setting;
 import me.vem.utils.math.Vector;
-
-import static me.vem.isle.graphics.UnitConversion.*;
 
 public class Camera extends JPanel {
 
@@ -43,6 +42,7 @@ public class Camera extends JPanel {
 	private GameObject target;
 	private int followType;
 
+	private float tarScale;
 	private float scale;
 
 	private Vector pos;
@@ -59,6 +59,7 @@ public class Camera extends JPanel {
 		this.setPreferredSize(new Dimension(w, h));
 		pos = new Vector();
 
+		this.tarScale = scale;
 		this.scale = scale;
 
 		followType = SMOOTH_FOLLOW;
@@ -85,6 +86,14 @@ public class Camera extends JPanel {
 		target = go;
 	}
 	
+	public void setScale(float f) {
+		if(f < .5f) return;
+		if(f > 10f) return;
+		this.tarScale = f;
+	}
+	
+	public float getScale() { return tarScale; }
+	
 	public boolean hasTarget() { return target != null; }
 
 	@Override
@@ -101,6 +110,8 @@ public class Camera extends JPanel {
 				map = new Map(p, 1.0); // Update the map every 1.0 seconds
 			}
 
+			scale += (tarScale - scale) * .1f ;
+			
 			// Draw Map
 			map.tick();
 
@@ -112,8 +123,8 @@ public class Camera extends JPanel {
 			// Draw Land
 			int TS = toPixels(scale); // TS --> True Scale
 
-			int DW = getWidth() / TS + 1;
-			int DH = getHeight() / TS + 2;
+			int DW = getWidth() / TS;
+			int DH = getHeight() / TS;
 
 			BufferedImage display = new BufferedImage(toPixels(DW), toPixels(DH), BufferedImage.TYPE_INT_ARGB);
 			Graphics dg = display.getGraphics();
@@ -163,8 +174,8 @@ public class Camera extends JPanel {
 				}
 			}
 
-			g.drawImage(display, toPixels((pos.floorX() - pos.getX()) * scale),
-								 toPixels((pos.floorY() - pos.getY()) * scale),
+			g.drawImage(display, toPixels(1 + (pos.floorX() - pos.getX()) * scale),
+								 toPixels(1 + (pos.floorY() - pos.getY()) * scale),
 								 DW * TS, DH * TS, this);
 		}
 	}

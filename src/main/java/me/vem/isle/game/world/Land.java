@@ -1,8 +1,5 @@
 package me.vem.isle.game.world;
 
-import java.awt.image.BufferedImage;
-
-import me.vem.isle.resources.ResourceManager;
 import me.vem.isle.resources.Sprite;
 
 public enum Land{

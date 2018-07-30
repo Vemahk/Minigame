@@ -4,10 +4,21 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
+import me.vem.isle.Logger;
+import me.vem.isle.graphics.Camera;
 import me.vem.isle.menu.Setting;
 
-public class Input implements KeyListener, MouseListener{
+public class Input implements KeyListener, MouseListener, MouseWheelListener{
+	
+	private static Input instance;
+	public static Input getInstance() {
+		if(instance == null)
+			instance = new Input();
+		return instance;
+	}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -30,6 +41,15 @@ public class Input implements KeyListener, MouseListener{
 		//System.out.printf("Key %d released.%n", key);
 	}
 
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		Camera cam = Camera.getInstance();
+		int rot = e.getWheelRotation();
+
+		
+		cam.setScale(cam.getScale() - rot);
+	}
+	
 	@Override public void keyTyped(KeyEvent e) {}
 	@Override public void mouseClicked(MouseEvent e) {}
 	@Override public void mouseEntered(MouseEvent e) {}

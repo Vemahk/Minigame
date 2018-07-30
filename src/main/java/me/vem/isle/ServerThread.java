@@ -14,7 +14,6 @@ import me.vem.isle.game.objects.GameObject;
 import me.vem.isle.game.world.Chunk;
 import me.vem.isle.game.world.ChunkQueue;
 import me.vem.isle.game.world.World;
-import me.vem.isle.menu.ActionSet;
 
 public class ServerThread extends Thread{
 	
