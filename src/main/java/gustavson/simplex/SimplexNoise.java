@@ -6,8 +6,12 @@ public class SimplexNoise {
 	private SNOctave[] octaves;
 	private double[] freq;
 	private double[] amps;
-
+	
+	private int seed;
+	
 	public SimplexNoise(int largestFeature, double persistence, int seed) {
+		this.seed = seed;
+		
 		int numOctaves = (int) Math.ceil(Math.log(largestFeature) / Math.log(2)); //Gets the ceilinged power of 2 of largestFeature.
 
 		octaves = new SNOctave[numOctaves];
@@ -23,6 +27,8 @@ public class SimplexNoise {
 		}
 	}
 
+	public int getSeed() { return seed; }
+	
 	public double getNoise(int x, int y) {
 		double result = 0;
 
