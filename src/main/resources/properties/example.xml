@@ -10,4 +10,5 @@
 		<anim>other#3</anim>
 	</animation>
 	<physics mass="1.0" speed="1.0"/>
+	<controller type="controller_type"/>
 </property>

@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import me.vem.isle.client.ClientThread;
 import me.vem.isle.client.input.Setting;
 import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.entity.Player;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.physics.BoxCollider;
 import me.vem.isle.server.game.world.Chunk;
@@ -102,14 +101,15 @@ public class Camera extends JPanel {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		if(!Game.isInitialized())
+			return;
+		
 		super.paintComponent(g);
 		
-		synchronized (this) {
-			if (!Game.initialized)
-				return;
+		synchronized (this) {	
 
-			if (map == null) {
-				Point p = Player.getInstance().getPos().floor();
+			if (map == null && target != null) {
+				Point p = target.getPos().floor();
 				p.translate(-256, -256);
 				map = new Map(p, 1.0); // Update the map every 1.0 seconds
 			}
@@ -125,8 +125,10 @@ public class Camera extends JPanel {
 			}
 
 			// Draw Land
-			int DW = (int)Math.ceil(toUnits(getWidth(), scale)) + 1;
-			int DH = (int)Math.ceil(toUnits(getHeight(), scale)) + 1;
+			float USW = toUnits(getWidth(), scale),
+				  USH = toUnits(getHeight(), scale);
+			int DW = (int)Math.floor(USW) + 2,
+				DH = (int)Math.floor(USH) + 2;
 
 			BufferedImage display = new BufferedImage(toPixels(DW), toPixels(DH), BufferedImage.TYPE_INT_ARGB);
 			Graphics dg = display.getGraphics();
@@ -177,8 +179,8 @@ public class Camera extends JPanel {
 			}
 
 			//Draw to screen.
-			g.drawImage(display, toPixels(pos.floorX() - pos.getX(), scale),
-								 toPixels(pos.floorY() - pos.getY(), scale),
+			g.drawImage(display, toPixels(pos.floorX() - pos.getX() - (DW/2 - USW/2), scale),
+								 toPixels(pos.floorY() - pos.getY() - (DH/2 - USH/2), scale),
 								 toPixels(DW, scale), toPixels(DH, scale), this);
 			
 			g.setColor(Color.WHITE);

@@ -7,7 +7,8 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import me.vem.isle.client.ClientThread;
-import me.vem.isle.server.game.entity.Player;
+import me.vem.isle.server.game.Game;
+import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.world.Land;
 import me.vem.isle.server.game.world.World;
 
@@ -41,7 +42,7 @@ public class Map {
 		if(++t >= updateRate * ClientThread.FPS){
 			t = 0;
 			
-			Player player = Player.getInstance();
+			GameObject player = Game.getPlayer();
 			int px = (int) Math.round(player.getX());
 			int py = (int) Math.round(player.getY());
 			

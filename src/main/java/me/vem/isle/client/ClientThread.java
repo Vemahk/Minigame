@@ -12,7 +12,7 @@ import me.vem.isle.client.input.Input;
 import me.vem.isle.client.menu.MainMenu;
 import me.vem.isle.client.resources.Animation;
 import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.entity.Player;
+import me.vem.isle.server.game.controller.PlayerController;
 
 public class ClientThread extends Thread{
 
@@ -44,13 +44,9 @@ public class ClientThread extends Thread{
 		window.pack();
 		window.setLocationRelativeTo(null);
 		
-		while(!cam.hasTarget()) {
-			if(Player.getInstance() == null) {
-				App.sleep(FPS);
-				continue;
-			}
-			cam.setTarget(Player.getInstance(), true);
-		}
+		while(!Game.isInitialized())
+			App.sleep(FPS);
+		cam.setTarget(Game.getPlayer(), true);
 		
 		while(true) {
 			

@@ -1,29 +1,24 @@
 package me.vem.isle.server.game.objects;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import me.vem.isle.client.resources.Sprite;
-import me.vem.isle.server.game.physics.BoxCollider;
+import me.vem.isle.server.game.controller.Controller;
 import me.vem.isle.server.game.physics.Collider;
 import me.vem.isle.server.game.physics.Physics;
 import me.vem.isle.server.game.world.Chunk;
 import me.vem.isle.server.game.world.World;
 import me.vem.utils.io.Compressable;
-import me.vem.utils.io.DataFormatter;
 import me.vem.utils.math.Vector;
 
 public class GameObject implements Comparable<GameObject>, Compressable{
 	
-	public static HashMap<Integer, Property> properties = new HashMap<>();
-	public static HashSet<GameObject> chunkLoaders = new HashSet<>();
-	
 	public static GameObject instantiate(GameObject go, Chunk c) {
-		c.addObject(go);
+		c.add(go);
 		if(go.isChunkLoader())
-			chunkLoaders.add(go);
+			c.load(go, go.chunkRadius());
 		return go;
 	}
 	
@@ -39,9 +34,9 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	public static void destroyQueue() {
 		while(!toDestroy.isEmpty()) {
 			GameObject go = toDestroy.poll();
-			go.chunk.removeObject(go);
+			go.chunk.remove(go);
 			if(go.isChunkLoader())
-				chunkLoaders.remove(go);
+				go.chunk.unload(go, go.chunkRadius());
 		}
 	}
 	
@@ -53,22 +48,23 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	
 	protected Physics physics;	
 	protected Collider collider;
+	protected Controller controller;
 	
 	public GameObject(String id, int x, int y) {
 		this(id, x+.5f, y+.5f);
 	}
 	
 	public GameObject(String id, float x, float y) {
-		prop = GameObject.properties.get(id.hashCode());
+		this(id.hashCode(), x, y);
+	}
+	
+	public GameObject(int hash, float x, float y) {
+		prop = Property.get(hash);
 		pos = new Vector(x, y);
 		
-		if(prop.isPhysics())
-			physics = new Physics(this, prop.getMass(), prop.getSpeed());
-		
-		if(prop.hasCollider()) {
-			Vector size = prop.getCollisionBoxSize();
-			this.collider = new BoxCollider(this, size.getX(), size.getY());
-		}
+		physics = prop.buildPhysics(this);
+		collider = prop.buildCollider(this);
+		controller = prop.buildController(this);
 	}
 	
 	public String getId() { return prop.getId(); }
@@ -86,6 +82,7 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	
 	public boolean hasPhysics() { return physics != null; }
 	public boolean hasCollider() { return collider != null; }
+	public boolean hasController() { return controller != null; }
 	
 	public boolean isChunkLoader() { return prop.isChunkLoader(); }
 	public int chunkRadius() { return prop.getLoadRadius(); }
@@ -109,6 +106,9 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 			if(chunk != nChunk)
 				chunk.transfer(this, nChunk);
 		}
+		
+		if(hasController())
+			controller.update(dt);
 	}
 
 	@Override
@@ -118,14 +118,19 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 		
 		return (int)Math.signum(getZ() - o.getZ());
 	}
-
+	
 	@Override
-	public synchronized byte[] compress() {
-		byte[] out = new byte[12];
-		
-		DataFormatter.append(out, DataFormatter.writeInt(prop.hashCode()), 0);
-		DataFormatter.append(out, pos.compress(), 4);
-		
-		return out;
+	public String toString() {
+		return String.format("GameObject[%s:%s]", prop.getId(), pos);
 	}
+	
+	@Override
+	public synchronized ByteBuffer writeTo(ByteBuffer buf) {
+		buf.putInt(prop.hashCode());
+		pos.writeTo(buf);
+		
+		return buf;
+	}
+	
+	@Override public int writeSize() { return 12; }
 }

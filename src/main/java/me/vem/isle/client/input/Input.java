@@ -7,7 +7,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import me.vem.isle.Logger;
 import me.vem.isle.client.graphics.Camera;
 
 public class Input implements KeyListener, MouseListener, MouseWheelListener{

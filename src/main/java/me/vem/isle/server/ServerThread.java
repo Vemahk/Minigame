@@ -4,10 +4,9 @@ import static me.vem.isle.Logger.debug;
 import static me.vem.isle.Logger.info;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Set;
 
 import me.vem.isle.App;
 import me.vem.isle.server.game.Game;
@@ -35,23 +34,21 @@ public class ServerThread extends Thread{
 	public void run() {
 		info("Game Thread Started...");
 		
-		Game.gameStartup();
+		Game.startup();
+		lastUpdateStart = System.nanoTime();
 		
 		while(true) {
 			float dt = (System.nanoTime() - lastUpdateStart) / 1000000000f;
-			if(lastUpdateStart == 0) dt = 0;
 			long start = lastUpdateStart = System.nanoTime();
 
 			/* --==BEGIN PHYSICS UPDATE==-- */
 			
 			long prUp = preUpdate();
 			long up = update(dt);
-			long poUp = postUpdate();
 			
 			if(DISPLAY_TIME_INFO) {
 				debug("Pre-Update time in nanoseconds: " + prUp);
 				debug("Update time in nanoseconds: " + up);
-				debug("Post-Update time in nanoseconds: " + poUp);
 			}
 			
 			/* --==END PHYSICS UPDATE==-- */
@@ -61,53 +58,28 @@ public class ServerThread extends Thread{
 	}
 	
 	/**
-	 * Part 1 of 3 of the physics update. Handles, currently, chunk loading.
+	 * Part 1 of 2 of the physics update. Handles chunk loading.
 	 * @param world
 	 */
 	private long preUpdate() {
 		long start = System.nanoTime();
 		
-		HashSet<Chunk> loadedChunks = World.getInstance().getLoadedChunks();
-		synchronized(loadedChunks) {
-			loadedChunks.clear();
-			
-			HashSet<GameObject> loaders = GameObject.chunkLoaders;
-			synchronized(loaders){
-				
-				for(GameObject cl : loaders) {
-					
-					int px = cl.getPos().floorX() >> 4;
-					int py = cl.getPos().floorY() >> 4;
-					int r = cl.chunkRadius();
-					
-					for(int x = px - r; x<= px + r; x++)
-						for(int y = py - r; y<= py + r; y++)
-							loadedChunks.add(World.getInstance().getChunk(x, y));
-				}
-				
-			}
-		}
+		GameObject.destroyQueue();
+		Chunk.runTransfers();
+		
+		World.getInstance().loadChunkQueue();
 		
 		return System.nanoTime() - start;
 	}
 	
 	/**
-	 * Part 2 of 3 of the physics update. Handles movement & collisions. (NOTE: collisions not yet implemented)
-	 * @param world
+	 * Part 2 of 2 of the physics update. Handles movement & collisions.
+	 * @param dt
 	 */
 	private long update(float dt) {
 		long start = System.nanoTime();
 		
-		HashSet<Chunk> loadedChunks = World.getInstance().getLoadedChunks();
-		TreeSet<GameObject> loadedObjects = new TreeSet<>();
-		synchronized(loadedChunks) {
-			for(Chunk c : loadedChunks) {
-				synchronized(c) {
-					for(GameObject go : c.getObjects())
-						loadedObjects.add(go);
-				}
-			}
-		}
+		Set<GameObject> loadedObjects = World.getInstance().getLoadedObjects();
 		
 		HashMap<GameObject, List<GameObject>> fsh = new HashMap<>();
 		for(GameObject go : loadedObjects) {
@@ -131,18 +103,6 @@ public class ServerThread extends Thread{
 
 			go.update(dt);
 		}
-		
-		return System.nanoTime() - start;
-	}
-	
-	/**
-	 * Part 3 of 3 of the physics update. Handles queued tasks that could not be run during the chunk synchronization.
-	 */
-	private long postUpdate() {
-		long start = System.nanoTime();
-		
-		GameObject.destroyQueue();
-		Chunk.runTransfers();
 		
 		return System.nanoTime() - start;
 	}

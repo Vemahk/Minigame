@@ -2,6 +2,7 @@ package me.vem.isle.server.game.objects;
 
 import static me.vem.isle.Logger.fatalError;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -11,14 +12,24 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import me.vem.isle.Logger;
 import me.vem.isle.client.resources.Animation;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.client.resources.Sprite;
+import me.vem.isle.server.game.controller.Controller;
+import me.vem.isle.server.game.physics.BoxCollider;
+import me.vem.isle.server.game.physics.Collider;
+import me.vem.isle.server.game.physics.Physics;
 import me.vem.utils.math.Vector;
 
 public class Property {
 	
+	private static HashMap<Integer, Property> properties = new HashMap<>();
+	public static Property get(int hash) { return properties.get(hash); }
+	
 	public static void register(String filename) throws DocumentException {
+		if(!filename.endsWith(".xml")) 
+			filename+=".xml";
 		
 		SAXReader reader = new SAXReader();
 		Document doc = reader.read(ResourceManager.getResource("properties", filename));
@@ -34,7 +45,7 @@ public class Property {
 			fatalError("XML Property File '"+filename+"' not formatted correctly. 'property' element requires 'id' attribute for object id.");
 		prop.hid = prop.id.hashCode();
 		
-		GameObject.properties.put(prop.hid, prop);
+		properties.put(prop.hid, prop);
 		prop.values = new LinkedHashMap<>();
 		
 		for(Element e : root.elements()) {
@@ -63,7 +74,7 @@ public class Property {
 	private LinkedHashMap<String, Object> values;
 	
 	public boolean asBoolean(String key) { return values.containsKey(key); }
-	public String asString(String key) { return asBoolean(key) ? values.get(key).toString() : null; }
+	public String asString(String key) { return (String) values.get(key); }
 	public int asInt(String key) { return asBoolean(key) ? Integer.parseInt(asString(key)) : 0; }
 	public float asFloat(String key) { return asBoolean(key) ? Float.parseFloat(asString(key)) : 0f; }
 	
@@ -72,8 +83,7 @@ public class Property {
 	
 	public String getId() { return id; }
 	
-	@Override
-	public int hashCode() { return hid; }
+	@Override public int hashCode() { return hid; }
 	
 	public float getZ() { return asFloat("z"); }
 	
@@ -83,6 +93,18 @@ public class Property {
 	public boolean hasCollider() { return asBoolean("collider"); }
 	public String getType() { return asString("collider.type"); }
 	public Vector getCollisionBoxSize() { return hasCollider() ? new Vector(asFloat("collider.width"), asFloat("collider.height")) : null; }
+	public Collider buildCollider(GameObject parent) {
+		if(!hasCollider()) return null;
+		String type = getType();
+		
+		if(type.equalsIgnoreCase("box")) {
+			Vector size = getCollisionBoxSize();
+			return new BoxCollider(parent, size.getX(), size.getY());
+		}
+		
+		Logger.warningf("The collider type for %s was not recorgnized. (%s)", this.id, type);
+		return null;
+	}
 	
 	public boolean hasSprite() { return asBoolean("sprite"); }
 	public String getImageId() { return asString("sprite.id"); } 
@@ -103,6 +125,18 @@ public class Property {
 	public boolean isPhysics() { return asBoolean("physics"); }
 	public float getMass() { return asFloat("physics.mass"); }
 	public float getSpeed() { return asFloat("physics.speed"); }
+	public Physics buildPhysics(GameObject parent) {
+		if(!isPhysics()) return null;
+		return new Physics(parent, getMass(), getSpeed());
+	}
+	
+	public boolean hasController() { return asBoolean("controller"); }
+	public String getControllerType() { return asString("controller.type"); }
+	public Controller buildController(GameObject parent) {
+		if(!hasController()) return null;
+		
+		return Controller.newInstance(getControllerType(), parent);
+	}
 	
 	public String toString() {
 		StringBuffer out = new StringBuffer("Property: "+id+"\n");

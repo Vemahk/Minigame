@@ -2,8 +2,6 @@ package me.vem.isle;
 
 import static me.vem.isle.Logger.info;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import me.vem.isle.client.ClientThread;
@@ -24,24 +22,8 @@ public class App {
 	public static void shutdown() {
 
 		new FTimer("World Save", () -> {
-			try {
-				File file = new File("world.dat");
-				if (file.exists())
-					file.delete();
-				
-				FileOutputStream fos = new FileOutputStream(file);
-
-				byte[] world = World.getInstance().compress();
-				fos.write(world);
-
-				fos.flush();
-				fos.close();
-
-				Logger.info("World saved.");
-				Logger.debug("World size: " + world.length);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			if(!World.save())
+				Logger.error("World save failed! OOOH NOOOOO!! CONTRAC THE DEVELOPER; THIS IS PROBLEM.");
 		}).test();
 
 		ClientThread.getInstance().getWindow().dispose();
