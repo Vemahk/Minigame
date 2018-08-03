@@ -1,10 +1,13 @@
 package me.vem.isle.server.game.objects;
 
+import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import me.vem.isle.client.resources.Sprite;
+import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.controller.Controller;
 import me.vem.isle.server.game.physics.Collider;
 import me.vem.isle.server.game.physics.Physics;
@@ -17,13 +20,22 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	
 	public static GameObject instantiate(GameObject go, Chunk c) {
 		c.add(go);
+		
 		if(go.isChunkLoader())
-			c.load(go, go.chunkRadius());
+			c.load(go.chunkRadius());
+		
+		if(go.isId("ent_player"))
+			Game.setPlayer(go);
+		
 		return go;
 	}
 	
 	public static GameObject instantiate(GameObject go) {
 		return instantiate(go, go.getPresumedChunk());
+	}
+	
+	public static GameObject instantiate(ByteBuffer buf, Map<Point, Chunk> cMap) {
+		return instantiate(new GameObject(buf.getInt(), buf.getFloat(), buf.getFloat()));
 	}
 	
 	public static Queue<GameObject> toDestroy = new LinkedList<>();
@@ -36,14 +48,14 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 			GameObject go = toDestroy.poll();
 			go.chunk.remove(go);
 			if(go.isChunkLoader())
-				go.chunk.unload(go, go.chunkRadius());
+				go.chunk.unload(go.chunkRadius());
 		}
 	}
+
+	protected final Property prop;
+	protected final int RUID;
 	
 	protected Chunk chunk;
-	
-	protected final Property prop;
-
 	protected Vector pos;
 	
 	protected Physics physics;	
@@ -59,6 +71,7 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	}
 	
 	public GameObject(int hash, float x, float y) {
+		RUID = Game.requestRUID();
 		prop = Property.get(hash);
 		pos = new Vector(x, y);
 		
@@ -67,9 +80,17 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 		controller = prop.buildController(this);
 	}
 	
+	
 	public String getId() { return prop.getId(); }
-
+	public int getRUID() { return RUID; }
+	public boolean isId(String s) {
+		return s.hashCode() == prop.hashCode();
+	}
+	
 	public Vector getPos() { return pos; }
+	public void setPos(float x, float y) { pos.set(x, y); }
+	public void move(float dx, float dy) { pos.offset(dx, dy); }
+	
 	public float getX() { return pos.getX(); }
 	public float getY() { return pos.getY(); }
 	public float getZ() { return prop.getZ(); }
@@ -78,11 +99,10 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	public Collider getCollider() { return collider; }
 	
 	public Chunk getAssignedChunk() { return chunk; }
-	public Chunk getPresumedChunk() { return World.getInstance().getPresumedChunk(pos); }
+	public Chunk getPresumedChunk() { return World.getInstance().getChunkFor(pos); }
 	
 	public boolean hasPhysics() { return physics != null; }
 	public boolean hasCollider() { return collider != null; }
-	public boolean hasController() { return controller != null; }
 	
 	public boolean isChunkLoader() { return prop.isChunkLoader(); }
 	public int chunkRadius() { return prop.getLoadRadius(); }
@@ -93,28 +113,20 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 		return collider.collidedWith(go.collider);
 	}
 	
-	public void setPos(float x, float y) { pos.set(x, y); }
-	public void move(float dx, float dy) { pos.offset(dx, dy); }
-	
 	public void setChunk(Chunk c) { this.chunk = c; }
 	
 	public void update(float dt) {
-		if(hasPhysics()) {
+		if(hasPhysics()) 
 			physics.update(dt);
 		
-			Chunk nChunk = getPresumedChunk();
-			if(chunk != nChunk)
-				chunk.transfer(this, nChunk);
-		}
-		
-		if(hasController())
+		if(controller != null)
 			controller.update(dt);
 	}
 
 	@Override
 	public int compareTo(GameObject o) {
 		if(getZ() == o.getZ())
-			return hashCode() - o.hashCode();
+			return RUID - o.RUID;
 		
 		return (int)Math.signum(getZ() - o.getZ());
 	}

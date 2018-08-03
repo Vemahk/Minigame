@@ -1,8 +1,7 @@
 package me.vem.isle.client;
 
-import static me.vem.isle.Logger.info;
-
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import me.vem.isle.App;
 import me.vem.isle.Logger;
@@ -12,7 +11,6 @@ import me.vem.isle.client.input.Input;
 import me.vem.isle.client.menu.MainMenu;
 import me.vem.isle.client.resources.Animation;
 import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.controller.PlayerController;
 
 public class ClientThread extends Thread{
 
@@ -35,28 +33,19 @@ public class ClientThread extends Thread{
 	
 	@Override
 	public void run() {
-		info("Graphics Thread Started...");
-
-		ActionSet.implementActionSet(ActionSet.GAME);
+		Logger.info("Client Thread Started");
+		
 		Camera cam = Camera.getInstance();
-		menu.setVisible(false);
-		window.add(cam);
-		window.pack();
-		window.setLocationRelativeTo(null);
+		setWindowContent(cam, ActionSet.GAME);
 		
 		while(!Game.isInitialized())
 			App.sleep(FPS);
 		cam.setTarget(Game.getPlayer(), true);
 		
 		while(true) {
-			
 			long start = System.nanoTime();
 			
-			synchronized(Animation.all) {
-				for(Animation anim : Animation.all)
-					anim.tick();
-			}
-	
+			Animation.tickAll();
 			cam.follow(.05f);
 			window.repaint();
 			
@@ -65,25 +54,29 @@ public class ClientThread extends Thread{
 	}
 	
 	public void createWindow() {
-		window = new JFrame(App.GAME_TITLE);
+		window = new JFrame(App.VERSION.toString());
 		window.setUndecorated(true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		ActionSet.implementActionSet(ActionSet.MAIN_MENU);
-		window.add(menu = new MainMenu());
+		setWindowContent(menu = new MainMenu(), ActionSet.MAIN_MENU);
 		
 		window.setResizable(false);
-		window.pack();
-		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		
 		window.addKeyListener(Input.getInstance());
 		window.addMouseWheelListener(Input.getInstance());
 		window.requestFocus();
 		
-		window.repaint();
-		
-		if(Game.isDebugActive())
-			Logger.debug("JFrame created and loaded.");
+		Logger.debug("Window created");
 	}
+	
+	public void setWindowContent(JPanel pane, int actionSet) {
+		ActionSet.implementActionSet(actionSet);
+		
+		window.setContentPane(pane);
+		window.pack();
+		window.setLocationRelativeTo(null);
+		window.repaint();
+	}
+	
 }

@@ -1,18 +1,14 @@
 package me.vem.isle.server;
 
-import static me.vem.isle.Logger.debug;
-import static me.vem.isle.Logger.info;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import me.vem.isle.App;
-import me.vem.isle.server.game.Game;
+import me.vem.isle.Logger;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.world.Chunk;
-import me.vem.isle.server.game.world.World;
 
 public class ServerThread extends Thread{
 	
@@ -32,26 +28,18 @@ public class ServerThread extends Thread{
 	
 	@Override
 	public void run() {
-		info("Game Thread Started...");
+		Logger.info("Server Thread Started");
 		
-		Game.startup();
 		lastUpdateStart = System.nanoTime();
 		
 		while(true) {
 			float dt = (System.nanoTime() - lastUpdateStart) / 1000000000f;
 			long start = lastUpdateStart = System.nanoTime();
-
-			/* --==BEGIN PHYSICS UPDATE==-- */
 			
-			long prUp = preUpdate();
 			long up = update(dt);
 			
-			if(DISPLAY_TIME_INFO) {
-				debug("Pre-Update time in nanoseconds: " + prUp);
-				debug("Update time in nanoseconds: " + up);
-			}
-			
-			/* --==END PHYSICS UPDATE==-- */
+			if(DISPLAY_TIME_INFO) 
+				Logger.debugf("Update steps: %.3fms", up / 1000000f);
 			
 			App.sleep(UPS, System.nanoTime() - start);
 		}
@@ -61,25 +49,21 @@ public class ServerThread extends Thread{
 	 * Part 1 of 2 of the physics update. Handles chunk loading.
 	 * @param world
 	 */
-	private long preUpdate() {
-		long start = System.nanoTime();
-		
-		GameObject.destroyQueue();
+	private void preUpdate() {
 		Chunk.runTransfers();
-		
-		World.getInstance().loadChunkQueue();
-		
-		return System.nanoTime() - start;
+		GameObject.destroyQueue();
+		Chunk.loadChunkQueue();
 	}
 	
 	/**
-	 * Part 2 of 2 of the physics update. Handles movement & collisions.
 	 * @param dt
 	 */
 	private long update(float dt) {
 		long start = System.nanoTime();
 		
-		Set<GameObject> loadedObjects = World.getInstance().getLoadedObjects();
+		preUpdate();
+		
+		Set<GameObject> loadedObjects = Chunk.getLoadedObjects();
 		
 		HashMap<GameObject, List<GameObject>> fsh = new HashMap<>();
 		for(GameObject go : loadedObjects) {

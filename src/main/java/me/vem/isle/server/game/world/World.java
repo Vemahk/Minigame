@@ -2,15 +2,12 @@ package me.vem.isle.server.game.world;
 
 import java.awt.Point;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
 
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.Logger;
@@ -21,66 +18,44 @@ import me.vem.utils.math.Vector;
 public class World implements Compressable{
 
 	private static World instance;
-	public static World getInstance() {
-		return instance;
-	}
+	public static World getInstance() { return instance; }
 	
 	public static void createInstance(int seed) {
 		if(instance != null)
 			return;
 		
-		instance = new World(seed);
+		new World(seed);
 	}
 	
 	public static void loadInstance(ByteBuffer buf) {
-		//TODO LATER
+		if(instance != null)
+			return;
+		
+		new World(buf);
 	}
 	
 	private SimplexNoise noiseGen;
-	
 	private HashMap<Point, Chunk> chunks;
-	private HashSet<Chunk> loaded;
-	
-	public HashSet<Chunk> getLoadedChunks(){
-		return loaded;
-	}
-	
-	public Set<GameObject> getLoadedObjects(){
-		TreeSet<GameObject> out = new TreeSet<>();
-		
-		synchronized(loaded) {
-			for(Chunk c : loaded) {
-				synchronized(c) {
-					c.addObjectsTo(out);
-				}
-			}
-		}
-		
-		return out;
-	}
-	
-	private Queue<Chunk> toLoad = new LinkedList<>();
-	private Queue<Chunk> toUnload = new LinkedList<>();
-	
-	public void loadChunkQueue() {
-		while(!toLoad.isEmpty())
-			loaded.add(toLoad.poll());
-		while(!toUnload.isEmpty())
-			loaded.remove(toUnload.poll());
-	}
-	
-	public void load(Chunk c) { toLoad.add(c); }
-	public void unload(Chunk c) { toUnload.add(c); }
 	
 	private World(int seed) {
 		chunks = new HashMap<>();
-    	loaded = new HashSet<>();
-    	
 		noiseGen = new SimplexNoise(300, .5, seed);
+		
+		instance = this;
 	}
 	
-	private World(ByteBuffer buff) {
-		//TODO LATER
+	private World(ByteBuffer buf) {
+		this(buf.getInt());
+		
+		int cSize = buf.getInt();
+		for(int i=0;i<cSize;i++) {
+			Chunk c = new Chunk(buf);
+			chunks.put(new Point(c.cx(), c.cy()), c);
+		}
+		
+		int goSize = buf.getInt();
+		for(int i=0;i<goSize;i++)
+			GameObject.instantiate(buf, chunks);
 	}
 	
 	/**
@@ -105,7 +80,7 @@ public class World implements Compressable{
 		return c;
 	}
 	
-	public Chunk getPresumedChunk(Vector pos) {
+	public Chunk getChunkFor(Vector pos) {
 		return getChunk(pos.floorX() >> 4, pos.floorY() >> 4);
 	}
 	
@@ -154,6 +129,32 @@ public class World implements Compressable{
 			Logger.info("World saved.");
 			Logger.debug("World size: " + buf.position());
 		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+
+	public static boolean load() {
+		try {
+			File worldFile = new File("world.dat");
+			if(!worldFile.exists())
+				return false;
+			
+			FileInputStream fis = new FileInputStream(worldFile);
+			
+			byte[] read = new byte[(int) worldFile.length()];
+			fis.read(read);
+			
+			fis.close();
+
+			ByteBuffer buf = ByteBuffer.wrap(read);
+			
+			World.loadInstance(buf);
+			
+			Logger.info("World file loaded properly.");
+		}catch(IOException e) {
 			e.printStackTrace();
 			return false;
 		}

@@ -1,6 +1,7 @@
 package me.vem.isle.server.game.physics;
 
 import me.vem.isle.server.game.objects.GameObject;
+import me.vem.isle.server.game.world.Chunk;
 import me.vem.utils.math.Vector;
 
 public class Physics {
@@ -69,5 +70,10 @@ public class Physics {
 		acc.set(0,0);
 		
 		parent.getPos().offset(vel.getX() * dt, vel.getY() * dt);
+		
+		Chunk curChunk = parent.getAssignedChunk();
+		Chunk nChunk = parent.getPresumedChunk();
+		if(curChunk != nChunk)
+			curChunk.transfer(parent, nChunk);
 	}
 }

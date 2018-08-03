@@ -6,8 +6,14 @@ import java.util.HashSet;
 
 public class Animation {
 
-	public static HashSet<Animation> all = new HashSet<>();
-
+	private static HashSet<Animation> all = new HashSet<>();
+	public static void tickAll() {
+		synchronized(all) {
+			for(Animation anim : all)
+				anim.tick();
+		}
+	}
+	
 	public static Animation getAnimation(String str) {
 		return null;//TODO Implement this
 	}

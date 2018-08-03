@@ -9,7 +9,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
@@ -153,27 +153,23 @@ public class Camera extends JPanel {
 			}
 
 			//Draw objects
-			HashSet<Chunk> lc = World.getInstance().getLoadedChunks();// lc >> Loaded Chunks
-			synchronized (lc) {
-				for (Chunk c : lc) {
-					synchronized (c) {
-						for (GameObject go : c.getObjects()) {
-							float rx = go.getX() - rdx, ry = go.getY() - rdy, wb = go.getSprite().getWidth(),
-									hb = go.getSprite().getHeight();
-
-							if (rx + wb <= 0 || ry + hb <= 0 || rx - wb >= DW || ry - hb >= DH)
-								continue;
-
-							dg.drawImage(go.getSprite().getImage(), toPixels(rx - wb / 2), toPixels(ry - hb / 2), null);
-
-							if (Game.isDebugActive() && go.hasCollider()) {
-								BoxCollider bc = (BoxCollider) go.getCollider();
-								float cw = bc.getWidth(), ch = bc.getHeight();
-
-								dg.setColor(Color.GREEN);
-								dg.drawRect(toPixels(rx - cw / 2), toPixels(ry - ch / 2), toPixels(cw), toPixels(ch));
-							}
-						}
+			Set<GameObject> loadedObjects = Chunk.getLoadedObjects();
+			synchronized(loadedObjects) {
+				for (GameObject go : loadedObjects) {
+					float rx = go.getX() - rdx, ry = go.getY() - rdy, wb = go.getSprite().getWidth(),
+							hb = go.getSprite().getHeight();
+	
+					if (rx + wb <= 0 || ry + hb <= 0 || rx - wb >= DW || ry - hb >= DH)
+						continue;
+	
+					dg.drawImage(go.getSprite().getImage(), toPixels(rx - wb / 2), toPixels(ry - hb / 2), null);
+	
+					if (Game.isDebugActive() && go.hasCollider()) {
+						BoxCollider bc = (BoxCollider) go.getCollider();
+						float cw = bc.getWidth(), ch = bc.getHeight();
+	
+						dg.setColor(Color.GREEN);
+						dg.drawRect(toPixels(rx - cw / 2), toPixels(ry - ch / 2), toPixels(cw), toPixels(ch));
 					}
 				}
 			}

@@ -1,7 +1,5 @@
 package me.vem.isle;
 
-import static me.vem.isle.Logger.info;
-
 import java.io.IOException;
 
 import me.vem.isle.client.ClientThread;
@@ -11,20 +9,27 @@ import me.vem.utils.test.FTimer;
 
 public class App {
 	
-	public static final String GAME_TITLE = "Dopey Survival";
-	public static final String VERSION = "0.1.17";
+	public static final Version VERSION = new Version(0, 1, 19);
 	
-	public static void newGame() {
+	public static void main(String[] args) throws IOException{
+		Logger.info("Hello World!");
+		Logger.infof("Loading %s...", VERSION);
+		
+		ClientThread.getInstance();
+	}
+	
+	public static void startThreads() {
 		ClientThread.getInstance().start();
 		ServerThread.getInstance().start();
 	}
 	
 	public static void shutdown() {
 
-		new FTimer("World Save", () -> {
-			if(!World.save())
-				Logger.error("World save failed! OOOH NOOOOO!! CONTRAC THE DEVELOPER; THIS IS PROBLEM.");
-		}).test();
+		if(World.getInstance() != null)
+			new FTimer("World Save", () -> {
+				if(!World.save())
+					Logger.error("World save failed! OOOH NOOOOO!! CONTRAC THE DEVELOPER; THIS IS PROBLEM.");
+			}).test();
 
 		ClientThread.getInstance().getWindow().dispose();
 		System.exit(0);
@@ -41,9 +46,5 @@ public class App {
 		} catch (InterruptedException e) {}
 	}
 	
-	public static void main(String[] args) throws IOException{
-		info("Hello World!");
-		
-		ClientThread.getInstance();
-	}
+	
 }

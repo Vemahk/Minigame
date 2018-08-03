@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import me.vem.isle.App;
 import me.vem.isle.client.resources.ResourceManager;
+import me.vem.isle.server.game.Game;
 
 public class MainMenu extends JPanel{
 	private static final long serialVersionUID = -5689029521190126878L;
@@ -73,7 +74,11 @@ public class MainMenu extends JPanel{
 		if(!isVisible()) return;
 		
 		if(selected == 0) { //GET ME DAT NEW GAME BOOIIII
-			App.newGame();
+			Game.newGame();
+			App.startThreads();
+		}else if(selected == 1) {
+			Game.loadGame();
+			App.startThreads();
 		}else if(selected == 4) { //SHOW ME DA CREDITS
 			creditsActive = true;
 			creditsOffset = 0f;
