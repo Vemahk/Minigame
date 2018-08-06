@@ -1,10 +1,10 @@
-package me.vem.isle.server.game.physics;
+package me.vem.isle.server.game.physics.collider;
 
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.utils.math.Vector;
 
 public class BoxCollider implements Collider{
-
+	
 	private final GameObject parent;
 	
 	private Vector dim;
@@ -18,10 +18,15 @@ public class BoxCollider implements Collider{
 		dim = new Vector(width, height);
 	}
 	
+	public Collider copy(GameObject nParent) {
+		return new BoxCollider(nParent, dim.getX(), dim.getY());
+	}
+	
 	public float getWidth() { return dim.getX(); }
 	public float getHeight() { return dim.getY(); }
 	
 	public boolean collidedWith(Collider c) {
+		if(parent == null) return false;
 		
 		if(c instanceof BoxCollider) {
 			BoxCollider o = (BoxCollider) c;

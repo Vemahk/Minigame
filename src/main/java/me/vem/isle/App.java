@@ -9,7 +9,7 @@ import me.vem.utils.test.FTimer;
 
 public class App {
 	
-	public static final Version VERSION = new Version(0, 1, 19);
+	public static final Version VERSION = new Version(0, 1, 20);
 	
 	public static void main(String[] args) throws IOException{
 		Logger.info("Hello World!");

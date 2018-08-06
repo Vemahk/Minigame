@@ -109,6 +109,8 @@ public class World implements Compressable{
 		return x << 10; //Returns in kilobytes
 	}
 	
+	public static String worldInfoDir = "world/";
+	private static String backupDir = worldInfoDir + "backups/";
 	public static boolean save() {
 		try {
 			ByteBuffer buf = ByteBuffer.allocate(World.getInstance().writeSize());
@@ -116,10 +118,19 @@ public class World implements Compressable{
 			
 			if(!buf.hasArray())
 				return false;
+			File wdir = new File(worldInfoDir);
+			if(!wdir.exists())
+				wdir.mkdirs();
 			
-			File file = new File("world.dat");
-			if (file.exists())
+			File file = new File(wdir, "world.dat");
+			if (file.exists()){
+				File bckDir = new File(backupDir);
+				if(!bckDir.exists())
+					bckDir.mkdirs();
+				String newFileName = "world" + bckDir.listFiles().length + ".dat.bck";
+				file.renameTo(new File(bckDir, newFileName));
 				file.delete();
+			}
 			
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(buf.array(), 0, buf.position());
@@ -136,9 +147,8 @@ public class World implements Compressable{
 		return true;
 	}
 
-	public static boolean load() {
+	public static boolean load(File worldFile) {
 		try {
-			File worldFile = new File("world.dat");
 			if(!worldFile.exists())
 				return false;
 			
@@ -160,5 +170,9 @@ public class World implements Compressable{
 		}
 		
 		return true;
+	}
+	
+	public static boolean load() {
+		return load(new File(worldInfoDir, "world.dat"));
 	}
 }

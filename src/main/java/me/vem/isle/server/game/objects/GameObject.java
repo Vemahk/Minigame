@@ -8,15 +8,16 @@ import java.util.Queue;
 
 import me.vem.isle.client.resources.Sprite;
 import me.vem.isle.server.game.Game;
+import me.vem.isle.server.game.RIdentifiable;
 import me.vem.isle.server.game.controller.Controller;
-import me.vem.isle.server.game.physics.Collider;
 import me.vem.isle.server.game.physics.Physics;
+import me.vem.isle.server.game.physics.collider.Collider;
 import me.vem.isle.server.game.world.Chunk;
 import me.vem.isle.server.game.world.World;
 import me.vem.utils.io.Compressable;
 import me.vem.utils.math.Vector;
 
-public class GameObject implements Comparable<GameObject>, Compressable{
+public class GameObject implements Comparable<GameObject>, Compressable, RIdentifiable{
 	
 	public static GameObject instantiate(GameObject go, Chunk c) {
 		c.add(go);
@@ -53,7 +54,7 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	}
 
 	protected final Property prop;
-	protected final int RUID;
+	protected int RUID; //Effectively Final
 	
 	protected Chunk chunk;
 	protected Vector pos;
@@ -71,7 +72,7 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	}
 	
 	public GameObject(int hash, float x, float y) {
-		RUID = Game.requestRUID();
+		Game.requestRUID(this);
 		prop = Property.get(hash);
 		pos = new Vector(x, y);
 		
@@ -145,4 +146,12 @@ public class GameObject implements Comparable<GameObject>, Compressable{
 	}
 	
 	@Override public int writeSize() { return 12; }
+
+	@Override
+	public boolean setRUID(int RUID) {
+		if(this.getRUID() > 0) return false;
+		
+		this.RUID = RUID;
+		return true;
+	}
 }

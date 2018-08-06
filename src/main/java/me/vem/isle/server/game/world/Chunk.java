@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -15,10 +16,11 @@ import java.util.TreeSet;
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.Logger;
 import me.vem.isle.server.game.Game;
+import me.vem.isle.server.game.RIdentifiable;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.utils.io.Compressable;
 
-public class Chunk implements Compressable{
+public class Chunk implements Compressable, RIdentifiable{
 	
 	private static Set<Chunk> LoadedChunks = Collections.synchronizedSet(new HashSet<>());
 	private static SortedSet<GameObject> LoadedObjects = Collections.synchronizedSortedSet(new TreeSet<>());
@@ -56,13 +58,20 @@ public class Chunk implements Compressable{
 	public Chunk(int cx, int cy) {
 		this.cx = cx;
 		this.cy = cy;
-		land = new byte[16][16];
 		
+		land = new byte[16][16];
+		Game.requestRUID(this);
 		objs = Collections.synchronizedSortedSet(new TreeSet<>());
 	}
 	
 	public Chunk(int cx, int cy, SimplexNoise sn) {
 		this(cx, cy);
+		
+		int seed = sn.getSeed();
+		seed ^= ((cx & 0xFFFF) ^ (cx >>> 16)) << 16;
+		seed ^= ((cy & 0xFFFF) ^ (cy >>> 16));
+		
+		Random rand = new Random(seed);
 		
 		for(int x=0;x<16;x++)
     		for(int y=0;y<16;y++) {
@@ -71,7 +80,7 @@ public class Chunk implements Compressable{
     			
                 double d = sn.getNoise(sx, sy);
                 
-                if(d >= .55 && Game.random().nextDouble() < .1)
+                if(d >= .55 && rand.nextDouble() < .1)
 					GameObject.instantiate(new GameObject("obj_tree", sx, sy), this); 
 
 				if(d >= .5) land[x][y]++;
@@ -217,5 +226,17 @@ public class Chunk implements Compressable{
 		private boolean outOfBounds(Chunk c, int r, int x, int y) {
 			return x < c.cx - r || x > c.cx + r || y < c.cy - r || y > c.cy + r;
 		}
+	}
+
+	private int RUID;
+	@Override public boolean setRUID(int RUID) {
+		if(this.RUID > 0) return false;
+		
+		this.RUID = RUID;
+		return true;
+	}
+	
+	@Override public int getRUID() {
+		return RUID;
 	}
 }

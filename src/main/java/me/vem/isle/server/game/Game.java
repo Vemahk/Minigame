@@ -1,5 +1,9 @@
 package me.vem.isle.server.game;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.dom4j.DocumentException;
@@ -42,6 +46,18 @@ public class Game {
 		newGame(new Random().nextInt());
 	}
 	
+	public static void loadGame(File f) {
+		rand = new Random(new Random().nextInt());
+		
+		registerObjectProperties();
+		registerControllers();
+		
+		World.load(f);
+		
+		setInitialized();
+		Logger.info("World loaded!");
+	}
+	
 	public static void loadGame() {
 		rand = new Random(new Random().nextInt());
 		
@@ -54,9 +70,6 @@ public class Game {
 		Logger.info("World loaded!");
 	}
 	
-	private static int nextRUID = 0;
-	public static int requestRUID() { return nextRUID++; }
-	
 	public static void registerObjectProperties() {
 		try {
 			Property.register("tree");
@@ -68,6 +81,18 @@ public class Game {
 	
 	public static void registerControllers() {
 		Controller.register("plr_controller", PlayerController.class);
+	}
+
+	private static Map<Integer, RIdentifiable> byRUID = Collections.synchronizedMap(new HashMap<>());
+	
+	private static int nextRUID = 1;
+	public static void requestRUID(RIdentifiable rid) {
+		if(rid.setRUID(nextRUID))
+			byRUID.put(nextRUID++, rid);
+	}
+	
+	public static RIdentifiable getByRUID(int RUID) {
+		return byRUID.get(RUID);
 	}
 	
 	private static GameObject player;

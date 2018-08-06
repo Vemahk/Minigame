@@ -17,7 +17,7 @@ import me.vem.isle.client.ClientThread;
 import me.vem.isle.client.input.Setting;
 import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.physics.BoxCollider;
+import me.vem.isle.server.game.physics.collider.BoxCollider;
 import me.vem.isle.server.game.world.Chunk;
 import me.vem.isle.server.game.world.Land;
 import me.vem.isle.server.game.world.World;
@@ -178,9 +178,6 @@ public class Camera extends JPanel {
 			g.drawImage(display, toPixels(pos.floorX() - pos.getX() - (DW/2 - USW/2), scale),
 								 toPixels(pos.floorY() - pos.getY() - (DH/2 - USH/2), scale),
 								 toPixels(DW, scale), toPixels(DH, scale), this);
-			
-			g.setColor(Color.WHITE);
-			drawCircle(g, getWidth()/2, getHeight()/2, 5);
 		}
 	}
 	

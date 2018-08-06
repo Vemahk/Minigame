@@ -8,15 +8,20 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import me.vem.isle.App;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.server.game.Game;
+import me.vem.isle.server.game.world.World;
 
 public class MainMenu extends JPanel{
 	private static final long serialVersionUID = -5689029521190126878L;
@@ -74,10 +79,21 @@ public class MainMenu extends JPanel{
 		if(!isVisible()) return;
 		
 		if(selected == 0) { //GET ME DAT NEW GAME BOOIIII
-			Game.newGame();
+			String seed = JOptionPane.showInputDialog(this, "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
+			if(seed != null && seed.length() > 0)
+				Game.newGame(seed.hashCode());
+			else Game.newGame();
+			
 			App.startThreads();
 		}else if(selected == 1) {
-			Game.loadGame();
+			JFileChooser chooser = new JFileChooser(new File(World.worldInfoDir));
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("World Files", "dat", "bck");
+			chooser.setFileFilter(filter);
+			
+			int returnVal = chooser.showOpenDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				Game.loadGame(chooser.getSelectedFile());
+			}else Game.loadGame();
 			App.startThreads();
 		}else if(selected == 4) { //SHOW ME DA CREDITS
 			creditsActive = true;

@@ -4,9 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import me.vem.isle.Logger;
+import me.vem.isle.server.game.Game;
+import me.vem.isle.server.game.RIdentifiable;
 import me.vem.isle.server.game.objects.GameObject;
 
-public abstract class Controller {
+public abstract class Controller implements RIdentifiable{
 
 	private static HashMap<Integer, Class<? extends Controller>> reg = new HashMap<>();
 	public static void register(String type, Class<? extends Controller> cls) {
@@ -26,9 +28,12 @@ public abstract class Controller {
 	}
 	
 	protected GameObject parent;
+	protected int RUID;
 	
 	protected Controller(GameObject parent) {
 		this.parent = parent;
+		
+		Game.requestRUID(this);
 	}
 	
 	public abstract void update(float dt);
