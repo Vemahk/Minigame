@@ -79,12 +79,11 @@ public class Chunk implements Compressable, RIdentifiable{
     			int sy = (cy << 4) + y;
     			
                 double d = sn.getNoise(sx, sy);
-                
-                if(d >= .55 && rand.nextDouble() < .1)
-					GameObject.instantiate(new GameObject("obj_tree", sx, sy), this); 
 
 				if(d >= .5) land[x][y]++;
 				if(d >= .52) land[x][y]++;
+				if(d >= .55 && rand.nextDouble() < .1)
+                	new GameObject("obj_tree", sx, sy, this); 	
     		}
 		
 		if(Game.isDebugActive())
@@ -180,54 +179,6 @@ public class Chunk implements Compressable, RIdentifiable{
 		return String.format("Chunk[%d,%d]", cx, cy);
 	}
 	
-	private static Queue<Transfer> tq = new LinkedList<>();
-	public static void runTransfers() {
-		while(!tq.isEmpty())
-			tq.poll().run();
-	}
-	
-	public void transfer(GameObject go, Chunk to) {
-		tq.add(new Transfer(go, to));
-	}
-	
-	private class Transfer implements Runnable{
-
-		private final GameObject go;
-		private final Chunk to;
-		
-		private Transfer(GameObject go, Chunk to) {
-			this.to = to;
-			this.go = go;
-		}
-		
-		@Override
-		public void run() {
-			if(remove(go)) {
-				to.add(go);
-
-				if(go.isChunkLoader()) {
-					int r = go.chunkRadius();
-					for(int x = -r; x <= r; x++)
-						for(int y = -r; y <= r; y++)
-							if(outOfBounds(Chunk.this, r, to.cx + x, to.cy + y)) {
-								World.getInstance().getChunk(to.cx + x, to.cy + y).load();
-								World.getInstance().getChunk(cx - x, cy - y).unload();
-							}
-				}
-				
-				if(isLoaded() && !to.isLoaded())
-					LoadedObjects.remove(go);
-				
-				if(Game.isDebugActive())
-					debug(String.format("%s moved from %s to %s.", go, Chunk.this, to));
-			}
-		}
-		
-		private boolean outOfBounds(Chunk c, int r, int x, int y) {
-			return x < c.cx - r || x > c.cx + r || y < c.cy - r || y > c.cy + r;
-		}
-	}
-
 	private int RUID;
 	@Override public boolean setRUID(int RUID) {
 		if(this.RUID > 0) return false;
@@ -238,5 +189,39 @@ public class Chunk implements Compressable, RIdentifiable{
 	
 	@Override public int getRUID() {
 		return RUID;
+	}
+	
+	private static Queue<Runnable> tq = new LinkedList<>();
+	public static void runTransfers() {
+		while(!tq.isEmpty())
+			tq.poll().run();
+	}
+	
+	public void transfer(GameObject go, Chunk to) {
+		tq.add(() -> {
+			if(remove(go)) {
+				to.add(go);
+
+				if(go.isChunkLoader()) {
+					int r = go.chunkRadius();
+					for(int x = -r; x <= r; x++)
+						for(int y = -r; y <= r; y++)
+							if(outOfBounds(this, r, to.cx + x, to.cy + y)) {
+								World.getInstance().getChunk(to.cx + x, to.cy + y).load();
+								World.getInstance().getChunk(cx - x, cy - y).unload();
+							}
+				}
+				
+				if(isLoaded() && !to.isLoaded())
+					LoadedObjects.remove(go);
+				
+				if(Game.isDebugActive())
+					debug(String.format("%s moved from %s to %s.", go, this, to));
+			}
+		});
+	}
+	
+	private static boolean outOfBounds(Chunk c, int r, int x, int y) {
+		return x < c.cx - r || x > c.cx + r || y < c.cy - r || y > c.cy + r;
 	}
 }

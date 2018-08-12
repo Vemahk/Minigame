@@ -12,7 +12,19 @@ import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.world.Land;
 import me.vem.isle.server.game.world.World;
 
-public class Map {
+public class WorldMap {
+	
+	private static WorldMap instance;
+	public static WorldMap getInstance() { return instance; }
+	
+	public static void init() {
+		if(instance != null)
+			return;
+		
+		Point p = Game.getPlayer().getPos().floor();
+		p.translate(-256, -256);
+		instance = new WorldMap(p, 1.0); // Update the map every 1.0 seconds
+	}
 	
 	private final Dimension dim = new Dimension(512, 512);
 	private Point corner;
@@ -20,7 +32,7 @@ public class Map {
 	private BufferedImage map;
 	private double updateRate; //Update rate -- IN SECONDS
 	
-	public Map(Point corner, double ur) {
+	public WorldMap(Point corner, double ur) {
 		this.corner = corner;
 		updateRate = ur;
 		map = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
@@ -75,4 +87,22 @@ public class Map {
 		}
 	}
 	
+	public void drawMap(Graphics g) {
+		int mw = getWidth(),
+			mh = getHeight(),
+			x = (this.getWidth() - mw)/2,
+			y = (this.getHeight() - mh)/2;
+
+		g.drawImage(map, x, y, Camera.getInstance());
+		drawBorder(g, x, y, mw, mh, 2);
+	}
+	
+	public void drawBorder(Graphics g, int x, int y, int w, int h, int t) {
+		g.setColor(Color.WHITE);
+		
+		g.fillRect(x - t, y - t, w + t, t);
+		g.fillRect(x - t, y, t, h + t);
+		g.fillRect(x + w, y - t, t, h + t);
+		g.fillRect(x, y + h, w + t, t);
+	}
 }

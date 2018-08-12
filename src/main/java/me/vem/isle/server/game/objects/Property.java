@@ -5,6 +5,7 @@ import static me.vem.isle.Logger.fatalError;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.regex.Pattern;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -24,6 +25,15 @@ public class Property {
 	
 	private static HashMap<Integer, Property> properties = new HashMap<>();
 	public static Property get(int hash) { return properties.get(hash); }
+	
+	public static void register(String... files) {
+		for(String s : files)
+			try {
+				register(s);
+			}catch (DocumentException e) {
+				e.printStackTrace();
+			}
+	}
 	
 	public static void register(String filename) throws DocumentException {
 		if(!filename.endsWith(".xml")) 
@@ -123,6 +133,15 @@ public class Property {
 		hasController = hasValue("controller");
 		if(hasController)
 			controllerType = asString("controller.type");
+		
+		purge("z", "loader", "collider", "sprite", "physics", "controller");
+	}
+	
+	public void purge(String... args) {
+		for(String s : args) {
+			Pattern p = Pattern.compile(s + "(\\..+)*");
+			values.entrySet().removeIf(e -> p.matcher(e.getKey()).matches());
+		}
 	}
 	
 	private String id;

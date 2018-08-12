@@ -19,13 +19,13 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import me.vem.isle.App;
+import me.vem.isle.client.ClientThread;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.world.World;
 
 public class MainMenu extends JPanel{
 	private static final long serialVersionUID = -5689029521190126878L;
-	private static final String[] opt = {"New Game", "Load Game", "Settings", null, "Credits", "Exit"};
 	
 	private int selected = 0;
 	
@@ -61,7 +61,7 @@ public class MainMenu extends JPanel{
 			for(int i=0;i<opt.length;i++) {
 				if(i == selected)
 					drawString(g, fm, ">", x-15, y);
-				y = drawString(g, fm, opt[i] == null ? "" : opt[i], x, y) + 50;
+				y = drawString(g, fm, opt[i] == null ? "" : opt[i].getLabel(), x, y) + 50;
 			}
 		}else {
 			
@@ -75,27 +75,31 @@ public class MainMenu extends JPanel{
 		}
 	}
 	
-	public void select() {
-		if(!isVisible()) return;
-		
-		if(selected == 0) { //GET ME DAT NEW GAME BOOIIII
-			String seed = JOptionPane.showInputDialog(this, "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
+	private final LRunnable[] opt = {
+		new LRunnable("New Game", () -> {
+			String seed = JOptionPane.showInputDialog(ClientThread.getInstance().getWindow(), "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
 			if(seed != null && seed.length() > 0)
 				Game.newGame(seed.hashCode());
-			else Game.newGame();
+			else Game.newGame(0);
 			
 			App.startThreads();
-		}else if(selected == 1) {
+		}),
+		new LRunnable("Load Game", () -> {
 			JFileChooser chooser = new JFileChooser(new File(World.worldInfoDir));
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("World Files", "dat", "bck");
 			chooser.setFileFilter(filter);
 			
-			int returnVal = chooser.showOpenDialog(this);
+			int returnVal = chooser.showOpenDialog(ClientThread.getInstance().getWindow());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				Game.loadGame(chooser.getSelectedFile());
-			}else Game.loadGame();
+			}else Game.loadGame(null);
 			App.startThreads();
-		}else if(selected == 4) { //SHOW ME DA CREDITS
+		}),
+		new LRunnable("Settings", () -> {
+			//TODO Implement Settings Menu
+		}),
+		null,
+		new LRunnable("Credits", () -> {
 			creditsActive = true;
 			creditsOffset = 0f;
 			
@@ -110,29 +114,25 @@ public class MainMenu extends JPanel{
 				}catch(IOException e) {
 					e.printStackTrace();
 				}
-				
-				System.out.println(credits);
 			}
 			
-			new Thread() {
-				@Override
-				public void run() {
-					while(MainMenu.this.creditsActive) {
-						MainMenu.this.repaint();
-						
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					
-					MainMenu.this.repaint();
+			new Thread(() -> {
+				while(creditsActive) {
+					repaint();
+					App.sleep(100);
 				}
-			}.start();
-		}else if(selected == 5)
+				
+				repaint();
+			}).start();
+		}),
+		new LRunnable("Exit", () -> {
 			App.shutdown();
+		})
+	};
+	
+	public void select() {
+		if(!isVisible()) return;
+		opt[selected].run();
 	}
 	
 	public void moveUp() {
@@ -176,4 +176,26 @@ public class MainMenu extends JPanel{
 		return y;
 	}
 	
+	/**
+	 * 
+	 * @author Vemahk
+	 * LRunnable > Labeled Runnable
+	 */
+	private static class LRunnable implements Runnable{
+		
+		private final String label;
+		private final Runnable action;
+		
+		public LRunnable(String label, Runnable action) {
+			this.label = label;
+			this.action = action;
+		}
+		
+		public String getLabel() { return label; }
+
+		@Override
+		public void run() {
+			action.run();
+		}
+	}
 }

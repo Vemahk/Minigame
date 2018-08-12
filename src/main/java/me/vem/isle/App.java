@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import me.vem.isle.client.ClientThread;
 import me.vem.isle.server.ServerThread;
+import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.world.World;
 import me.vem.utils.test.FTimer;
 
@@ -27,8 +28,8 @@ public class App {
 
 		if(World.getInstance() != null)
 			new FTimer("World Save", () -> {
-				if(!World.save())
-					Logger.error("World save failed! OOOH NOOOOO!! CONTRAC THE DEVELOPER; THIS IS PROBLEM.");
+				if(!Game.save())
+					Logger.error("Game save failed! OOOH NOOOOO!! CONTRAC THE DEVELOPER; THIS IS PROBLEM.");
 			}).test();
 
 		ClientThread.getInstance().getWindow().dispose();

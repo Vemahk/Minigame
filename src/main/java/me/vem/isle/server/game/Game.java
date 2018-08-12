@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.dom4j.DocumentException;
-
 import me.vem.isle.Logger;
 import me.vem.isle.client.input.Setting;
 import me.vem.isle.server.game.controller.Controller;
@@ -18,13 +16,15 @@ import me.vem.isle.server.game.world.World;
 
 public class Game {
 	
-	private static Random rand;
-	public static Random random() { return rand; }
+	
 	
 	public static void newGame(int seed) {
-		rand = new Random(seed);
+		if(seed == 0)
+			seed = new Random().nextInt();
 		
-		registerObjectProperties();
+		Random rand = new Random(seed);
+		
+		Property.register("tree", "player");
 		registerControllers();
 		
 		World.createInstance(rand.nextInt());
@@ -36,47 +36,35 @@ public class Game {
 			y = rand.nextInt(512) - 256;
 		}while(!World.getInstance().getLand(x, y).isSand());
 		
-		GameObject.instantiate(new GameObject("ent_player", x, y));
+		new GameObject("ent_player", x, y);
 		
 		setInitialized();
 		Logger.info("Game Startup Completed");
 	}
 	
-	public static void newGame() {
-		newGame(new Random().nextInt());
-	}
-	
 	public static void loadGame(File f) {
-		rand = new Random(new Random().nextInt());
 		
-		registerObjectProperties();
-		registerControllers();
-		
-		World.load(f);
-		
-		setInitialized();
-		Logger.info("World loaded!");
-	}
-	
-	public static void loadGame() {
-		rand = new Random(new Random().nextInt());
-		
-		registerObjectProperties();
-		registerControllers();
-		
-		World.load();
-		
-		setInitialized();
-		Logger.info("World loaded!");
-	}
-	
-	public static void registerObjectProperties() {
-		try {
-			Property.register("tree");
-			Property.register("player");
-		} catch (DocumentException e) {
-			e.printStackTrace();
+		if(f == null) {
+			f = new File("world.dat");
+			if(!f.exists())
+				backupOld();
 		}
+		
+		Property.register("tree", "player");
+		registerControllers();
+
+		World.loadFrom(f);
+		
+		setInitialized();
+		Logger.info("World loaded!");
+	}
+	
+	public static boolean save() {
+		
+	}
+	
+	public static void backupOld() {
+		
 	}
 	
 	public static void registerControllers() {

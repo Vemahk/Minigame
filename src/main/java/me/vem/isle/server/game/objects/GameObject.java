@@ -1,9 +1,7 @@
 package me.vem.isle.server.game.objects;
 
-import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 import me.vem.isle.client.resources.Sprite;
@@ -18,26 +16,6 @@ import me.vem.utils.io.Compressable;
 import me.vem.utils.math.Vector;
 
 public class GameObject implements Comparable<GameObject>, Compressable, RIdentifiable{
-	
-	public static GameObject instantiate(GameObject go, Chunk c) {
-		c.add(go);
-		
-		if(go.isChunkLoader())
-			c.load(go.chunkRadius());
-		
-		if(go.isId("ent_player"))
-			Game.setPlayer(go);
-		
-		return go;
-	}
-	
-	public static GameObject instantiate(GameObject go) {
-		return instantiate(go, go.getPresumedChunk());
-	}
-	
-	public static GameObject instantiate(ByteBuffer buf, Map<Point, Chunk> cMap) {
-		return instantiate(new GameObject(buf.getInt(), buf.getFloat(), buf.getFloat()));
-	}
 	
 	public static Queue<GameObject> toDestroy = new LinkedList<>();
 	public static boolean destroy(GameObject go) {
@@ -54,7 +32,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 
 	protected final Property prop;
-	protected int RUID; //Effectively Final
+	private int RUID; //Effectively Final
 	
 	protected Chunk chunk;
 	protected Vector pos;
@@ -62,6 +40,10 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	protected Physics physics;	
 	protected Collider collider;
 	protected Controller controller;
+	
+	public GameObject(ByteBuffer buf) {
+		this(buf.getInt(), buf.getFloat(), buf.getFloat());
+	}
 	
 	public GameObject(String id, int x, int y) {
 		this(id, x+.5f, y+.5f);
@@ -72,6 +54,14 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 	
 	public GameObject(int hash, float x, float y) {
+		this(hash, x, y, null);
+	}
+	
+	public GameObject(String s, float x, float y, Chunk c) {
+		this(s.hashCode(), x, y, c);
+	}
+	
+	public GameObject(int hash, float x, float y, Chunk chunk) {
 		Game.requestRUID(this);
 		prop = Property.get(hash);
 		pos = new Vector(x, y);
@@ -79,6 +69,18 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 		physics = prop.buildPhysics(this);
 		collider = prop.buildCollider(this);
 		controller = prop.buildController(this);
+		
+		if(chunk == null)
+			chunk = getPresumedChunk();
+		
+		//Chunk handling
+		chunk.add(this);
+		
+		if(isChunkLoader())
+			chunk.load(chunkRadius());
+		
+		if("ent_player".hashCode() == hash)
+			Game.setPlayer(this);
 	}
 	
 	

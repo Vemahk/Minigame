@@ -6,11 +6,10 @@ import javax.swing.JPanel;
 import me.vem.isle.App;
 import me.vem.isle.Logger;
 import me.vem.isle.client.graphics.Camera;
+import me.vem.isle.client.graphics.WorldMap;
 import me.vem.isle.client.input.ActionSet;
 import me.vem.isle.client.input.Input;
 import me.vem.isle.client.menu.MainMenu;
-import me.vem.isle.client.resources.Animation;
-import me.vem.isle.server.game.Game;
 
 public class ClientThread extends Thread{
 
@@ -35,18 +34,12 @@ public class ClientThread extends Thread{
 	public void run() {
 		Logger.info("Client Thread Started");
 		
-		Camera cam = Camera.getInstance();
-		setWindowContent(cam, ActionSet.GAME);
-		
-		while(!Game.isInitialized())
-			App.sleep(FPS);
-		cam.setTarget(Game.getPlayer(), true);
+		Camera.init();
 		
 		while(true) {
 			long start = System.nanoTime();
 			
-			Animation.tickAll();
-			cam.follow(.05f);
+			WorldMap.getInstance().tick();
 			window.repaint();
 			
 			App.sleep(FPS, System.nanoTime() - start);

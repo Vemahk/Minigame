@@ -41,6 +41,13 @@ public class World implements Compressable{
 		chunks = new HashMap<>();
 		noiseGen = new SimplexNoise(300, .5, seed);
 		
+		/*
+		 * The reference to the world singleton is set within this construct to allow for chunks
+		 * (potentially being generated within the World constructor) to reference the World 
+		 * singleton to find other chunks. If you do not set the instance here, then instance 
+		 * will remain null until the world finishes instantiating... Which is bad because the 
+		 * Chunks need it.
+		 */
 		instance = this;
 	}
 	
@@ -55,7 +62,7 @@ public class World implements Compressable{
 		
 		int goSize = buf.getInt();
 		for(int i=0;i<goSize;i++)
-			GameObject.instantiate(buf, chunks);
+			new GameObject(buf);
 	}
 	
 	/**
@@ -109,18 +116,14 @@ public class World implements Compressable{
 		return x << 10; //Returns in kilobytes
 	}
 	
-	public static String worldInfoDir = "world/";
-	private static String backupDir = worldInfoDir + "backups/";
-	public static boolean save() {
+	
+	public static boolean saveTo(File file) {
 		try {
 			ByteBuffer buf = ByteBuffer.allocate(World.getInstance().writeSize());
 			World.getInstance().writeTo(buf);
 			
 			if(!buf.hasArray())
 				return false;
-			File wdir = new File(worldInfoDir);
-			if(!wdir.exists())
-				wdir.mkdirs();
 			
 			File file = new File(wdir, "world.dat");
 			if (file.exists()){
@@ -147,7 +150,7 @@ public class World implements Compressable{
 		return true;
 	}
 
-	public static boolean load(File worldFile) {
+	public static boolean loadFrom(File worldFile) {
 		try {
 			if(!worldFile.exists())
 				return false;
@@ -172,7 +175,7 @@ public class World implements Compressable{
 		return true;
 	}
 	
-	public static boolean load() {
-		return load(new File(worldInfoDir, "world.dat"));
+	public static boolean loadDefault() {
+		return loadFrom(new File(worldInfoDir, "world.dat"));
 	}
 }
