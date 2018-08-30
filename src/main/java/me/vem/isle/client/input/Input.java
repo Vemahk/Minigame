@@ -18,8 +18,14 @@ public class Input implements KeyListener, MouseListener, MouseWheelListener{
 		return instance;
 	}
 	
+	private static boolean isSuspended;
+	public static void suspend() { isSuspended = true; }
+	public static void resume() { isSuspended = false; }
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if(isSuspended) return;
+
 		for(Setting setting : Setting.all)
 			if(setting.getKeyCode() == e.getKeyCode())
 				setting.setPressed();
@@ -29,6 +35,8 @@ public class Input implements KeyListener, MouseListener, MouseWheelListener{
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		if(isSuspended) return;
+		
 		for(Setting setting : Setting.all)
 			if(setting.getKeyCode() == e.getKeyCode()) {
 				setting.setReleased();
@@ -41,9 +49,10 @@ public class Input implements KeyListener, MouseListener, MouseWheelListener{
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
+		if(isSuspended) return;
+		
 		Camera cam = Camera.getInstance();
 		int rot = e.getWheelRotation();
-
 		
 		cam.setScale(cam.getScale() - rot);
 	}

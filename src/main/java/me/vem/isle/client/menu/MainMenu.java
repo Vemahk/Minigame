@@ -19,9 +19,12 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import me.vem.isle.App;
+import me.vem.isle.Logger;
 import me.vem.isle.client.ClientThread;
+import me.vem.isle.client.input.Input;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.server.game.Game;
+import me.vem.isle.server.game.eio.ExtResourceManager;
 import me.vem.isle.server.game.world.World;
 
 public class MainMenu extends JPanel{
@@ -77,22 +80,34 @@ public class MainMenu extends JPanel{
 	
 	private final LRunnable[] opt = {
 		new LRunnable("New Game", () -> {
+			Input.suspend();
+			
 			String seed = JOptionPane.showInputDialog(ClientThread.getInstance().getWindow(), "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
 			if(seed != null && seed.length() > 0)
 				Game.newGame(seed.hashCode());
 			else Game.newGame(0);
 			
+			Input.resume();
+			
 			App.startThreads();
 		}),
-		new LRunnable("Load Game", () -> {
-			JFileChooser chooser = new JFileChooser(new File(World.worldInfoDir));
+		new LRunnable("Load Game", () -> {			
+			Input.suspend();
+			
+			JFileChooser chooser = new JFileChooser(ExtResourceManager.getWorldsDirectory());
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("World Files", "dat", "bck");
 			chooser.setFileFilter(filter);
-			
+
 			int returnVal = chooser.showOpenDialog(ClientThread.getInstance().getWindow());
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
+			if (returnVal == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
 				Game.loadGame(chooser.getSelectedFile());
-			}else Game.loadGame(null);
+			}else{
+				Logger.errorf("No/improper file chosen. Shutting down.");
+				App.shutdown();
+			}
+			
+			Input.resume();
+			
 			App.startThreads();
 		}),
 		new LRunnable("Settings", () -> {

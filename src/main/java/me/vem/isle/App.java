@@ -10,7 +10,7 @@ import me.vem.utils.test.FTimer;
 
 public class App {
 	
-	public static final Version VERSION = new Version(0, 1, 20);
+	public static final Version VERSION = new Version(0, 1, 22);
 	
 	public static void main(String[] args) throws IOException{
 		Logger.info("Hello World!");
@@ -34,6 +34,7 @@ public class App {
 
 		ClientThread.getInstance().getWindow().dispose();
 		System.exit(0);
+		
 	}
 	
 	public static void sleep(int hz) { sleep(hz, 0); }

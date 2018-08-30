@@ -1,6 +1,7 @@
 package me.vem.isle.server.game;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,22 +11,32 @@ import me.vem.isle.Logger;
 import me.vem.isle.client.input.Setting;
 import me.vem.isle.server.game.controller.Controller;
 import me.vem.isle.server.game.controller.PlayerController;
+import me.vem.isle.server.game.eio.ExtResourceManager;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.objects.Property;
 import me.vem.isle.server.game.world.World;
 
 public class Game {
 	
+	private static void init() {
+		Property.register("tree", "player");
+		registerControllers();
+	}
 	
+	private static void postinit() {
+		setInitialized();
+		Logger.info("Game Startup Completed");
+	}
+	
+	private static File worldFile;
 	
 	public static void newGame(int seed) {
+		init();
+		
 		if(seed == 0)
 			seed = new Random().nextInt();
 		
 		Random rand = new Random(seed);
-		
-		Property.register("tree", "player");
-		registerControllers();
 		
 		World.createInstance(rand.nextInt());
 		
@@ -38,33 +49,32 @@ public class Game {
 		
 		new GameObject("ent_player", x, y);
 		
-		setInitialized();
-		Logger.info("Game Startup Completed");
+		postinit();
 	}
 	
 	public static void loadGame(File f) {
+		init();
 		
-		if(f == null) {
-			f = new File("world.dat");
-			if(!f.exists())
-				backupOld();
-		}
-		
-		Property.register("tree", "player");
-		registerControllers();
-
 		World.loadFrom(f);
+		worldFile = f;
 		
-		setInitialized();
-		Logger.info("World loaded!");
+		Logger.debugf("DEBUG: %s", Arrays.toString(World.getInstance().compress()));
+		
+		Logger.infof("World file '%s' loaded!", f.getPath());
+		postinit();
 	}
 	
 	public static boolean save() {
+		if(worldFile == null) {
+			worldFile = ExtResourceManager.getDefaultWorldFile();
+			
+			File bckDir = ExtResourceManager.getBackupsDirectory();
+			String newFileName = "world" + bckDir.listFiles().length + ".dat.bck";
+			worldFile.renameTo(new File(bckDir, newFileName));
+			worldFile.delete();
+		}
 		
-	}
-	
-	public static void backupOld() {
-		
+		return World.saveTo(worldFile);
 	}
 	
 	public static void registerControllers() {

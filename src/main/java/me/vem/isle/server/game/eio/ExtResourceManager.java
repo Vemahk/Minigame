@@ -12,6 +12,10 @@ public class ExtResourceManager {
 		return worldsDir;
 	}
 	
+	public static File getDefaultWorldFile() {
+		return new File(getWorldsDirectory(), "world.dat");
+	}
+	
 	private static File backupsDir = new File(getWorldsDirectory(), "backups/");
 	public static File getBackupsDirectory() {
 		if(!backupsDir.exists())
@@ -19,5 +23,6 @@ public class ExtResourceManager {
 		
 		return backupsDir;
 	}
+	
 	
 }

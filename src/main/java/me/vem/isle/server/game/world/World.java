@@ -11,6 +11,7 @@ import java.util.LinkedList;
 
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.Logger;
+import me.vem.isle.server.game.eio.ExtResourceManager;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.utils.io.Compressable;
 import me.vem.utils.math.Vector;
@@ -116,7 +117,6 @@ public class World implements Compressable{
 		return x << 10; //Returns in kilobytes
 	}
 	
-	
 	public static boolean saveTo(File file) {
 		try {
 			ByteBuffer buf = ByteBuffer.allocate(World.getInstance().writeSize());
@@ -124,16 +124,6 @@ public class World implements Compressable{
 			
 			if(!buf.hasArray())
 				return false;
-			
-			File file = new File(wdir, "world.dat");
-			if (file.exists()){
-				File bckDir = new File(backupDir);
-				if(!bckDir.exists())
-					bckDir.mkdirs();
-				String newFileName = "world" + bckDir.listFiles().length + ".dat.bck";
-				file.renameTo(new File(bckDir, newFileName));
-				file.delete();
-			}
 			
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(buf.array(), 0, buf.position());
@@ -173,9 +163,5 @@ public class World implements Compressable{
 		}
 		
 		return true;
-	}
-	
-	public static boolean loadDefault() {
-		return loadFrom(new File(worldInfoDir, "world.dat"));
 	}
 }
