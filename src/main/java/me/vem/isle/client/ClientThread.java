@@ -4,12 +4,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import me.vem.isle.App;
-import me.vem.isle.Logger;
 import me.vem.isle.client.graphics.Camera;
 import me.vem.isle.client.graphics.WorldMap;
 import me.vem.isle.client.input.ActionSet;
 import me.vem.isle.client.input.Input;
 import me.vem.isle.client.menu.MainMenu;
+import me.vem.utils.logging.Logger;
 
 public class ClientThread extends Thread{
 

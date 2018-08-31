@@ -3,10 +3,10 @@ package me.vem.isle.server.game.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-import me.vem.isle.Logger;
 import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.RIdentifiable;
 import me.vem.isle.server.game.objects.GameObject;
+import me.vem.utils.logging.Logger;
 
 public abstract class Controller implements RIdentifiable{
 

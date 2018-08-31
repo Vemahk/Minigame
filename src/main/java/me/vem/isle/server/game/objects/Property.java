@@ -1,7 +1,5 @@
 package me.vem.isle.server.game.objects;
 
-import static me.vem.isle.Logger.fatalError;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -20,6 +18,7 @@ import me.vem.isle.server.game.controller.Controller;
 import me.vem.isle.server.game.physics.Physics;
 import me.vem.isle.server.game.physics.collider.Collider;
 import me.vem.isle.server.game.physics.collider.ColliderType;
+import me.vem.utils.logging.Logger;
 
 public class Property {
 	
@@ -47,10 +46,10 @@ public class Property {
 		//Init
 		Element root = doc.getRootElement();
 		if(!root.getName().equals("property")) 
-			fatalError("XML Property File '"+filename+"' not formatted correctly. Make sure root element is named 'property'.");
+			Logger.fatalError("XML Property File '"+filename+"' not formatted correctly. Make sure root element is named 'property'.");
 		String id = root.attributeValue("id");
 		if(id == null)
-			fatalError("XML Property File '"+filename+"' not formatted correctly. 'property' element requires 'id' attribute for object id.");
+			Logger.fatalError("XML Property File '"+filename+"' not formatted correctly. 'property' element requires 'id' attribute for object id.");
 		
 		LinkedHashMap<String, Object> values = new LinkedHashMap<>();
 		

@@ -10,10 +10,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import gustavson.simplex.SimplexNoise;
-import me.vem.isle.Logger;
-import me.vem.isle.server.game.eio.ExtResourceManager;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.utils.io.Compressable;
+import me.vem.utils.logging.Logger;
 import me.vem.utils.math.Vector;
 
 public class World implements Compressable{

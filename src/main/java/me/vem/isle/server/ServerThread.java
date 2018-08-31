@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import me.vem.isle.App;
-import me.vem.isle.Logger;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.world.Chunk;
+import me.vem.utils.logging.Logger;
 
 public class ServerThread extends Thread{
 	

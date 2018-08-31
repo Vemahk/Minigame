@@ -1,8 +1,8 @@
 package me.vem.isle.client.resources;
 
-import static me.vem.isle.Logger.info;
-
 import java.util.HashSet;
+
+import me.vem.utils.logging.Logger;
 
 public class Animation {
 
@@ -26,7 +26,7 @@ public class Animation {
 	public Animation(int delay, Sprite... sprites) {
 		
 		if(sprites.length <= 1) { //U don guufed.
-			info("Cannot create animation of one or no image order.");
+			Logger.info("Cannot create animation of one or no image order.");
 			return;
 		}
 		

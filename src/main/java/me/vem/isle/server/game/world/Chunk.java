@@ -1,6 +1,5 @@
 package me.vem.isle.server.game.world;
 
-import static me.vem.isle.Logger.debug;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -14,11 +13,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import gustavson.simplex.SimplexNoise;
-import me.vem.isle.Logger;
 import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.RIdentifiable;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.utils.io.Compressable;
+import me.vem.utils.logging.Logger;
 
 public class Chunk implements Compressable, RIdentifiable{
 	
@@ -216,7 +215,7 @@ public class Chunk implements Compressable, RIdentifiable{
 					LoadedObjects.remove(go);
 				
 				if(Game.isDebugActive())
-					debug(String.format("%s moved from %s to %s.", go, this, to));
+					Logger.debug(String.format("%s moved from %s to %s.", go, this, to));
 			}
 		});
 	}

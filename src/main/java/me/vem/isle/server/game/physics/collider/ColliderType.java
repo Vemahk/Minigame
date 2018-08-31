@@ -1,6 +1,6 @@
 package me.vem.isle.server.game.physics.collider;
 
-import me.vem.isle.Logger;
+import me.vem.utils.logging.Logger;
 
 public enum ColliderType {
 	BOX;

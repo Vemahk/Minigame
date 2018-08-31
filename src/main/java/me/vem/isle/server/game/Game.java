@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import me.vem.isle.Logger;
 import me.vem.isle.client.input.Setting;
 import me.vem.isle.server.game.controller.Controller;
 import me.vem.isle.server.game.controller.PlayerController;
@@ -15,12 +14,14 @@ import me.vem.isle.server.game.eio.ExtResourceManager;
 import me.vem.isle.server.game.objects.GameObject;
 import me.vem.isle.server.game.objects.Property;
 import me.vem.isle.server.game.world.World;
+import me.vem.utils.logging.Logger;
 
 public class Game {
 	
 	private static void init() {
 		Property.register("tree", "player");
 		registerControllers();
+		
 	}
 	
 	private static void postinit() {

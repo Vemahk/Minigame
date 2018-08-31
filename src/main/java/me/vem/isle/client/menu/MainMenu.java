@@ -8,7 +8,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
@@ -19,13 +18,12 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import me.vem.isle.App;
-import me.vem.isle.Logger;
 import me.vem.isle.client.ClientThread;
 import me.vem.isle.client.input.Input;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.eio.ExtResourceManager;
-import me.vem.isle.server.game.world.World;
+import me.vem.utils.logging.Logger;
 
 public class MainMenu extends JPanel{
 	private static final long serialVersionUID = -5689029521190126878L;

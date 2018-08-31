@@ -6,6 +6,7 @@ import me.vem.isle.client.ClientThread;
 import me.vem.isle.server.ServerThread;
 import me.vem.isle.server.game.Game;
 import me.vem.isle.server.game.world.World;
+import me.vem.utils.logging.Logger;
 import me.vem.utils.test.FTimer;
 
 public class App {
