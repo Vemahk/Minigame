@@ -78,6 +78,9 @@ public class MainMenu extends JPanel{
 	
 	private final LRunnable[] opt = {
 		new LRunnable("New Game", () -> {
+
+			if(Game.isInitialized()) return;
+			
 			Input.suspend();
 			
 			String seed = JOptionPane.showInputDialog(ClientThread.getInstance().getWindow(), "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
@@ -89,7 +92,10 @@ public class MainMenu extends JPanel{
 			
 			App.startThreads();
 		}),
-		new LRunnable("Load Game", () -> {			
+		new LRunnable("Load Game", () -> {
+
+			if(Game.isInitialized()) return;
+			
 			Input.suspend();
 			
 			JFileChooser chooser = new JFileChooser(ExtResourceManager.getWorldsDirectory());

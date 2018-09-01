@@ -1,7 +1,6 @@
 package me.vem.isle.server.game;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,8 +57,6 @@ public class Game {
 		
 		World.loadFrom(f);
 		worldFile = f;
-		
-		Logger.debugf("DEBUG: %s", Arrays.toString(World.getInstance().compress()));
 		
 		Logger.infof("World file '%s' loaded!", f.getPath());
 		postinit();
