@@ -1,4 +1,4 @@
-package me.vem.isle.server.game.world;
+package me.vem.isle.common.world;
 
 import java.awt.Point;
 import java.io.File;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import gustavson.simplex.SimplexNoise;
-import me.vem.isle.server.game.objects.GameObject;
+import me.vem.isle.common.objects.GameObject;
 import me.vem.utils.io.Compressable;
 import me.vem.utils.logging.Logger;
 import me.vem.utils.math.Vector;

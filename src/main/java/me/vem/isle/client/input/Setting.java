@@ -16,7 +16,7 @@ public class Setting {
 	public static Setting EXIT_GAME = new Setting("Quick Close", KeyEvent.VK_ESCAPE, ActionSet.SHUTDOWN);
 	
 	public static Setting TOGGLE_MAP = new Setting("Toggle Map", KeyEvent.VK_M);
-	public static Setting TOGGLE_DEBUG = new Setting("Toggle Debug", KeyEvent.VK_F3);
+	public static Setting TOGGLE_DEBUG = new Setting("Toggle Debug", KeyEvent.VK_F3, ActionSet.TOGGLE_DEBUG);
 	
 	private byte state;
 	

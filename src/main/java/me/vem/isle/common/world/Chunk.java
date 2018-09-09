@@ -1,4 +1,4 @@
-package me.vem.isle.server.game.world;
+package me.vem.isle.common.world;
 
 
 import java.nio.ByteBuffer;
@@ -13,9 +13,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import gustavson.simplex.SimplexNoise;
-import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.RIdentifiable;
-import me.vem.isle.server.game.objects.GameObject;
+import me.vem.isle.common.Game;
+import me.vem.isle.common.RIdentifiable;
+import me.vem.isle.common.objects.GameObject;
 import me.vem.utils.io.Compressable;
 import me.vem.utils.logging.Logger;
 

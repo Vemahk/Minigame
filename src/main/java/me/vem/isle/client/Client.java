@@ -3,53 +3,70 @@ package me.vem.isle.client;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import me.vem.isle.App;
 import me.vem.isle.client.graphics.Camera;
 import me.vem.isle.client.graphics.WorldMap;
 import me.vem.isle.client.input.ActionSet;
 import me.vem.isle.client.input.Input;
 import me.vem.isle.client.menu.MainMenu;
+import me.vem.isle.server.Server;
+import me.vem.utils.Utilities;
 import me.vem.utils.logging.Logger;
+import me.vem.utils.logging.Version;
 
-public class ClientThread extends Thread{
+public class Client extends Thread{
 
+	public static final Version VERSION = new Version(0, 1, 23, "Dopey Survival");
+	
 	public static final int FPS = 60;
 	
-	private static ClientThread instance;
-	public static ClientThread getInstance() {
+	private static Client instance;
+	public static Client getInstance() {
 		if(instance == null)
-			instance = new ClientThread();
+			instance = new Client();
 		return instance;
+	}
+	
+	
+	private Server localServer;
+	public boolean isLocalServer() { return localServer != null; }
+	
+	public void setLocalServer(Server s) {
+		this.localServer = s;
 	}
 	
 	private JFrame window;
 	private MainMenu menu;
 
-	private ClientThread() { createWindow(); }
+	private Client() {
+		super("Dopey Survival Client Thread");
+		createWindow();
+	}
 
 	public JFrame getWindow() { return window; }
 	public MainMenu getMainMenu() { return menu; }
 	
 	@Override
 	public void run() {
-		Logger.info("Client Thread Started");
+		Logger.info("Client Started");
+		
+		if(isLocalServer())
+			localServer.start();
 		
 		Camera.init();
 		
-		while(true) {
+		while(!isKilled) {
 			long start = System.nanoTime();
 			
 			WorldMap.getInstance().tick();
 			window.repaint();
 			
-			App.sleep(FPS, System.nanoTime() - start);
+			Utilities.sleep(FPS, System.nanoTime() - start);
 		}
 	}
 	
 	public void createWindow() {
-		window = new JFrame(App.VERSION.toString());
+		window = new JFrame(VERSION.toString());
 		window.setUndecorated(true);
-		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		setWindowContent(menu = new MainMenu(), ActionSet.MAIN_MENU);
 		
@@ -70,6 +87,22 @@ public class ClientThread extends Thread{
 		window.pack();
 		window.setLocationRelativeTo(null);
 		window.repaint();
+	}
+
+	private boolean isKilled;
+	
+	public void shutdown() {
+		if(isLocalServer())
+			localServer.shutdown();
+		
+		Client.getInstance().getWindow().dispose();
+		isKilled = true;
+	}
+	
+	public static void main(String... args) {
+		Logger.infof("Loading Client of %s...", VERSION);
+		
+		getInstance();
 	}
 	
 }

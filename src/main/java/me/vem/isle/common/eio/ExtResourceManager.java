@@ -1,4 +1,4 @@
-package me.vem.isle.server.game.eio;
+package me.vem.isle.common.eio;
 
 import java.io.File;
 

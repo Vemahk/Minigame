@@ -17,12 +17,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import me.vem.isle.App;
-import me.vem.isle.client.ClientThread;
+import me.vem.isle.client.Client;
 import me.vem.isle.client.input.Input;
 import me.vem.isle.client.resources.ResourceManager;
-import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.eio.ExtResourceManager;
+import me.vem.isle.common.Game;
+import me.vem.isle.common.eio.ExtResourceManager;
+import me.vem.isle.server.Server;
+import me.vem.utils.Utilities;
 import me.vem.utils.logging.Logger;
 
 public class MainMenu extends JPanel{
@@ -83,14 +84,16 @@ public class MainMenu extends JPanel{
 			
 			Input.suspend();
 			
-			String seed = JOptionPane.showInputDialog(ClientThread.getInstance().getWindow(), "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
-			if(seed != null && seed.length() > 0)
-				Game.newGame(seed.hashCode());
-			else Game.newGame(0);
+			String res = JOptionPane.showInputDialog(Client.getInstance().getWindow(), "Enter seed", "Custom Seed", JOptionPane.QUESTION_MESSAGE);
+			int seed = 0;
+			if(res != null && res.length() > 0)
+				seed = res.hashCode();
+
+			Client.getInstance().setLocalServer(Server.init(seed));
 			
 			Input.resume();
 			
-			App.startThreads();
+			Client.getInstance().start();
 		}),
 		new LRunnable("Load Game", () -> {
 
@@ -102,17 +105,17 @@ public class MainMenu extends JPanel{
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("World Files", "dat", "bck");
 			chooser.setFileFilter(filter);
 
-			int returnVal = chooser.showOpenDialog(ClientThread.getInstance().getWindow());
+			int returnVal = chooser.showOpenDialog(Client.getInstance().getWindow());
 			if (returnVal == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
-				Game.loadGame(chooser.getSelectedFile());
+				Client.getInstance().setLocalServer(Server.init(chooser.getSelectedFile()));
 			}else{
 				Logger.errorf("No/improper file chosen. Shutting down.");
-				App.shutdown();
+				Client.getInstance().shutdown();
 			}
 			
 			Input.resume();
 			
-			App.startThreads();
+			Client.getInstance().start();
 		}),
 		new LRunnable("Settings", () -> {
 			//TODO Implement Settings Menu
@@ -138,14 +141,14 @@ public class MainMenu extends JPanel{
 			new Thread(() -> {
 				while(creditsActive) {
 					repaint();
-					App.sleep(100);
+					Utilities.sleep(100);
 				}
 				
 				repaint();
 			}).start();
 		}),
 		new LRunnable("Exit", () -> {
-			App.shutdown();
+			Client.getInstance().shutdown();
 		})
 	};
 	
@@ -196,7 +199,6 @@ public class MainMenu extends JPanel{
 	}
 	
 	/**
-	 * 
 	 * @author Vemahk
 	 * LRunnable > Labeled Runnable
 	 */

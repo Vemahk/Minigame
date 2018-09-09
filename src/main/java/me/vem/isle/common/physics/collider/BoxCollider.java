@@ -1,6 +1,6 @@
-package me.vem.isle.server.game.physics.collider;
+package me.vem.isle.common.physics.collider;
 
-import me.vem.isle.server.game.objects.GameObject;
+import me.vem.isle.common.objects.GameObject;
 import me.vem.utils.math.Vector;
 
 public class BoxCollider implements Collider{

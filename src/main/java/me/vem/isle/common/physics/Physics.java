@@ -1,7 +1,7 @@
-package me.vem.isle.server.game.physics;
+package me.vem.isle.common.physics;
 
-import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.world.Chunk;
+import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.world.Chunk;
 import me.vem.utils.math.Vector;
 
 public class Physics {

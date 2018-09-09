@@ -1,4 +1,4 @@
-package me.vem.isle.server.game.physics.collider;
+package me.vem.isle.common.physics.collider;
 
 import me.vem.utils.logging.Logger;
 

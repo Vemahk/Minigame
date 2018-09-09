@@ -6,11 +6,11 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
-import me.vem.isle.client.ClientThread;
-import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.world.Land;
-import me.vem.isle.server.game.world.World;
+import me.vem.isle.client.Client;
+import me.vem.isle.common.Game;
+import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.world.Land;
+import me.vem.isle.common.world.World;
 
 public class WorldMap {
 	
@@ -51,7 +51,7 @@ public class WorldMap {
 	}
 	
 	public void tick() {
-		if(++t >= updateRate * ClientThread.FPS){
+		if(++t >= updateRate * Client.FPS){
 			t = 0;
 			
 			GameObject player = Game.getPlayer();

@@ -15,7 +15,7 @@ public class Animation {
 	}
 	
 	public static Animation getAnimation(String str) {
-		return null;//TODO Implement this
+		return null;//TODO Implement getAnimation();
 	}
 	
 	private Sprite[] sprites;

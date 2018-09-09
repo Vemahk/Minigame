@@ -1,4 +1,4 @@
-package me.vem.isle.server.game;
+package me.vem.isle.common;
 
 import java.io.File;
 import java.util.Collections;
@@ -6,13 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import me.vem.isle.client.input.Setting;
-import me.vem.isle.server.game.controller.Controller;
-import me.vem.isle.server.game.controller.PlayerController;
-import me.vem.isle.server.game.eio.ExtResourceManager;
-import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.objects.Property;
-import me.vem.isle.server.game.world.World;
+import me.vem.isle.common.controller.Controller;
+import me.vem.isle.common.controller.PlayerController;
+import me.vem.isle.common.eio.ExtResourceManager;
+import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.objects.Property;
+import me.vem.isle.common.world.World;
 import me.vem.utils.logging.Logger;
 
 public class Game {
@@ -99,7 +98,12 @@ public class Game {
 	public static boolean isInitialized() { return initialized; }
 	public static void setInitialized(){initialized = true;}
 	
+	private static boolean debugActive;
+	public static void toggleDebugMode() {
+		debugActive = !debugActive;
+	}
+	
 	public static boolean isDebugActive() {
-		return Setting.TOGGLE_DEBUG.isToggled();
+		return debugActive;
 	}
 }

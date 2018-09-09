@@ -1,11 +1,11 @@
-package me.vem.isle.server.game.controller;
+package me.vem.isle.common.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.RIdentifiable;
-import me.vem.isle.server.game.objects.GameObject;
+import me.vem.isle.common.Game;
+import me.vem.isle.common.RIdentifiable;
+import me.vem.isle.common.objects.GameObject;
 import me.vem.utils.logging.Logger;
 
 public abstract class Controller implements RIdentifiable{

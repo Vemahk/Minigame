@@ -1,4 +1,4 @@
-package me.vem.isle.server.game.objects;
+package me.vem.isle.common.objects;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,13 +11,15 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+//TODO Separate Common from Client
 import me.vem.isle.client.resources.Animation;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.client.resources.Sprite;
-import me.vem.isle.server.game.controller.Controller;
-import me.vem.isle.server.game.physics.Physics;
-import me.vem.isle.server.game.physics.collider.Collider;
-import me.vem.isle.server.game.physics.collider.ColliderType;
+
+import me.vem.isle.common.controller.Controller;
+import me.vem.isle.common.physics.Physics;
+import me.vem.isle.common.physics.collider.Collider;
+import me.vem.isle.common.physics.collider.ColliderType;
 import me.vem.utils.logging.Logger;
 
 public class Property {
@@ -119,7 +121,7 @@ public class Property {
 			sprite = Sprite.get(asString("sprite.id"));
 		
 		//Set ANIMATIONSSSSSSS
-		//TODO When they matter
+		//TODO Set Animations is Property Class
 		
 		//Set Physics
 		hasPhysics = hasValue("physics");

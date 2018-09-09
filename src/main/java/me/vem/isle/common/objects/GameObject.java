@@ -1,17 +1,19 @@
-package me.vem.isle.server.game.objects;
+package me.vem.isle.common.objects;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 
+//TODO Separate Common from Client
 import me.vem.isle.client.resources.Sprite;
-import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.RIdentifiable;
-import me.vem.isle.server.game.controller.Controller;
-import me.vem.isle.server.game.physics.Physics;
-import me.vem.isle.server.game.physics.collider.Collider;
-import me.vem.isle.server.game.world.Chunk;
-import me.vem.isle.server.game.world.World;
+
+import me.vem.isle.common.Game;
+import me.vem.isle.common.RIdentifiable;
+import me.vem.isle.common.controller.Controller;
+import me.vem.isle.common.physics.Physics;
+import me.vem.isle.common.physics.collider.Collider;
+import me.vem.isle.common.world.Chunk;
+import me.vem.isle.common.world.World;
 import me.vem.utils.io.Compressable;
 import me.vem.utils.math.Vector;
 

@@ -1,8 +1,10 @@
-package me.vem.isle.server.game.controller;
+package me.vem.isle.common.controller;
 
+//TODO Separate Common from Client
 import me.vem.isle.client.input.Setting;
-import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.world.World;
+
+import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.world.World;
 
 public class PlayerController extends Controller{
 	

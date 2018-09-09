@@ -1,7 +1,7 @@
 package me.vem.isle.client.input;
 
-import me.vem.isle.App;
-import me.vem.isle.client.ClientThread;
+import me.vem.isle.client.Client;
+import me.vem.isle.common.Game;
 
 public class ActionSet{
 	
@@ -10,11 +10,12 @@ public class ActionSet{
 	public static final int SETTINGS = 2;
 	public static final int INGAME_MENU = 3;
 	
-	public static final Runnable MAINMENU_UP = () -> ClientThread.getInstance().getMainMenu().moveUp();
-	public static final Runnable MAINMENU_DOWN = () -> ClientThread.getInstance().getMainMenu().moveDown();
-	public static final Runnable MAINMENU_SELECT = () -> ClientThread.getInstance().getMainMenu().select();
+	public static final Runnable MAINMENU_UP = () -> Client.getInstance().getMainMenu().moveUp();
+	public static final Runnable MAINMENU_DOWN = () -> Client.getInstance().getMainMenu().moveDown();
+	public static final Runnable MAINMENU_SELECT = () -> Client.getInstance().getMainMenu().select();
 	
-	public static final Runnable SHUTDOWN = () -> App.shutdown();
+	public static final Runnable SHUTDOWN = () -> Client.getInstance().shutdown();
+	public static final Runnable TOGGLE_DEBUG = () -> Game.toggleDebugMode();
 	
 	public static void implementActionSet(int set) {
 		switch(set) {

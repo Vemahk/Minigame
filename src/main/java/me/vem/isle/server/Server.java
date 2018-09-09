@@ -1,28 +1,51 @@
 package me.vem.isle.server;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import me.vem.isle.App;
-import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.world.Chunk;
+import me.vem.isle.common.Game;
+import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.world.Chunk;
+import me.vem.isle.common.world.World;
+import me.vem.utils.Utilities;
 import me.vem.utils.logging.Logger;
+import me.vem.utils.logging.Version;
+import me.vem.utils.test.FTimer;
 
-public class ServerThread extends Thread{
+//TODO Investigate LocalServer subclass...
+
+public class Server extends Thread{
+	
+	public static final Version VERSION = new Version(0, 1, 23, "Dopey Survival");
 	
 	private static final int UPS = 60;
 	public static final boolean DISPLAY_TIME_INFO = false;
 	
-	private static ServerThread instance;
-	public static ServerThread getInstance() {
-		if(instance == null)
-			instance = new ServerThread();
+	private static Server instance;
+	public static Server getInstance() {
 		return instance;
 	}
 	
-	private ServerThread() {}
+	public static Server init(int seed) {
+		return instance = new Server(seed);
+	}
+	
+	public static Server init(File worldFile) {
+		return instance = new Server(worldFile);
+	}
+	
+	private Server(int seed) {
+		super("Dopey Survival Server Thread");
+		Game.newGame(seed);
+	}
+	
+	public Server(File worldFile) {
+		super("Dopey Survival Server Thread");
+		Game.loadGame(worldFile);
+	}
 	
 	private long lastUpdateStart;
 	
@@ -32,7 +55,7 @@ public class ServerThread extends Thread{
 		
 		lastUpdateStart = System.nanoTime();
 		
-		while(true) {
+		while(!isKilled) {
 			float dt = (System.nanoTime() - lastUpdateStart) / 1000000000f;
 			long start = lastUpdateStart = System.nanoTime();
 			
@@ -41,7 +64,7 @@ public class ServerThread extends Thread{
 			if(DISPLAY_TIME_INFO) 
 				Logger.debugf("Update steps: %.3fms", up / 1000000f);
 			
-			App.sleep(UPS, System.nanoTime() - start);
+			Utilities.sleep(UPS, System.nanoTime() - start);
 		}
 	}
 	
@@ -89,5 +112,25 @@ public class ServerThread extends Thread{
 		}
 		
 		return System.nanoTime() - start;
+	}
+	
+	private boolean isKilled;
+	
+	public void shutdown() {
+		if(World.getInstance() != null)
+			new FTimer("World Save", () -> {
+				if(!Game.save())
+					Logger.error("Game save failed! OOOH NOOOOO!! CONTACT THE DEVELOPER; THIS IS PROBLEM.");
+			}).test();
+		
+		isKilled = true;
+	}
+	
+	public static void main(String... args) {
+		for(int i=0;i<args.length;i++) {
+			
+		}
+		
+		
 	}
 }

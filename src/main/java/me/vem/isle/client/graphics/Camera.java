@@ -6,23 +6,25 @@ import static me.vem.isle.client.graphics.UnitConversion.toUnits;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
 import javax.swing.JPanel;
 
-import me.vem.isle.App;
-import me.vem.isle.client.ClientThread;
+import me.vem.isle.client.Client;
 import me.vem.isle.client.input.ActionSet;
 import me.vem.isle.client.input.Setting;
 import me.vem.isle.client.resources.Animation;
-import me.vem.isle.server.game.Game;
-import me.vem.isle.server.game.objects.GameObject;
-import me.vem.isle.server.game.physics.collider.BoxCollider;
-import me.vem.isle.server.game.world.Chunk;
-import me.vem.isle.server.game.world.Land;
-import me.vem.isle.server.game.world.World;
+import me.vem.isle.client.resources.Sprite;
+import me.vem.isle.common.Game;
+import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.physics.collider.BoxCollider;
+import me.vem.isle.common.world.Chunk;
+import me.vem.isle.common.world.Land;
+import me.vem.isle.common.world.World;
+import me.vem.utils.Utilities;
 import me.vem.utils.math.Vector;
 
 public class Camera extends JPanel {
@@ -40,12 +42,12 @@ public class Camera extends JPanel {
 			return;
 		
 		while(!Game.isInitialized())
-			App.sleep(ClientThread.FPS);
+			Utilities.sleep(Client.FPS);
 		instance = new Camera(2);
 		instance.setTarget(Game.getPlayer(), true);
 		WorldMap.init();
 
-		ClientThread.getInstance().setWindowContent(instance, ActionSet.GAME);
+		Client.getInstance().setWindowContent(instance, ActionSet.GAME);
 	}
 
 	private GameObject target;
@@ -115,7 +117,7 @@ public class Camera extends JPanel {
 		
 		synchronized (this) {
 
-			scale += (tarScale - scale) / ClientThread.FPS;
+			scale += (tarScale - scale) / Client.FPS;
 
 			if (Setting.TOGGLE_MAP.isToggled()) {
 				WorldMap.getInstance().drawMap(g);
@@ -144,7 +146,8 @@ public class Camera extends JPanel {
 					int drawX = toPixels(x);
 					int drawY = toPixels(y);
 
-					dg.drawImage(land.getSprite().getImage(), drawX, drawY, null);
+					Image lSprite = Sprite.get(land.toString().toLowerCase()).getImage();
+					dg.drawImage(lSprite, drawX, drawY, null);
 
 					if (Game.isDebugActive()) {
 						dg.setColor(Color.RED);

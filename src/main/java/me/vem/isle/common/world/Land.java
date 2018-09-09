@@ -1,6 +1,4 @@
-package me.vem.isle.server.game.world;
-
-import me.vem.isle.client.resources.Sprite;
+package me.vem.isle.common.world;
 
 public enum Land{
 	
@@ -19,10 +17,6 @@ public enum Land{
 		case WATER: return .7f;
 		default: return .3f;
 		}
-	}
-	
-	public Sprite getSprite() {
-		return Sprite.get(this.toString().toLowerCase());
 	}
 	
 	public boolean isWater() { return this==WATER; }
