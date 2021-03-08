@@ -52,9 +52,11 @@ public class Chunk implements Compressable, RIdentifiable{
 	private byte[][] land;
 	private byte loaders;
 	
+	private final World world;
 	private final int cx, cy;
 	
-	public Chunk(int cx, int cy) {
+	public Chunk(World world, int cx, int cy) {
+		this.world = world;
 		this.cx = cx;
 		this.cy = cy;
 		
@@ -63,8 +65,8 @@ public class Chunk implements Compressable, RIdentifiable{
 		objs = Collections.synchronizedSortedSet(new TreeSet<>());
 	}
 	
-	public Chunk(int cx, int cy, SimplexNoise sn) {
-		this(cx, cy);
+	public Chunk(World world, int cx, int cy, SimplexNoise sn) {
+		this(world, cx, cy);
 		
 		int seed = sn.getSeed();
 		seed ^= ((cx & 0xFFFF) ^ (cx >>> 16)) << 16;
@@ -82,15 +84,15 @@ public class Chunk implements Compressable, RIdentifiable{
 				if(d >= .5) land[x][y]++;
 				if(d >= .52) land[x][y]++;
 				if(d >= .55 && rand.nextDouble() < .1)
-                	new GameObject("obj_tree", sx, sy, this); 	
+                	new GameObject(world, "obj_tree", sx, sy, this); 	
     		}
 		
 		if(Game.isDebugActive())
 			Logger.debugf("Chunk generated at %d, %d.", cx, cy);
 	}
 	
-	public Chunk(ByteBuffer buf) {
-		this(buf.getInt(), buf.getInt());
+	public Chunk(World world, ByteBuffer buf) {
+		this(world, buf.getInt(), buf.getInt());
 		
 		for(int b=0;b<64;b++) {
 			byte bb = buf.get();
@@ -103,6 +105,8 @@ public class Chunk implements Compressable, RIdentifiable{
 	
 	public int cx() { return cx; }
 	public int cy() { return cy; }
+	
+	public World getWorld() { return world; }
 	
 	public void addObjectsTo(Collection<GameObject> col) { col.addAll(objs); }
 	public void removeObjectsFrom(Collection<GameObject> col) { col.removeAll(objs); }
@@ -123,13 +127,13 @@ public class Chunk implements Compressable, RIdentifiable{
 	public void load(int r) {
 		for(int x = -r; x <= r; x++)
 			for(int y = -r; y <= r; y++)
-				World.getInstance().getChunk(cx + x, cy + y).load();
+				world.getChunk(cx + x, cy + y).load();
 	}
 	
 	public void unload(int r) {
 		for(int x = -r; x <= r; x++)
 			for(int y = -r; y <= r; y++)
-				World.getInstance().getChunk(cx + x, cy + y).unload();
+				world.getChunk(cx + x, cy + y).unload();
 	}
 
 	public void load() {
@@ -206,8 +210,8 @@ public class Chunk implements Compressable, RIdentifiable{
 					for(int x = -r; x <= r; x++)
 						for(int y = -r; y <= r; y++)
 							if(outOfBounds(this, r, to.cx + x, to.cy + y)) {
-								World.getInstance().getChunk(to.cx + x, to.cy + y).load();
-								World.getInstance().getChunk(cx - x, cy - y).unload();
+								world.getChunk(to.cx + x, to.cy + y).load();
+								world.getChunk(cx - x, cy - y).unload();
 							}
 				}
 				

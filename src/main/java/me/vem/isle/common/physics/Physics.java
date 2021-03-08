@@ -72,7 +72,7 @@ public class Physics {
 		parent.getPos().offset(vel.getX() * dt, vel.getY() * dt);
 		
 		Chunk curChunk = parent.getAssignedChunk();
-		Chunk nChunk = parent.getPresumedChunk();
+		Chunk nChunk = parent.getWorld().getChunkFor(parent.getPos());
 		if(curChunk != nChunk)
 			curChunk.transfer(parent, nChunk);
 	}

@@ -1,23 +1,20 @@
 package me.vem.isle.client;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.awt.event.WindowEvent;
 
-import me.vem.isle.client.graphics.Camera;
-import me.vem.isle.client.graphics.WorldMap;
-import me.vem.isle.client.input.ActionSet;
-import me.vem.isle.client.input.Input;
+import me.vem.isle.client.graphics.GameFrame;
+import me.vem.isle.client.graphics.RenderThread;
+import me.vem.isle.client.input.InputAdapter;
+import me.vem.isle.client.input.MainMenuInputAdapter;
 import me.vem.isle.client.menu.MainMenu;
-import me.vem.isle.server.Server;
-import me.vem.utils.Utilities;
+import me.vem.isle.common.world.WorldThread;
 import me.vem.utils.logging.Logger;
 import me.vem.utils.logging.Version;
 
-public class Client extends Thread{
-
-	public static final Version VERSION = new Version(0, 1, 23, "Dopey Survival");
+public class Client extends GameFrame{
 	
-	public static final int FPS = 60;
+	private static final long serialVersionUID = -8743198429325787950L;
+	public static final Version VERSION = new Version(0, 2, 0, "Dopey Survival");
 	
 	private static Client instance;
 	public static Client getInstance() {
@@ -25,84 +22,27 @@ public class Client extends Thread{
 			instance = new Client();
 		return instance;
 	}
-	
-	
-	private Server localServer;
-	public boolean isLocalServer() { return localServer != null; }
-	
-	public void setLocalServer(Server s) {
-		this.localServer = s;
-	}
-	
-	private JFrame window;
-	private MainMenu menu;
 
 	private Client() {
-		super("Dopey Survival Client Thread");
-		createWindow();
+		super();
+		
+		MainMenu menu = new MainMenu();
+		InputAdapter<MainMenu> input = new MainMenuInputAdapter(menu);
+		this.setContext(menu, input);
+		
+		render();
 	}
-
-	public JFrame getWindow() { return window; }
-	public MainMenu getMainMenu() { return menu; }
-	
-	@Override
-	public void run() {
-		Logger.info("Client Started");
-		
-		if(isLocalServer())
-			localServer.start();
-		
-		Camera.init();
-		
-		while(!isKilled) {
-			long start = System.nanoTime();
-			
-			WorldMap.getInstance().tick();
-			window.repaint();
-			
-			Utilities.sleep(FPS, System.nanoTime() - start);
-		}
-	}
-	
-	public void createWindow() {
-		window = new JFrame(VERSION.toString());
-		window.setUndecorated(true);
-		
-		setWindowContent(menu = new MainMenu(), ActionSet.MAIN_MENU);
-		
-		window.setResizable(false);
-		window.setVisible(true);
-		
-		window.addKeyListener(Input.getInstance());
-		window.addMouseWheelListener(Input.getInstance());
-		window.requestFocus();
-		
-		Logger.debug("Window created");
-	}
-	
-	public void setWindowContent(JPanel pane, int actionSet) {
-		ActionSet.implementActionSet(actionSet);
-		
-		window.setContentPane(pane);
-		window.pack();
-		window.setLocationRelativeTo(null);
-		window.repaint();
-	}
-
-	private boolean isKilled;
 	
 	public void shutdown() {
-		if(isLocalServer())
-			localServer.shutdown();
+		WorldThread.end();
+		RenderThread.end();
 		
-		Client.getInstance().getWindow().dispose();
-		isKilled = true;
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
-	
+
 	public static void main(String... args) {
 		Logger.infof("Loading Client of %s...", VERSION);
-		
+
 		getInstance();
 	}
-	
 }

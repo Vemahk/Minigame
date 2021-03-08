@@ -34,6 +34,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 
 	protected final Property prop;
+
 	private int RUID; //Effectively Final
 	
 	protected Chunk chunk;
@@ -43,27 +44,27 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	protected Collider collider;
 	protected Controller controller;
 	
-	public GameObject(ByteBuffer buf) {
-		this(buf.getInt(), buf.getFloat(), buf.getFloat());
+	public GameObject(World world, ByteBuffer buf) {
+		this(world, buf.getInt(), buf.getFloat(), buf.getFloat());
 	}
 	
-	public GameObject(String id, int x, int y) {
-		this(id, x+.5f, y+.5f);
+	public GameObject(World world, String id, int x, int y) {
+		this(world, id, x+.5f, y+.5f);
 	}
 	
-	public GameObject(String id, float x, float y) {
-		this(id.hashCode(), x, y);
+	public GameObject(World world, String id, float x, float y) {
+		this(world, id.hashCode(), x, y);
 	}
 	
-	public GameObject(int hash, float x, float y) {
-		this(hash, x, y, null);
+	public GameObject(World world, int hash, float x, float y) {
+		this(world, hash, x, y, null);
 	}
 	
-	public GameObject(String s, float x, float y, Chunk c) {
-		this(s.hashCode(), x, y, c);
+	public GameObject(World world, String s, float x, float y, Chunk c) {
+		this(world, s.hashCode(), x, y, c);
 	}
 	
-	public GameObject(int hash, float x, float y, Chunk chunk) {
+	public GameObject(World world, int hash, float x, float y, Chunk chunk) {
 		Game.requestRUID(this);
 		prop = Property.get(hash);
 		pos = new Vector(x, y);
@@ -73,18 +74,16 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 		controller = prop.buildController(this);
 		
 		if(chunk == null)
-			chunk = getPresumedChunk();
+			chunk = world.getChunkFor(pos);
 		
 		//Chunk handling
 		chunk.add(this);
 		
 		if(isChunkLoader())
 			chunk.load(chunkRadius());
-		
-		if("ent_player".hashCode() == hash)
-			Game.setPlayer(this);
 	}
 	
+	public World getWorld() { return chunk.getWorld(); }
 	
 	public String getId() { return prop.getId(); }
 	public int getRUID() { return RUID; }
@@ -102,9 +101,9 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	
 	public Physics getPhysics() { return physics; }
 	public Collider getCollider() { return collider; }
+	public Controller getController() { return controller; }
 	
 	public Chunk getAssignedChunk() { return chunk; }
-	public Chunk getPresumedChunk() { return World.getInstance().getChunkFor(pos); }
 	
 	public boolean hasPhysics() { return physics != null; }
 	public boolean hasCollider() { return collider != null; }
@@ -156,6 +155,25 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 		if(this.getRUID() > 0) return false;
 		
 		this.RUID = RUID;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return RUID;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GameObject other = (GameObject) obj;
+		if (RUID != other.RUID)
+			return false;
 		return true;
 	}
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.common.objects.GameObject;
@@ -17,38 +18,37 @@ import me.vem.utils.math.Vector;
 
 public class World implements Compressable{
 
-	private static World instance;
-	public static World getInstance() { return instance; }
-	
-	public static void createInstance(int seed) {
-		if(instance != null)
-			return;
-		
-		new World(seed);
+	public static World loadFrom(File worldFile) {
+		try {
+			if(!worldFile.exists())
+				return null;
+			
+			FileInputStream fis = new FileInputStream(worldFile);
+			
+			byte[] read = new byte[(int) worldFile.length()];
+			fis.read(read);
+			
+			fis.close();
+
+			ByteBuffer buf = ByteBuffer.wrap(read);
+			World world = new World(buf);
+			Logger.info("World file loaded properly.");
+			
+			return world;
+		}catch(IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
-	
-	public static void loadInstance(ByteBuffer buf) {
-		if(instance != null)
-			return;
-		
-		new World(buf);
-	}
-	
+
+	private final int seed;
 	private SimplexNoise noiseGen;
 	private HashMap<Point, Chunk> chunks;
 	
-	private World(int seed) {
+	public World(int seed) {
+		this.seed = seed;
 		chunks = new HashMap<>();
 		noiseGen = new SimplexNoise(300, .5, seed);
-		
-		/*
-		 * The reference to the world singleton is set within this construct to allow for chunks
-		 * (potentially being generated within the World constructor) to reference the World 
-		 * singleton to find other chunks. If you do not set the instance here, then instance 
-		 * will remain null until the world finishes instantiating... Which is bad because the 
-		 * Chunks need it.
-		 */
-		instance = this;
 	}
 	
 	private World(ByteBuffer buf) {
@@ -56,14 +56,16 @@ public class World implements Compressable{
 		
 		int cSize = buf.getInt();
 		for(int i=0;i<cSize;i++) {
-			Chunk c = new Chunk(buf);
+			Chunk c = new Chunk(this, buf);
 			chunks.put(new Point(c.cx(), c.cy()), c);
 		}
 		
 		int goSize = buf.getInt();
 		for(int i=0;i<goSize;i++)
-			new GameObject(buf);
+			new GameObject(this, buf);
 	}
+	
+	public int getSeed() { return seed; }
 	
 	/**
 	 * @param x
@@ -82,13 +84,27 @@ public class World implements Compressable{
 		Chunk c = chunks.get(new Point(cx, cy));
 		
 		if(c == null)
-			chunks.put(new Point(cx, cy), c = new Chunk(cx, cy, noiseGen));
+			chunks.put(new Point(cx, cy), c = new Chunk(this, cx, cy, noiseGen));
 		
 		return c;
 	}
 	
 	public Chunk getChunkFor(Vector pos) {
 		return getChunk(pos.floorX() >> 4, pos.floorY() >> 4);
+	}
+	
+	public GameObject requestPlayer() {
+		
+		Random rand = new Random();
+		
+		int x;
+		int y;
+		do {
+			x = rand.nextInt(512) - 256;
+			y = rand.nextInt(512) - 256;
+		}while(!this.getLand(x, y).isSand());
+		
+		return new GameObject(this, "ent_player", x, y);
 	}
 	
 	public synchronized ByteBuffer writeTo(ByteBuffer buf) {
@@ -116,10 +132,10 @@ public class World implements Compressable{
 		return x << 10; //Returns in kilobytes
 	}
 	
-	public static boolean saveTo(File file) {
+	public boolean saveTo(File file) {
 		try {
-			ByteBuffer buf = ByteBuffer.allocate(World.getInstance().writeSize());
-			World.getInstance().writeTo(buf);
+			ByteBuffer buf = ByteBuffer.allocate(writeSize());
+			writeTo(buf);
 			
 			if(!buf.hasArray())
 				return false;
@@ -132,31 +148,6 @@ public class World implements Compressable{
 			Logger.info("World saved.");
 			Logger.debug("World size: " + buf.position());
 		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		return true;
-	}
-
-	public static boolean loadFrom(File worldFile) {
-		try {
-			if(!worldFile.exists())
-				return false;
-			
-			FileInputStream fis = new FileInputStream(worldFile);
-			
-			byte[] read = new byte[(int) worldFile.length()];
-			fis.read(read);
-			
-			fis.close();
-
-			ByteBuffer buf = ByteBuffer.wrap(read);
-			
-			World.loadInstance(buf);
-			
-			Logger.info("World file loaded properly.");
-		}catch(IOException e) {
 			e.printStackTrace();
 			return false;
 		}
