@@ -129,6 +129,7 @@ public class World implements Compressable{
 	@Override public int writeSize() {
 		int x = 1 << 6; //64
 		//TODO Actually estimate and don't be lazy.
+		// A bettered TODO - don't need to, roll your dang saves.
 		return x << 10; //Returns in kilobytes
 	}
 	
