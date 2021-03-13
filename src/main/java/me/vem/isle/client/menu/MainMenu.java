@@ -22,6 +22,7 @@ import me.vem.isle.client.input.CameraInputAdapter;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.common.Game;
 import me.vem.isle.common.eio.ExtResourceManager;
+import me.vem.isle.common.objects.GameObject;
 import me.vem.isle.common.world.World;
 import me.vem.isle.common.world.WorldThread;
 import me.vem.utils.logging.Logger;
@@ -151,7 +152,11 @@ public class MainMenu extends GameRenderer{
 			return false;
 
 		WorldThread.begin(world);
-		Camera camera = new Camera().setAnchor(world.requestPlayer());
+		
+		GameObject player = world.requestPlayer();
+		Camera camera = new Camera(world);
+		camera.getAnchor().linkTo(player);
+		
 		CameraInputAdapter input = new CameraInputAdapter(camera);
 		
 		Client.getInstance().setContext(camera, input);

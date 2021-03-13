@@ -18,7 +18,7 @@ public class Game {
 	
 	private static void init(File f) {
 		worldFile = f;
-		Property.register("tree", "player");
+		Property.register("tree", "player", "empty");
 		Controller.register("plr_controller", PlayerController.class);
 	}
 	

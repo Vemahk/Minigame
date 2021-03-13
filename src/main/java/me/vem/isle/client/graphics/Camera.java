@@ -22,32 +22,28 @@ import me.vem.utils.math.Vector;
 
 public class Camera extends GameRenderer {
 	
-	private GameObject anchor;
-
+	private final CameraAnchor anchor;
+	
 	private float tarScale;
 	private float scale;
 
-	public Camera() {
-		this(2);
+	public Camera(World world) {
+		this(world, 2);
 	}
 	
-	private Camera(float scale) {
-		this(Toolkit.getDefaultToolkit().getScreenSize(), scale);
+	private Camera(World world, float scale) {
+		this(world, Toolkit.getDefaultToolkit().getScreenSize(), scale);
 	}
 	
-	private Camera(Dimension dim, float scale) {
+	private Camera(World world, Dimension dim, float scale) {
 		super(dim);
 
 		this.tarScale = scale;
 		this.scale = scale;
+		this.anchor = new CameraAnchor(world, 0, 0);
 	}
-
-	public Camera setAnchor(GameObject anchor) {
-		this.anchor = anchor;
-		return this;
-	}
-	
-	public GameObject getAnchor() {
+		
+	public CameraAnchor getAnchor() {
 		return anchor;
 	}
 	
@@ -64,6 +60,8 @@ public class Camera extends GameRenderer {
 	@Override public void render(Graphics g) {
 		if(anchor == null)
 			return;
+		
+		anchor.follow();
 		
 		synchronized (this) {
 
@@ -101,7 +99,11 @@ public class Camera extends GameRenderer {
 			Set<GameObject> loadedObjects = Chunk.getLoadedObjects();
 			synchronized(loadedObjects) {
 				for (GameObject go : loadedObjects) {
-					float rx = go.getX() - rdx, ry = go.getY() - rdy, wb = go.getSprite().getWidth(),
+					if(!go.hasSprite())
+						continue;
+					
+					float rx = go.getX() - rdx, ry = go.getY() - rdy,
+							wb = go.getSprite().getWidth(),
 							hb = go.getSprite().getHeight();
 	
 					if (rx + wb <= 0 || ry + hb <= 0 || rx - wb >= DW || ry - hb >= DH)

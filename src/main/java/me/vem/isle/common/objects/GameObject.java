@@ -111,6 +111,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	public int chunkRadius() { return prop.getLoadRadius(); }
 	
 	public Sprite getSprite() { return prop.getSprite(); }
+	public boolean hasSprite() { return prop.getSprite() != null; }
 	
 	public boolean collidedWith(GameObject go) {
 		return collider.collidedWith(go.collider);
