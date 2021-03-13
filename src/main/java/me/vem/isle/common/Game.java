@@ -78,11 +78,12 @@ public class Game {
 	private static Map<Integer, RIdentifiable> byRUID = Collections.synchronizedMap(new HashMap<>());
 	
 	private static final AtomicInteger nextRUID = new AtomicInteger(1);
-	public static void requestRUID(RIdentifiable rid) {
+	public static int requestRUID(RIdentifiable rid) {
 		int ruid = nextRUID.getAndIncrement();
 		
-		if(rid.setRUID(ruid))
-			byRUID.put(ruid, rid);
+		byRUID.put(ruid, rid);
+		
+		return ruid;		
 	}
 	
 	public static RIdentifiable getByRUID(int ruid) {

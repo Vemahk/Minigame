@@ -32,12 +32,4 @@ public class PlayerController extends Controller{
 		parent.getPhysics().setFriction(parent.getWorld().getLand(parent.getPos()).getFriction());
 		parent.getPhysics().applyForce(xMove, yMove);
 	}
-	
-	/**
-	 * Look at this trash.
-	 * Courtesy of SolfKimblee
-	 */
-	@Override public boolean setRUID(int RUID) { return getRUID() > 0 ? false : (this.RUID = RUID) == RUID; }
-
-	@Override public int getRUID() { return this.RUID; }
 }

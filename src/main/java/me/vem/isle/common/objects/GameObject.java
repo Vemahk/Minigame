@@ -33,9 +33,8 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 		}
 	}
 
+	private final int RUID;
 	protected final Property prop;
-
-	private int RUID; //Effectively Final
 	
 	protected Chunk chunk;
 	protected Vector pos;
@@ -65,7 +64,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 	
 	public GameObject(World world, int hash, float x, float y, Chunk chunk) {
-		Game.requestRUID(this);
+		RUID = Game.requestRUID(this);
 		prop = Property.get(hash);
 		pos = new Vector(x, y);
 		
@@ -149,15 +148,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 	
 	@Override public int writeSize() { return 12; }
-
-	@Override
-	public boolean setRUID(int RUID) {
-		if(this.getRUID() > 0) return false;
-		
-		this.RUID = RUID;
-		return true;
-	}
-
+	
 	@Override
 	public int hashCode() {
 		return RUID;

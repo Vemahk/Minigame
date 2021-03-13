@@ -47,6 +47,8 @@ public class Chunk implements Compressable, RIdentifiable{
 	
 	public static void load(Chunk c) { toLoad.add(c); }
 	public static void unload(Chunk c) { toUnload.add(c); }
+
+	private final int RUID;
 	
 	private Set<GameObject> objs;
 	private byte[][] land;
@@ -56,12 +58,13 @@ public class Chunk implements Compressable, RIdentifiable{
 	private final int cx, cy;
 	
 	public Chunk(World world, int cx, int cy) {
+		RUID = Game.requestRUID(this);
+		
 		this.world = world;
 		this.cx = cx;
 		this.cy = cy;
 		
 		land = new byte[16][16];
-		Game.requestRUID(this);
 		objs = Collections.synchronizedSortedSet(new TreeSet<>());
 	}
 	
@@ -181,15 +184,8 @@ public class Chunk implements Compressable, RIdentifiable{
 		return String.format("Chunk[%d,%d]", cx, cy);
 	}
 	
-	private int RUID;
-	@Override public boolean setRUID(int RUID) {
-		if(this.RUID > 0) return false;
-		
-		this.RUID = RUID;
-		return true;
-	}
-	
-	@Override public int getRUID() {
+	@Override 
+	public int getRUID() {
 		return RUID;
 	}
 	

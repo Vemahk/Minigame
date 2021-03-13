@@ -28,14 +28,14 @@ public abstract class Controller implements RIdentifiable{
 		return null;
 	}
 
+	private final int RUID;
 	protected GameObject parent;
-	protected int RUID;
 	
 	protected Map<Integer, ControllerAction> actions; 
 	
 	protected Controller(GameObject parent) {
+		this.RUID = Game.requestRUID(this);
 		this.parent = parent;
-		Game.requestRUID(this);
 		
 		actions = new HashMap<>();
 	}
@@ -54,6 +54,10 @@ public abstract class Controller implements RIdentifiable{
 	
 	protected boolean getActionState(int action) {
 		return getAction(action).get();
+	}
+	
+	public int getRUID() {
+		return RUID;
 	}
 	
 	public abstract void update(float dt);

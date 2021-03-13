@@ -95,7 +95,7 @@ public class World implements Compressable{
 	
 	public GameObject requestPlayer() {
 		
-		Random rand = new Random();
+		Random rand = new Random(this.seed);
 		
 		int x;
 		int y;
