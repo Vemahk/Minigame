@@ -125,6 +125,13 @@ public class Camera extends GameRenderer {
 			g.drawImage(display, toPixels(pos.floorX() - pos.getX() - (DW/2 - USW/2), scale),
 								 toPixels(pos.floorY() - pos.getY() - (DH/2 - USH/2), scale),
 								 toPixels(DW, scale), toPixels(DH, scale), null);
+			
+			if(debugActive) {
+				String s = String.format("FPS: %.3f", RenderThread.realFps());
+				
+				g.setColor(Color.WHITE);
+				g.drawString(s, 5, this.getSize().height - 5);
+			}
 		}
 	}
 	
