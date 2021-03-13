@@ -11,7 +11,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-//TODO Separate Common from Client
 import me.vem.isle.client.resources.Animation;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.client.resources.Sprite;
@@ -120,8 +119,7 @@ public class Property {
 		if(hasSprite)
 			sprite = Sprite.get(asString("sprite.id"));
 		
-		//Set ANIMATIONSSSSSSS
-		//TODO Set Animations is Property Class
+		//Set ANIMATIONSSSSSSS TODO
 		
 		//Set Physics
 		hasPhysics = hasValue("physics");

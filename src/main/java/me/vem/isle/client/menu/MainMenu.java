@@ -91,7 +91,6 @@ public class MainMenu extends GameRenderer{
 			World world = Game.newWorld(seed);
 			if(!this.switchToWorld(world))
 				Logger.errorf("Failed to switch to world.");
-			//TODO Switch to Camera
 		}),
 		new LRunnable("Load Game", () -> {
 			JFileChooser chooser = new JFileChooser(ExtResourceManager.getWorldsDirectory());
@@ -108,13 +107,9 @@ public class MainMenu extends GameRenderer{
 				Logger.errorf("No file was chosen.");
 			}
 		}),
-		new LRunnable("Settings", () -> {
-			//TODO Implement Settings Menu
-		}),
+		new LRunnable("Settings", () -> {}),
 		null,
-		new LRunnable("Credits", () -> {
-			//TODO (re)Implement Credits
-		}),
+		new LRunnable("Credits", () -> {}),
 		new LRunnable("Exit", () -> {
 			Client.getInstance().shutdown();
 		})

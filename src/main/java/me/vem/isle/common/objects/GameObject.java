@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 
-//TODO Separate Common from Client
 import me.vem.isle.client.resources.Sprite;
+
 import me.vem.isle.common.Game;
 import me.vem.isle.common.RIdentifiable;
 import me.vem.isle.common.controller.Controller;
