@@ -13,7 +13,6 @@ import java.util.Set;
 
 import me.vem.isle.client.resources.Animation;
 import me.vem.isle.client.resources.Sprite;
-import me.vem.isle.common.Game;
 import me.vem.isle.common.objects.GameObject;
 import me.vem.isle.common.physics.collider.BoxCollider;
 import me.vem.isle.common.world.Chunk;
@@ -42,14 +41,6 @@ public class Camera extends GameRenderer {
 		this.tarScale = scale;
 		this.scale = scale;
 	}
-	
-//	public void follow() {
-////		float damping = .1f;
-////		if (param.length > 0)
-////			damping = param[0];
-////		
-////		pos.offset(anchor.getPos().sub(pos).scale(damping));
-//	}
 
 	public Camera setAnchor(GameObject anchor) {
 		this.anchor = anchor;
@@ -103,11 +94,6 @@ public class Camera extends GameRenderer {
 
 					Image lSprite = Sprite.get(land.toString().toLowerCase()).getImage();
 					dg.drawImage(lSprite, drawX, drawY, null);
-
-					if (Game.isDebugActive()) {
-						dg.setColor(Color.RED);
-						dg.drawString((rdx + x) + "," + (rdy + y), drawX, drawY);
-					}
 				}
 			}
 
@@ -123,7 +109,7 @@ public class Camera extends GameRenderer {
 	
 					dg.drawImage(go.getSprite().getImage(), toPixels(rx - wb / 2), toPixels(ry - hb / 2), null);
 	
-					if (Game.isDebugActive() && go.hasCollider()) {
+					if (debugActive && go.hasCollider()) {
 						BoxCollider bc = (BoxCollider) go.getCollider();
 						float cw = bc.getWidth(), ch = bc.getHeight();
 	
@@ -138,5 +124,10 @@ public class Camera extends GameRenderer {
 								 toPixels(pos.floorY() - pos.getY() - (DH/2 - USH/2), scale),
 								 toPixels(DW, scale), toPixels(DH, scale), null);
 		}
+	}
+	
+	private boolean debugActive;
+	public void toggleDebugMode() {
+		debugActive = !debugActive;
 	}
 }

@@ -87,8 +87,7 @@ public class Chunk implements Compressable, RIdentifiable{
                 	new GameObject(world, "obj_tree", sx, sy, this); 	
     		}
 		
-		if(Game.isDebugActive())
-			Logger.debugf("Chunk generated at %d, %d.", cx, cy);
+		Logger.debugf(1, "Chunk generated at %d, %d.", cx, cy);
 	}
 	
 	public Chunk(World world, ByteBuffer buf) {
@@ -218,8 +217,7 @@ public class Chunk implements Compressable, RIdentifiable{
 				if(isLoaded() && !to.isLoaded())
 					LoadedObjects.remove(go);
 				
-				if(Game.isDebugActive())
-					Logger.debug(String.format("%s moved from %s to %s.", go, this, to));
+				Logger.debugf(1, "%s moved from %s to %s.", go, this, to);
 			}
 		});
 	}

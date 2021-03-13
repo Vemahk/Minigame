@@ -25,12 +25,6 @@ public class Client extends GameFrame{
 
 	private Client() {
 		super();
-		
-		MainMenu menu = new MainMenu();
-		InputAdapter<MainMenu> input = new MainMenuInputAdapter(menu);
-		this.setContext(menu, input);
-		
-		render();
 	}
 	
 	public void shutdown() {
@@ -41,8 +35,12 @@ public class Client extends GameFrame{
 	}
 
 	public static void main(String... args) {
+		//Logger.setLogLevel(1);
 		Logger.infof("Loading Client of %s...", VERSION);
 
-		getInstance();
+		Client client = getInstance();
+		MainMenu menu = new MainMenu();
+		InputAdapter<MainMenu> input = new MainMenuInputAdapter(menu);
+		client.setContext(menu, input);
 	}
 }

@@ -92,14 +92,4 @@ public class Game {
 	private static boolean initialized;
 	public static boolean isInitialized() { return initialized; }
 	public static void setInitialized(){initialized = true;}
-	
-	//TODO Move to ClientSide
-	private static boolean debugActive;
-	public static void toggleDebugMode() {
-		debugActive = !debugActive;
-	}
-	
-	public static boolean isDebugActive() {
-		return debugActive;
-	}
 }
