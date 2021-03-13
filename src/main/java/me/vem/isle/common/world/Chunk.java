@@ -17,6 +17,7 @@ import me.vem.isle.common.Game;
 import me.vem.isle.common.RIdentifiable;
 import me.vem.isle.common.objects.GameObject;
 import me.vem.utils.io.Compressable;
+import me.vem.utils.io.RollingDataSaver;
 import me.vem.utils.logging.Logger;
 
 public class Chunk implements Compressable, RIdentifiable{
@@ -71,7 +72,7 @@ public class Chunk implements Compressable, RIdentifiable{
 	public Chunk(World world, int cx, int cy, SimplexNoise sn) {
 		this(world, cx, cy);
 		
-		int seed = sn.getSeed();
+		int seed = world.getSeed();
 		seed ^= ((cx & 0xFFFF) ^ (cx >>> 16)) << 16;
 		seed ^= ((cy & 0xFFFF) ^ (cy >>> 16));
 		
@@ -160,8 +161,8 @@ public class Chunk implements Compressable, RIdentifiable{
 	}
 	
 	@Override
-	public synchronized ByteBuffer writeTo(ByteBuffer buf) {
-		buf.putInt(cx).putInt(cy);
+	public synchronized RollingDataSaver writeTo(RollingDataSaver saver) {
+		saver.putInt(cx).putInt(cy);
 		
 		byte bb = 0; //bb >> Byte Buffer...
 		for(int b = 0; b < 256; b++) {
@@ -170,15 +171,13 @@ public class Chunk implements Compressable, RIdentifiable{
 			
 			bb |= l << ((3 - n) << 1);
 			if(n == 3) {
-				buf.put(bb);
+				saver.put(bb);
 				bb = 0;
 			}
 		}
 		
-		return buf;
+		return saver;
 	}
-	
-	@Override public int writeSize() { return 72; }
 	
 	public String toString() {
 		return String.format("Chunk[%d,%d]", cx, cy);

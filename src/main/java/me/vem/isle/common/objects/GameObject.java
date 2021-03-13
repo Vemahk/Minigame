@@ -6,7 +6,6 @@ import java.util.Queue;
 
 //TODO Separate Common from Client
 import me.vem.isle.client.resources.Sprite;
-
 import me.vem.isle.common.Game;
 import me.vem.isle.common.RIdentifiable;
 import me.vem.isle.common.controller.Controller;
@@ -15,6 +14,7 @@ import me.vem.isle.common.physics.collider.Collider;
 import me.vem.isle.common.world.Chunk;
 import me.vem.isle.common.world.World;
 import me.vem.utils.io.Compressable;
+import me.vem.utils.io.RollingDataSaver;
 import me.vem.utils.math.Vector;
 
 public class GameObject implements Comparable<GameObject>, Compressable, RIdentifiable{
@@ -141,14 +141,12 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 	
 	@Override
-	public synchronized ByteBuffer writeTo(ByteBuffer buf) {
-		buf.putInt(prop.hashCode());
-		pos.writeTo(buf);
+	public RollingDataSaver writeTo(RollingDataSaver saver) {
+		saver.putInt(prop.hashCode());
+		pos.writeTo(saver);
 		
-		return buf;
+		return saver;
 	}
-	
-	@Override public int writeSize() { return 12; }
 	
 	@Override
 	public int hashCode() {

@@ -3,7 +3,6 @@ package me.vem.isle.common.world;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import java.util.Random;
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.common.objects.GameObject;
 import me.vem.utils.io.Compressable;
+import me.vem.utils.io.RollingDataSaver;
 import me.vem.utils.logging.Logger;
 import me.vem.utils.math.Vector;
 
@@ -107,47 +107,33 @@ public class World implements Compressable{
 		return new GameObject(this, "ent_player", x, y);
 	}
 	
-	public synchronized ByteBuffer writeTo(ByteBuffer buf) {
-		buf.putInt(noiseGen.getSeed()).putInt(chunks.size());
+	public synchronized RollingDataSaver writeTo(RollingDataSaver saver) {
+		saver.putInt(getSeed());
 		
 		LinkedList<GameObject> kgo = new LinkedList<>();
 		
+		saver.putInt(chunks.size());
 		for(Chunk c : chunks.values())
 			synchronized(c) {
-				c.writeTo(buf);
+				c.writeTo(saver);
 				c.addObjectsTo(kgo);
 			}
 		
-		buf.putInt(kgo.size());
-		
+		saver.putInt(kgo.size());
 		for(GameObject go : kgo)
-			go.writeTo(buf);
+			go.writeTo(saver);
 		
-		return buf;
-	}
-	
-	@Override public int writeSize() {
-		int x = 1 << 6; //64
-		//TODO Actually estimate and don't be lazy.
-		// A bettered TODO - don't need to, roll your dang saves.
-		return x << 10; //Returns in kilobytes
+		return saver;
 	}
 	
 	public boolean saveTo(File file) {
 		try {
-			ByteBuffer buf = ByteBuffer.allocate(writeSize());
-			writeTo(buf);
-			
-			if(!buf.hasArray())
-				return false;
-			
-			FileOutputStream fos = new FileOutputStream(file);
-			fos.write(buf.array(), 0, buf.position());
-			fos.flush();
-			fos.close();
+			RollingDataSaver rds = new RollingDataSaver(file);
+			writeTo(rds);
+			rds.close();
 
 			Logger.info("World saved.");
-			Logger.debug("World size: " + buf.position());
+			Logger.debug("World size: " + rds.written());
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
