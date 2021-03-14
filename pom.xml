@@ -12,7 +12,12 @@
 		    <artifactId>json</artifactId>
 		    <version>20210307</version>
 		</dependency>
-
+		
+		<dependency>
+		  <groupId>commons-io</groupId>
+		  <artifactId>commons-io</artifactId>
+		  <version>2.7</version>
+		</dependency>
 	<!--  Be warned! Anyone trying to duplicate this project:
 		  This will not resolve. I have vemutils-0.7.jar in my 
 		  local maven repository, but it is not uploaded to the 

@@ -20,7 +20,7 @@ import me.vem.isle.client.graphics.GameRenderer;
 import me.vem.isle.client.graphics.RenderThread;
 import me.vem.isle.client.input.CameraInputAdapter;
 import me.vem.isle.common.Game;
-import me.vem.isle.common.eio.ExtResourceManager;
+import me.vem.isle.common.io.ResourceManager;
 import me.vem.isle.common.objects.GameObject;
 import me.vem.isle.common.world.World;
 import me.vem.isle.common.world.WorldThread;
@@ -38,7 +38,7 @@ public class MainMenu extends GameRenderer{
 		Font fontCandidate = new Font("Arial", Font.TRUETYPE_FONT, 24);
 		
 		try {
-			Font font = Font.createFont(Font.TRUETYPE_FONT, ExtResourceManager.getResource("8bitbold.ttf"));
+			Font font = Font.createFont(Font.TRUETYPE_FONT, ResourceManager.getResource("8bitbold.ttf"));
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			ge.registerFont(font);
 			
@@ -92,7 +92,7 @@ public class MainMenu extends GameRenderer{
 				Logger.errorf("Failed to switch to world.");
 		}),
 		new LRunnable("Load Game", () -> {
-			JFileChooser chooser = new JFileChooser(ExtResourceManager.getWorldsDirectory());
+			JFileChooser chooser = new JFileChooser(ResourceManager.getWorldsDirectory());
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("World Files", "dat", "bck");
 			chooser.setFileFilter(filter);
 

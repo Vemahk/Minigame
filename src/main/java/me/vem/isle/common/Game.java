@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import me.vem.isle.common.controller.Controller;
 import me.vem.isle.common.controller.PlayerController;
-import me.vem.isle.common.eio.ExtResourceManager;
+import me.vem.isle.common.io.ResourceManager;
 import me.vem.isle.common.objects.Property;
 import me.vem.isle.common.world.World;
 import me.vem.utils.logging.Logger;
@@ -66,9 +66,9 @@ public class Game {
 	}
 	
 	private static File getDefaultWorldFile() {
-		File f = ExtResourceManager.getDefaultWorldFile();
+		File f = ResourceManager.getDefaultWorldFile();
 				
-		File bckDir = ExtResourceManager.getBackupsDirectory();
+		File bckDir = ResourceManager.getBackupsDirectory();
 		String newFileName = "world" + bckDir.listFiles().length + ".dat.bck";
 		if(f.exists()) {
 			f.renameTo(new File(bckDir, newFileName));
