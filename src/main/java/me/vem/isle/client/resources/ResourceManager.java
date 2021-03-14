@@ -67,13 +67,16 @@ public class ResourceManager {
 		return ResourceManager.class.getClassLoader().getResourceAsStream(path + "/" + fileName);
 	}
 	
+	private static FileSystem fs;
 	public static Path[] getResourceFilePaths(String folderPath) throws URISyntaxException, IOException {
 		URI uri = ResourceManager.class.getResource(folderPath).toURI();
         Path myPath;
         
         if (uri.getScheme().equals("jar")) {
-            FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
-            myPath = fileSystem.getPath(folderPath);
+        	if(fs == null)
+        		fs = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+        	
+            myPath = fs.getPath(folderPath);
         } else {
             myPath = Paths.get(uri);
         }
