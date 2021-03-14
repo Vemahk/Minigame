@@ -9,9 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.client.resources.Sprite;
 import me.vem.isle.common.controller.Controller;
+import me.vem.isle.common.eio.ExtResourceManager;
 import me.vem.isle.common.physics.Physics;
 import me.vem.isle.common.physics.collider.Collider;
 import me.vem.isle.common.physics.collider.ColliderType;
@@ -24,7 +24,7 @@ public class Property {
 	
 	public static boolean register() {
 		try {
-			Path[] paths = ResourceManager.getResourceFilePaths("/properties");
+			Path[] paths = ExtResourceManager.getResourceFilePaths("/properties");
 			
 			for(Path path : paths) {
 				String fileName = path.getFileName().toString();
@@ -33,7 +33,6 @@ public class Property {
 			}
 			
 		} catch (URISyntaxException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -45,7 +44,7 @@ public class Property {
 		if(!filename.endsWith(".json")) 
 			filename+=".json";
 		
-		JSONTokener tokener = new JSONTokener(ResourceManager.getResource("properties", filename));
+		JSONTokener tokener = new JSONTokener(ExtResourceManager.getResource("properties", filename));
 		JSONObject root = new JSONObject(tokener);
 		
 		//Init
