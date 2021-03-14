@@ -1,5 +1,8 @@
 package me.vem.isle.common.objects;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -19,10 +22,21 @@ public class Property {
 	private static HashMap<Integer, Property> properties = new HashMap<>();
 	public static Property get(int hash) { return properties.get(hash); }
 	
-	public static boolean register(String... files) {
-		for(String s : files)
-			if(!register(s))
-				return false;
+	public static boolean register() {
+		try {
+			Path[] paths = ResourceManager.getResourceFilePaths("/properties");
+			
+			for(Path path : paths) {
+				String fileName = path.getFileName().toString();
+				if(!register(fileName))
+					return false;
+			}
+			
+		} catch (URISyntaxException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
 		
 		return true;
 	}

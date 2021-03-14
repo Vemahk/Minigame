@@ -19,7 +19,7 @@ public class Game {
 	private static void init(File f) {
 		worldFile = f;
 		
-		if(!Property.register("tree", "player", "empty"))
+		if(!Property.register())
 			throw new RuntimeException("An error occured while loading GameObject property files.");
 		
 		Controller.register("plr_controller", PlayerController.class);
