@@ -15,8 +15,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import me.vem.isle.client.resources.ResourceManager;
-
 public class ExtResourceManager {
 
 	private static File worldsDir = new File("worlds/");
@@ -40,16 +38,16 @@ public class ExtResourceManager {
 	}
 	
 	public static InputStream getResource(String fileName) {
-		return ResourceManager.class.getClassLoader().getResourceAsStream(fileName);
+		return ExtResourceManager.class.getClassLoader().getResourceAsStream(fileName);
 	}
 	
 	public static InputStream getResource(String path, String fileName) {
-		return ResourceManager.class.getClassLoader().getResourceAsStream(path + "/" + fileName);
+		return ExtResourceManager.class.getClassLoader().getResourceAsStream(path + "/" + fileName);
 	}
 	
 	private static FileSystem fs;
 	public static Path[] getResourceFilePaths(String folderPath) throws URISyntaxException, IOException {
-		URI uri = ResourceManager.class.getResource(folderPath).toURI();
+		URI uri = ExtResourceManager.class.getResource(folderPath).toURI();
         Path myPath;
         
         if (uri.getScheme().equals("jar")) {
