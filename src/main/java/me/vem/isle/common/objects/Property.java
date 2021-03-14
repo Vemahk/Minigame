@@ -27,7 +27,7 @@ public class Property {
 			Path[] paths = ResourceManager.getResourceFilePaths("/properties");
 			
 			for(Path path : paths) {
-				String fileName = path.getFileName().toString();
+				String fileName = path.toString();
 				if(!register(fileName))
 					return false;
 			}
@@ -40,16 +40,16 @@ public class Property {
 		return true;
 	}
 	
-	public static boolean register(String filename) {
-		if(!filename.endsWith(".json")) 
-			filename+=".json";
+	public static boolean register(String filePath) {
+		if(!filePath.endsWith(".json")) 
+			filePath+=".json";
 		
-		JSONTokener tokener = new JSONTokener(ResourceManager.getResource("properties", filename));
+		JSONTokener tokener = new JSONTokener(ResourceManager.getResource(filePath));
 		JSONObject root = new JSONObject(tokener);
 		
 		//Init
 		if(!root.has("id")) {
-			Logger.fatalError("JSON Property File '"+filename+"' not formatted correctly. Element requires 'id' attribute for object id.");
+			Logger.fatalError("JSON Property File '"+filePath+"' not formatted correctly. Element requires 'id' attribute for object id.");
 			return false;
 		}
 		
