@@ -1,20 +1,13 @@
 package me.vem.isle.common.objects;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.regex.Pattern;
 
-import org.dom4j.Attribute;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
-import me.vem.isle.client.resources.Animation;
 import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.client.resources.Sprite;
-
 import me.vem.isle.common.controller.Controller;
 import me.vem.isle.common.physics.Physics;
 import me.vem.isle.common.physics.collider.Collider;
@@ -26,126 +19,111 @@ public class Property {
 	private static HashMap<Integer, Property> properties = new HashMap<>();
 	public static Property get(int hash) { return properties.get(hash); }
 	
-	public static void register(String... files) {
+	public static boolean register(String... files) {
 		for(String s : files)
-			try {
-				register(s);
-			}catch (DocumentException e) {
-				e.printStackTrace();
-			}
+			if(!register(s))
+				return false;
+		
+		return true;
 	}
 	
-	public static void register(String filename) throws DocumentException {
-		if(!filename.endsWith(".xml")) 
-			filename+=".xml";
+	public static boolean register(String filename) {
+		if(!filename.endsWith(".json")) 
+			filename+=".json";
 		
-		SAXReader reader = new SAXReader();
-		Document doc = reader.read(ResourceManager.getResource("properties", filename));
-		
-		//Property prop = new Property();
+		JSONTokener tokener = new JSONTokener(ResourceManager.getResource("properties", filename));
+		JSONObject root = new JSONObject(tokener);
 		
 		//Init
-		Element root = doc.getRootElement();
-		if(!root.getName().equals("property")) 
-			Logger.fatalError("XML Property File '"+filename+"' not formatted correctly. Make sure root element is named 'property'.");
-		String id = root.attributeValue("id");
-		if(id == null)
-			Logger.fatalError("XML Property File '"+filename+"' not formatted correctly. 'property' element requires 'id' attribute for object id.");
-		
-		LinkedHashMap<String, Object> values = new LinkedHashMap<>();
-		
-		for(Element e : root.elements()) {
-			String name = e.getName();
-			String text = e.getTextTrim();
-			
-			if(text.isEmpty())
-				values.put(name, true);
-			else values.put(name, text);
-			
-			for(Attribute a : e.attributes())
-				values.put(name+"."+a.getName(), a.getText().trim());
-
-			LinkedList<String> list = new LinkedList<>();
-			for(Element e2 : e.elements())
-				list.add(e2.getText());
-			if(list.size() > 0)
-				values.put(name, list);
+		if(!root.has("id")) {
+			Logger.fatalError("JSON Property File '"+filename+"' not formatted correctly. Element requires 'id' attribute for object id.");
+			return false;
 		}
 		
-		properties.put(id.hashCode(), new Property(id, values));
+		String id = root.getString("id");
+		
+		properties.put(id.hashCode(), new Property(id, root));
 		//Logger.info(prop);
+		
+		return true;
 	}
 	
-	public boolean hasValue(String key) { return values.containsKey(key); }
-	public String asString(String key) { return (String) values.get(key); }
-	public int asInt(String key) { return hasValue(key) ? Integer.parseInt(asString(key)) : 0; }
-	public float asFloat(String key) { return hasValue(key) ? Float.parseFloat(asString(key)) : 0f; }
-	
-	@SuppressWarnings("unchecked")
-	public LinkedList<String> asList(String key){ return hasValue(key) ? (LinkedList<String>)values.get(key) : null; }
-	
-	private Property(String id, LinkedHashMap<String, Object> values) {
+	private Property(String id, JSONObject def) {
 		this.id = id;
 		this.hid = id.hashCode();
-		this.values = values;
 		
 		//Set z
-		if(hasValue("z"))
-			this.z = asFloat("z");
+		if(def.has("z"))
+			this.z = def.getFloat("z");
 		
 		//Set Chunkloader
-		isLoader = hasValue("loader");
-		if(isLoader)
-			radius = asInt("loader.radius");
+		isLoader = def.has("loader");
+		if(isLoader) {
+			JSONObject loaderDef = def.getJSONObject("loader");
+			
+			radius = loaderDef.optInt("radius");
+			if(radius <= 0)
+				radius = 1;
+		}
 		
 		//Set collider
-		hasCollider = hasValue("collider");
+		hasCollider = def.has("collider");
 		if(hasCollider) {
-			type = ColliderType.getType(asString("collider.type"));
+			JSONObject colliderDef = def.getJSONObject("collider");
 			
-			float w = 1;
-			float h = 1;
+			requireChild(colliderDef, "collider", "type");
+			type = ColliderType.getType(colliderDef.getString("type"));
 			
-			if(hasValue("collider.width"))
-				w = asFloat("collider.width");
-			if(hasValue("collider.height"))
-				h = asFloat("collider.height");
+			float w = colliderDef.optFloat("width");
+			float h = colliderDef.optFloat("height");
+			
+			if(w <= 0)
+				w = 1f;
+			
+			if(h <= 0)
+				h = 1f;
 			
 			defCollider = type.generateDefaultCollider(w, h);
 		}
 		
 		//Set Sprite
-		hasSprite = hasValue("sprite");
+		hasSprite = def.has("sprite");
 		if(hasSprite)
-			sprite = Sprite.get(asString("sprite.id"));
+			sprite = Sprite.get(def.getString("sprite"));
 		
 		//Set ANIMATIONSSSSSSS TODO
 		
 		//Set Physics
-		hasPhysics = hasValue("physics");
+		hasPhysics = def.has("physics");
 		if(hasPhysics) {
-			mass = asFloat("physics.mass");
-			speed = asFloat("physics.speed");
+			JSONObject physicsDef = def.getJSONObject("physics");
+			
+			mass = physicsDef.optFloat("mass");
+			if(mass <= 0)
+				mass = 1f;
+			
+			speed = physicsDef.getFloat("speed");
+			if(speed < 0)
+				speed = 0;
 		}
 		
 		//Set Controller
-		hasController = hasValue("controller");
-		if(hasController)
-			controllerType = asString("controller.type");
-		
-		purge("z", "loader", "collider", "sprite", "physics", "controller");
+		hasController = def.has("controller");
+		if(hasController) {
+			JSONObject controllerDef = def.getJSONObject("controller");
+			
+			requireChild(controllerDef, "controller", "type");
+			controllerType = controllerDef.getString("type");
+		}
 	}
 	
-	public void purge(String... args) {
-		for(String s : args) {
-			Pattern p = Pattern.compile(s + "(\\..+)*");
-			values.entrySet().removeIf(e -> p.matcher(e.getKey()).matches());
-		}
+	private void requireChild(JSONObject parent, String parentName, String expectedChild) {
+		if(!parent.has(expectedChild))
+			throw new JSONException("When loading '"+parentName+"' from a .json property (id="+this.id+"), '"+expectedChild+"' was not provided.");
 	}
 	
 	private String id;
 	private int hid; // hid >> Hash ID;
-	private LinkedHashMap<String, Object> values;
 	
 	public String getId() { return id; }
 	
@@ -174,17 +152,17 @@ public class Property {
 	public boolean hasSprite() { return hasSprite; }
 	public Sprite getSprite() { return sprite; }
 	
-	public boolean hasAnimation() { return hasValue("animation"); }
-	public Animation getDefaultAnimation() { return Animation.getAnimation(asString("animation.default")); }
-	public Animation[] getAnimations() {
-		LinkedList<String> list = asList("animation");
-		if(list==null) return null;
-		
-		Animation[] out = new Animation[list.size()];
-		for(int i=0;i<out.length;i++)
-			out[i] = Animation.getAnimation(list.get(i));
-		return out;
-	}
+//	public boolean hasAnimation() { return hasValue("animation"); }
+//	public Animation getDefaultAnimation() { return Animation.getAnimation(asString("animation.default")); }
+//	public Animation[] getAnimations() {
+//		LinkedList<String> list = asList("animation");
+//		if(list==null) return null;
+//		
+//		Animation[] out = new Animation[list.size()];
+//		for(int i=0;i<out.length;i++)
+//			out[i] = Animation.getAnimation(list.get(i));
+//		return out;
+//	}
 	
 	private boolean hasPhysics;
 	private float mass;
@@ -202,14 +180,5 @@ public class Property {
 	public Controller buildController(GameObject parent) {
 		if(!hasController()) return null;
 		return Controller.newInstance(controllerType, parent);
-	}
-	
-	public String toString() {
-		StringBuffer out = new StringBuffer("Property: "+id+"\n");
-		
-		for(String key : values.keySet()) 
-			out.append(key + ": " + values.get(key) + "\n");
-		
-		return out.toString();
 	}
 }

@@ -6,34 +6,34 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class ResourceManager {
 	
 	static {
 		try {
 			ResourceManager.registerSpritesheet("main");
-		} catch (IOException | DocumentException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void registerSpritesheet(String filename) throws IOException, DocumentException {
+	public static void registerSpritesheet(String filename) throws IOException {
 		BufferedImage sheet = ImageIO.read(getResource("sprites", filename+".png"));
 		
-		SAXReader reader = new SAXReader();
-		Document doc = reader.read(getResource("spritedata", filename+".xml"));
-		
-		Element root = doc.getRootElement();
-		for(Element spr : root.elements()) {
-			String id = spr.attributeValue("id");
-			int x = Integer.parseInt(spr.attributeValue("x"));
-			int y = Integer.parseInt(spr.attributeValue("y"));
-			int w = Integer.parseInt(spr.attributeValue("w"));
-			int h = Integer.parseInt(spr.attributeValue("h"));
+		JSONTokener tokener = new JSONTokener(ResourceManager.getResource("spritedata", filename+".json"));
+		JSONArray root = new JSONArray(tokener);
+
+		for(int i=0;i<root.length();i++) {
+			JSONObject spriteDef = root.getJSONObject(i);
+			
+			String id = spriteDef.getString("id");
+			int x = spriteDef.getInt("x");
+			int y = spriteDef.getInt("y");
+			int w = spriteDef.getInt("w");
+			int h = spriteDef.getInt("h");
 			
 			BufferedImage spriteImage = new BufferedImage(w, h, sheet.getType());
 			spriteImage.getGraphics().drawImage(sheet, -x, -y, null);

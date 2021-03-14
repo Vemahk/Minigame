@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<property id="obj_tree">
-	<z>1.0</z>
-	<collider type="box" width="0.9" height="0.9"/>
-	<sprite id="tree"/>
-</property>

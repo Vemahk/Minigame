@@ -1,7 +1,0 @@
-<sprites>
-	<sprite id="water" x="0" y="0" w="32" h="32"/>
-	<sprite id="sand" x="32" y="0" w="32" h="32"/>
-	<sprite id="grass" x="64" y="0" w="32" h="32"/>
-	<sprite id="player" x="96" y="0" w="32" h="32"/>
-	<sprite id="tree" x="128" y="0" w="32" h="32"/>
-</sprites>
