@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import me.vem.isle.client.resources.Sprite;
 import me.vem.isle.common.controller.Controller;
 import me.vem.isle.common.io.ResourceManager;
 import me.vem.isle.common.physics.Physics;
@@ -99,13 +98,6 @@ public class Property {
 			defCollider = type.generateDefaultCollider(w, h);
 		}
 		
-		//Set Sprite
-		hasSprite = def.has("sprite");
-		if(hasSprite)
-			sprite = Sprite.get(def.getString("sprite"));
-		
-		//Set ANIMATIONSSSSSSS TODO
-		
 		//Set Physics
 		hasPhysics = def.has("physics");
 		if(hasPhysics) {
@@ -159,23 +151,6 @@ public class Property {
 		if(!hasCollider()) return null;
 		return defCollider.copy(parent);
 	}
-	
-	private boolean hasSprite;
-	private Sprite sprite;
-	public boolean hasSprite() { return hasSprite; }
-	public Sprite getSprite() { return sprite; }
-	
-//	public boolean hasAnimation() { return hasValue("animation"); }
-//	public Animation getDefaultAnimation() { return Animation.getAnimation(asString("animation.default")); }
-//	public Animation[] getAnimations() {
-//		LinkedList<String> list = asList("animation");
-//		if(list==null) return null;
-//		
-//		Animation[] out = new Animation[list.size()];
-//		for(int i=0;i<out.length;i++)
-//			out[i] = Animation.getAnimation(list.get(i));
-//		return out;
-//	}
 	
 	private boolean hasPhysics;
 	private float mass;

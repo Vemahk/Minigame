@@ -97,17 +97,18 @@ public class Camera extends GameRenderer {
 		Set<GameObject> loadedObjects = Chunk.getLoadedObjects();
 		synchronized(loadedObjects) {
 			for (GameObject go : loadedObjects) {
-				if(!go.hasSprite())
+				Sprite sprite = Sprite.getByType(go.getTypeId());
+				if(sprite == null)
 					continue;
 				
 				float rx = go.getX() - rdx, ry = go.getY() - rdy,
-						wb = go.getSprite().getWidth(),
-						hb = go.getSprite().getHeight();
+						wb = sprite.getWidth(),
+						hb = sprite.getHeight();
 
 				if (rx + wb <= 0 || ry + hb <= 0 || rx - wb >= DW || ry - hb >= DH)
 					continue;
 
-				dg.drawImage(go.getSprite().getImage(), toPixels(rx - wb / 2), toPixels(ry - hb / 2), null);
+				dg.drawImage(sprite.getImage(), toPixels(rx - wb / 2), toPixels(ry - hb / 2), null);
 
 				if (debugActive && go.hasCollider()) {
 					BoxCollider bc = (BoxCollider) go.getCollider();

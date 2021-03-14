@@ -45,24 +45,40 @@ public class Sprite {
 			int w = spriteDef.getInt("w");
 			int h = spriteDef.getInt("h");
 			
+			String gameObjectType = spriteDef.optString("oid", null);
+			
 			BufferedImage spriteImage = new BufferedImage(w, h, sheet.getType());
 			spriteImage.getGraphics().drawImage(sheet, -x, -y, null);
 			
-			new Sprite(id, spriteImage);
+			new Sprite(id, spriteImage).setObjectTypeId(gameObjectType);
 		}
 	}
 	
 	private static HashMap<String, Sprite> sprites = new HashMap<>();
+	private static HashMap<Integer, Sprite> gameObjectSprites = new HashMap<>();
 	public static Sprite get(String id) { return sprites.get(id); }
+	public static Sprite getByType(int objectTypeId) { return gameObjectSprites.get(objectTypeId); }
 	
 	private final BufferedImage image;
 	private final String id;
+	
+	private int objectTypeId;
 	
 	public Sprite(String id, BufferedImage image) {
 		this.id = id;
 		this.image = image;
 		
 		sprites.put(id, this);
+		
+	}
+	
+	private Sprite setObjectTypeId(String gameObjectType) {
+		if(gameObjectType != null) {
+			this.objectTypeId = gameObjectType.hashCode();
+			gameObjectSprites.put(this.objectTypeId, this);
+		}
+		
+		return this;
 	}
 	
 	public String getId() { return id; }

@@ -4,8 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import me.vem.isle.client.resources.Sprite;
-
 import me.vem.isle.common.Game;
 import me.vem.isle.common.RIdentifiable;
 import me.vem.isle.common.controller.Controller;
@@ -34,6 +32,8 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 
 	private final int RUID;
+	private final int typeId;
+	
 	protected final Property prop;
 	
 	protected Chunk chunk;
@@ -65,6 +65,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	
 	public GameObject(World world, int hash, float x, float y, Chunk chunk) {
 		RUID = Game.requestRUID(this);
+		this.typeId = hash;
 		prop = Property.get(hash);
 		pos = new Vector(x, y);
 		
@@ -110,9 +111,6 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	public boolean isChunkLoader() { return prop.isChunkLoader(); }
 	public int chunkRadius() { return prop.getLoadRadius(); }
 	
-	public Sprite getSprite() { return prop.getSprite(); }
-	public boolean hasSprite() { return prop.getSprite() != null; }
-	
 	public boolean collidedWith(GameObject go) {
 		return collider.collidedWith(go.collider);
 	}
@@ -151,6 +149,10 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	@Override
 	public int hashCode() {
 		return RUID;
+	}
+	
+	public int getTypeId() {
+		return typeId;
 	}
 
 	@Override
