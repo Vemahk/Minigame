@@ -44,7 +44,7 @@
 					<configuration>
 						<archive>
 							<manifest>
-								<mainClass>me.vem.isle.App</mainClass>
+								<mainClass>me.vem.isle.client.Client</mainClass>
 							</manifest>
 						</archive>
 						<descriptorRefs>

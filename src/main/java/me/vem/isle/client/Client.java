@@ -1,12 +1,15 @@
 package me.vem.isle.client;
 
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import me.vem.isle.client.graphics.GameFrame;
 import me.vem.isle.client.graphics.RenderThread;
 import me.vem.isle.client.input.InputAdapter;
 import me.vem.isle.client.input.MainMenuInputAdapter;
 import me.vem.isle.client.menu.MainMenu;
+import me.vem.isle.client.resources.ResourceManager;
 import me.vem.isle.common.world.WorldThread;
 import me.vem.utils.logging.Logger;
 import me.vem.utils.logging.Version;
@@ -34,10 +37,12 @@ public class Client extends GameFrame{
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
 
-	public static void main(String... args) {
+	public static void main(String... args) throws URISyntaxException, IOException {
 		//Logger.setLogLevel(1);
 		Logger.infof("Loading Client of %s...", VERSION);
 
+		ResourceManager.registerSpritesheets();
+		
 		Client client = getInstance();
 		MainMenu menu = new MainMenu();
 		InputAdapter<MainMenu> input = new MainMenuInputAdapter(menu);
