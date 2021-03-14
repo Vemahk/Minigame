@@ -17,7 +17,7 @@ import me.vem.utils.logging.Version;
 public class Client extends GameFrame{
 	
 	private static final long serialVersionUID = -8743198429325787950L;
-	public static final Version VERSION = new Version(0, 2, 0, "Dopey Survival");
+	public static final Version VERSION = new Version(0, 2, 1, "Dopey Survival");
 	
 	private static Client instance;
 	public static Client getInstance() {

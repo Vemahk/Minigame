@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>me.vem.isle</groupId>
+	<artifactId>Dopey-Survival-Server</artifactId>
+	<version>0.2.1</version>
+	<name>Dopey Survival Server</name>
+	
+	<dependencies>
+		<!-- Be warned! Anyone trying to duplicate this project: This will not 
+			resolve. I have vemutils-0.7.jar in my local maven repository, but it is 
+			not uploaded to the Central Maven Repository, so Maven cannot fetch this 
+			dependency. The reason being so that I can export this workspace to an excecutable 
+			jar, but I cannot yet upload vemutils to the Maven Repository. You can do 
+			some tinkering to get vemutils.jar separately and add it to your project 
+			build path, but other than that, this option renders project dupilication 
+			SOL. Sorry about that. -->
+		<dependency>
+			<groupId>me.vem.utils</groupId>
+			<artifactId>vem-utils</artifactId>
+			<version>0.10</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>me.vem.isle</groupId>
+			<artifactId>Dopey-Survival-Common</artifactId>
+			<version>0.2.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>me.vem.isle.server.Server</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

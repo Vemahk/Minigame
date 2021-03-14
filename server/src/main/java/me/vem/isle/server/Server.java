@@ -8,7 +8,7 @@ import me.vem.utils.logging.Version;
 
 public class Server{
 	
-	public static final Version VERSION = new Version(0, 1, 23, "Dopey Survival");
+	public static final Version VERSION = new Version(0, 2, 1, "Dopey Survival");
 	
 	private static Server instance;
 	public static Server getInstance() {
