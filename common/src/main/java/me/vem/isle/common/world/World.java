@@ -5,12 +5,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import gustavson.simplex.SimplexNoise;
 import me.vem.isle.common.objects.GameObject;
+import me.vem.isle.common.objects.Property;
 import me.vem.utils.io.Compressable;
 import me.vem.utils.io.RollingDataSaver;
 import me.vem.utils.logging.Logger;
@@ -45,14 +50,38 @@ public class World implements Compressable{
 	private SimplexNoise noiseGen;
 	private HashMap<Point, Chunk> chunks;
 	
+	private final Map<String, Integer> propertyMappingStrInt; 
+	private String[] propertyMappingIntStr;
+	
 	public World(int seed) {
+		this(seed, true);
+	}
+	
+	public World(int seed, boolean newWorld) {
 		this.seed = seed;
 		chunks = new HashMap<>();
 		noiseGen = new SimplexNoise(300, .5, seed);
+		propertyMappingStrInt = new HashMap<>();
+		
+		if(newWorld) {
+			//Dynamic Property ID Assignment
+			List<String> iPropertyMapping = new ArrayList<>();
+			
+			int i = 0;
+			Iterator<String> iter = Property.propertyIterator();
+			
+			while(iter.hasNext()) {
+				String propId = iter.next();
+				iPropertyMapping.add(propId);
+				propertyMappingStrInt.put(propId, i++);
+			}
+			
+			propertyMappingIntStr = iPropertyMapping.toArray(new String[0]);
+		}
 	}
 	
 	private World(ByteBuffer buf) {
-		this(buf.getInt());
+		this(buf.getInt(), false);
 		
 		int cSize = buf.getInt();
 		for(int i=0;i<cSize;i++) {
@@ -60,9 +89,38 @@ public class World implements Compressable{
 			chunks.put(new Point(c.cx(), c.cy()), c);
 		}
 		
+		//Dynamic Property ID Lookup Load
+		propertyMappingIntStr = new String[buf.getInt()];
+		for(int i=0;i<propertyMappingIntStr.length;i++) {
+			int propIdLength = buf.getInt();
+			StringBuilder sb = new StringBuilder(propIdLength);
+			for(int t =0;t<propIdLength;t++)
+				sb.append(buf.getChar());
+			
+			String propId = sb.toString();
+			propertyMappingIntStr[i] = propId;
+			propertyMappingStrInt.put(propId, i);
+		}
+		
 		int goSize = buf.getInt();
 		for(int i=0;i<goSize;i++)
 			new GameObject(this, buf);
+	}
+	
+	public String translatePropertyId(int i) {
+		if(i < 0) return null;
+		if(i >= propertyMappingIntStr.length) return null;
+		
+		return propertyMappingIntStr[i];
+	}
+	
+	public int translatePropertyId(String propId) {
+		Integer i = propertyMappingStrInt.get(propId);
+		
+		if(i == null)
+			return -1;
+		
+		return i;
 	}
 	
 	public int getSeed() { return seed; }
@@ -110,6 +168,9 @@ public class World implements Compressable{
 	public synchronized RollingDataSaver writeTo(RollingDataSaver saver) {
 		saver.putInt(getSeed());
 		
+		//TODO Save property mappings
+		
+		
 		LinkedList<GameObject> kgo = new LinkedList<>();
 		
 		saver.putInt(chunks.size());
@@ -118,6 +179,17 @@ public class World implements Compressable{
 				c.writeTo(saver);
 				c.addObjectsTo(kgo);
 			}
+		
+		int numProperties = propertyMappingIntStr.length;
+		saver.putInt(numProperties);
+		for(int i=0;i<numProperties;i++) {
+			String propId = propertyMappingIntStr[i];
+			int length = propId.length();
+			
+			saver.putInt(length);
+			for(int t=0;t<length;t++)
+				saver.putChar(propId.charAt(t));
+		}
 		
 		saver.putInt(kgo.size());
 		for(GameObject go : kgo)

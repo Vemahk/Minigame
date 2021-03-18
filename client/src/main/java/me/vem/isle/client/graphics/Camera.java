@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 import me.vem.isle.client.resources.Animation;
@@ -27,17 +29,19 @@ public class Camera extends GameRenderer {
 	private float tarScale;
 	private float scale;
 
-	public Camera(World world) {
+	public Camera(World world) throws URISyntaxException, IOException {
 		this(world, 2);
 	}
 	
-	private Camera(World world, float scale) {
+	private Camera(World world, float scale) throws URISyntaxException, IOException {
 		this(world, Toolkit.getDefaultToolkit().getScreenSize(), scale);
 	}
 	
-	private Camera(World world, Dimension dim, float scale) {
+	private Camera(World world, Dimension dim, float scale) throws URISyntaxException, IOException {
 		super(dim);
 
+		Sprite.registerSpritesheets();
+		
 		this.tarScale = scale;
 		this.scale = scale;
 		this.anchor = new CameraAnchor(world, 0, 0);

@@ -8,6 +8,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
@@ -141,14 +142,20 @@ public class MainMenu extends GameRenderer{
 		Client.getInstance().render();
 	}
 	
-	private boolean switchToWorld(World world) {
+	private boolean switchToWorld(World world)  {
 		if(world == null)
 			return false;
 
 		WorldThread.begin(world);
 		
 		GameObject player = world.requestPlayer();
-		Camera camera = new Camera(world);
+		Camera camera;
+		try {
+			camera = new Camera(world);
+		} catch (URISyntaxException | IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 		camera.getAnchor().linkTo(player);
 		
 		CameraInputAdapter input = new CameraInputAdapter(camera);

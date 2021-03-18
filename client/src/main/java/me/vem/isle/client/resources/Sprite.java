@@ -19,12 +19,19 @@ import me.vem.isle.common.io.ResourceManager;
 
 public class Sprite {
 
+	private static boolean hasLoadedSprites = false;
+	
 	public static void registerSpritesheets() throws URISyntaxException, IOException {
+		if(hasLoadedSprites)
+			return;
+		
 		Path[] resources = ResourceManager.getResourceFilePaths("/spritedata");
 		
 		for(Path resourcePath : resources) {
 			registerSpritesheet(resourcePath);
 		}
+		
+		hasLoadedSprites = true;
 	}
 	
 	public static void registerSpritesheet(Path resourcePath) throws IOException {
@@ -55,15 +62,13 @@ public class Sprite {
 	}
 	
 	private static HashMap<String, Sprite> sprites = new HashMap<>();
-	private static HashMap<Integer, Sprite> gameObjectSprites = new HashMap<>();
+	private static HashMap<String, Sprite> gameObjectSprites = new HashMap<>();
 	public static Sprite get(String id) { return sprites.get(id); }
-	public static Sprite getByType(int objectTypeId) { return gameObjectSprites.get(objectTypeId); }
+	public static Sprite getByType(String objectTypeId) { return gameObjectSprites.get(objectTypeId); }
 	
 	private final BufferedImage image;
 	private final String id;
-	
-	private int objectTypeId;
-	
+
 	public Sprite(String id, BufferedImage image) {
 		this.id = id;
 		this.image = image;
@@ -73,10 +78,8 @@ public class Sprite {
 	}
 	
 	private Sprite setObjectTypeId(String gameObjectType) {
-		if(gameObjectType != null) {
-			this.objectTypeId = gameObjectType.hashCode();
-			gameObjectSprites.put(this.objectTypeId, this);
-		}
+		if(gameObjectType != null)
+			gameObjectSprites.put(gameObjectType, this);
 		
 		return this;
 	}

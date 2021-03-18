@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,8 +19,12 @@ import me.vem.utils.logging.Logger;
 
 public class Property {
 	
-	private static HashMap<Integer, Property> properties = new HashMap<>();
-	public static Property get(int hash) { return properties.get(hash); }
+	private static HashMap<String, Property> properties = new HashMap<>();
+	public static Property get(String id) { return properties.get(id); }
+	
+	public static Iterator<String> propertyIterator(){
+		return properties.keySet().iterator();
+	}
 	
 	public static boolean register() {
 		try {
@@ -54,7 +59,7 @@ public class Property {
 		
 		String id = root.getString("id");
 		
-		properties.put(id.hashCode(), new Property(id, root));
+		properties.put(id, new Property(id, root));
 		//Logger.info(prop);
 		
 		return true;
@@ -62,7 +67,6 @@ public class Property {
 	
 	private Property(String id, JSONObject def) {
 		this.id = id;
-		this.hid = id.hashCode();
 		
 		//Set z
 		if(def.has("z"))
@@ -128,11 +132,8 @@ public class Property {
 	}
 	
 	private String id;
-	private int hid; // hid >> Hash ID;
 	
 	public String getId() { return id; }
-	
-	@Override public int hashCode() { return hid; }
 	
 	private float z;
 	public float getZ() { return z; }

@@ -9,7 +9,6 @@ import me.vem.isle.client.graphics.RenderThread;
 import me.vem.isle.client.input.InputAdapter;
 import me.vem.isle.client.input.MainMenuInputAdapter;
 import me.vem.isle.client.menu.MainMenu;
-import me.vem.isle.client.resources.Sprite;
 import me.vem.isle.common.world.WorldThread;
 import me.vem.utils.logging.Logger;
 import me.vem.utils.logging.Version;
@@ -40,10 +39,9 @@ public class Client extends GameFrame{
 	public static void main(String... args) throws URISyntaxException, IOException {
 		//Logger.setLogLevel(1);
 		Logger.infof("Loading Client of %s...", VERSION);
-
-		Sprite.registerSpritesheets();
 		
 		Client client = getInstance();
+		
 		MainMenu menu = new MainMenu();
 		InputAdapter<MainMenu> input = new MainMenuInputAdapter(menu);
 		client.setContext(menu, input);

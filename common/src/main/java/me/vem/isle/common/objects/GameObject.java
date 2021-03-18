@@ -32,7 +32,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	}
 
 	private final int RUID;
-	private final int typeId;
+	private final String typeId;
 	
 	protected final Property prop;
 	
@@ -44,40 +44,37 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	protected Controller controller;
 	
 	public GameObject(World world, ByteBuffer buf) {
-		this(world, buf.getInt(), buf.getFloat(), buf.getFloat());
+		this(world, world.translatePropertyId(buf.getInt()), buf.getFloat(), buf.getFloat());
 	}
 	
 	public GameObject(World world, String id, int x, int y) {
 		this(world, id, x+.5f, y+.5f);
 	}
 	
+	public GameObject(World world, String id, int x, int y, Chunk c) {
+		this(world, id, x+.5f, y+.5f, c);
+	}
+	
 	public GameObject(World world, String id, float x, float y) {
-		this(world, id.hashCode(), x, y);
+		this(world, id, x, y, null);
 	}
 	
-	public GameObject(World world, int hash, float x, float y) {
-		this(world, hash, x, y, null);
-	}
-	
-	public GameObject(World world, String s, float x, float y, Chunk c) {
-		this(world, s.hashCode(), x, y, c);
-	}
-	
-	public GameObject(World world, int hash, float x, float y, Chunk chunk) {
+	public GameObject(World world, String id, float x, float y, Chunk c) {
 		RUID = Game.requestRUID(this);
-		this.typeId = hash;
-		prop = Property.get(hash);
+		this.typeId = id;
+		prop = Property.get(id);
 		pos = new Vector(x, y);
+		this.chunk = c;
 		
 		physics = prop.buildPhysics(this);
 		collider = prop.buildCollider(this);
 		controller = prop.buildController(this);
 		
-		if(chunk == null)
-			chunk = world.getChunkFor(pos);
+		if(this.chunk == null)
+			this.chunk = world.getChunkFor(pos);
 		
 		//Chunk handling
-		chunk.add(this);
+		this.chunk.add(this);
 		
 		if(isChunkLoader())
 			chunk.load(chunkRadius());
@@ -140,7 +137,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 	
 	@Override
 	public RollingDataSaver writeTo(RollingDataSaver saver) {
-		saver.putInt(prop.hashCode());
+		saver.putInt(this.getWorld().translatePropertyId(this.typeId));
 		pos.writeTo(saver);
 		
 		return saver;
@@ -151,7 +148,7 @@ public class GameObject implements Comparable<GameObject>, Compressable, RIdenti
 		return RUID;
 	}
 	
-	public int getTypeId() {
+	public String getTypeId() {
 		return typeId;
 	}
 

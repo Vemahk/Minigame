@@ -1,0 +1,18 @@
+{
+	"id":"ent_player",
+	"loader":{
+		"radius":1
+	},
+	"collider":{
+		"type":"box",
+		"width":1.0,
+		"height":1.0
+	},
+	"physics":{
+		"mass":2.5,
+		"speed":3.0
+	},
+	"controller":{
+		"type":"plr_controller"
+	}
+}

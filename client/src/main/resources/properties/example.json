@@ -1,0 +1,28 @@
+{
+	"id":"obj_test",
+	"z":1.0,
+	"loader":{
+		"radius":1
+	},
+	"collider":{
+		"type":"box",
+		"width":0.9,
+		"height":0.9
+	},
+	"sprite":"spriteid",
+	"animation":{
+		"default":"testanim",
+		"anims":[
+			"other#1",
+			"other#2",
+			"other#3"			
+		]
+	},
+	"physics":{
+		"mass":1.0,
+		"speed":1.0
+	},
+	"controller":{
+		"type":"controller_type"
+	}
+}

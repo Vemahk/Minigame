@@ -88,7 +88,7 @@ public class Chunk implements Compressable, RIdentifiable{
 				if(d >= .5) land[x][y]++;
 				if(d >= .52) land[x][y]++;
 				if(d >= .55 && rand.nextDouble() < .1)
-                	new GameObject(world, "obj_tree", sx, sy, this); 	
+                	new GameObject(world, "obj_tree", sx, sy, this);
     		}
 		
 		Logger.debugf(1, "Chunk generated at %d, %d.", cx, cy);

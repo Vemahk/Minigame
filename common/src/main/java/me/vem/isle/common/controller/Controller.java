@@ -11,13 +11,13 @@ import me.vem.utils.logging.Logger;
 
 public abstract class Controller implements RIdentifiable{
 
-	private static HashMap<Integer, Class<? extends Controller>> reg = new HashMap<>();
+	private static HashMap<String, Class<? extends Controller>> reg = new HashMap<>();
 	public static void register(String type, Class<? extends Controller> cls) {
-		reg.put(type.hashCode(), cls);
+		reg.put(type, cls);
 	}
 	
 	public static Controller newInstance(String type, GameObject parent) {
-		Class<? extends Controller> cls = reg.get(type.hashCode());
+		Class<? extends Controller> cls = reg.get(type);
 		
 		try {
 			return cls.getDeclaredConstructor(GameObject.class).newInstance(parent);
@@ -31,7 +31,7 @@ public abstract class Controller implements RIdentifiable{
 	private final int RUID;
 	protected GameObject parent;
 	
-	protected Map<Integer, ControllerAction> actions; 
+	protected Map<Integer, ControllerAction> actions;
 	
 	protected Controller(GameObject parent) {
 		this.RUID = Game.requestRUID(this);
