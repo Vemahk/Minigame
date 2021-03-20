@@ -22,4 +22,9 @@ public enum Land{
 	public boolean isWater() { return this==WATER; }
 	public boolean isSand() { return this==SAND; }
 	public boolean isGrass() { return this==GRASS; }
+	
+	private static final Land[] vals = Land.values();
+	public static Land[] valuesStatic() {
+		return vals;
+	}
 }

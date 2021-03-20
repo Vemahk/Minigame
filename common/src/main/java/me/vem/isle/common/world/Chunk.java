@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import gustavson.simplex.SimplexNoise;
 import me.vem.isle.common.Game;
 import me.vem.isle.common.RIdentifiable;
 import me.vem.isle.common.objects.GameObject;
@@ -60,17 +59,11 @@ public class Chunk implements Compressable, RIdentifiable{
 	
 	public Chunk(World world, int cx, int cy) {
 		RUID = Game.requestRUID(this);
-		
+		land = new byte[16][16];
+		objs = Collections.synchronizedSortedSet(new TreeSet<>());
 		this.world = world;
 		this.cx = cx;
 		this.cy = cy;
-		
-		land = new byte[16][16];
-		objs = Collections.synchronizedSortedSet(new TreeSet<>());
-	}
-	
-	public Chunk(World world, int cx, int cy, SimplexNoise sn) {
-		this(world, cx, cy);
 		
 		int seed = world.getSeed();
 		seed ^= ((cx & 0xFFFF) ^ (cx >>> 16)) << 16;
@@ -83,11 +76,9 @@ public class Chunk implements Compressable, RIdentifiable{
     			int sx = (cx << 4) + x;
     			int sy = (cy << 4) + y;
     			
-                double d = sn.getNoise(sx, sy);
-
-				if(d >= .5) land[x][y]++;
-				if(d >= .52) land[x][y]++;
-				if(d >= .55 && rand.nextDouble() < .1)
+    			double simplex = world.getSimplexValue(sx, sy);
+    			land[x][y] = world.getLandOffset(simplex);
+				if(simplex >= .6 && rand.nextDouble() < .1)
                 	new GameObject(world, "obj_tree", sx, sy, this);
     		}
 		
@@ -157,7 +148,7 @@ public class Chunk implements Compressable, RIdentifiable{
 	public boolean isLoaded() { return loaders > 0; }
 	
 	public Land getLand(int x, int y) {
-		return Land.values()[land[x][y]];
+		return Land.valuesStatic()[land[x][y]];
 	}
 	
 	@Override

@@ -125,24 +125,51 @@ public class World implements Compressable{
 	
 	public int getSeed() { return seed; }
 	
+	public double getSimplexValue(int x, int y) {
+		return noiseGen.getNoise(x, y);
+	}
+	
+	public byte getLandOffset(int x, int y) {
+		return getLandOffset(getSimplexValue(x, y));
+	}
+	
+	public byte getLandOffset(double simplex) {
+		byte result = 0;
+		
+		if(simplex >= .5) result++;
+		if(simplex >= .52) result++;
+		
+		return result;
+	}
+	
 	/**
 	 * @param x
 	 * @param y
 	 * @return
 	 */
 	public Land getLand(int x, int y) {
-		return getChunk(x>>4, y>>4).getLand(x&15, y&15);
+		Chunk c = getChunkUnsafe(x, y);
+		
+		if(c == null) {
+			return Land.valuesStatic()[getLandOffset(x,y)];
+		} else {
+			return c.getLand(x&15, y&15);
+		}
 	}
 	
 	public Land getLand(Vector pos) {
 		return getLand(pos.floorX(), pos.floorY());
 	}
 	
+	public Chunk getChunkUnsafe(int cx, int cy) {
+		return chunks.get(new Point(cx, cy));
+	}
+	
 	public Chunk getChunk(int cx, int cy) {
-		Chunk c = chunks.get(new Point(cx, cy));
+		Chunk c = getChunkUnsafe(cx, cy);
 		
 		if(c == null)
-			chunks.put(new Point(cx, cy), c = new Chunk(this, cx, cy, noiseGen));
+			chunks.put(new Point(cx, cy), c = new Chunk(this, cx, cy));
 		
 		return c;
 	}
